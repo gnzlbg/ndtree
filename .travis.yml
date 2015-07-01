@@ -44,7 +44,7 @@ matrix:
             - valgrind
           sources:
             - ubuntu-toolchain-r-test
-            - llvm-toolchain-precise-3.7
+            - llvm-toolchain-precise # latest
 
     # clang 3.7 with libc++, release build, ASan
 #    - env: COMPILER=clang++-3.7 BUILD_TYPE=Release ASan=true
