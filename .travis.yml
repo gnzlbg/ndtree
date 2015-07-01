@@ -20,17 +20,6 @@ sudo: false
 #   - Runs the benchmarks
 #   - Generates documentation
 #   - Generates website
-env:
-  global:
-    - ASan=false
-    - Valgrind=false
-    - Site=false
-
-    # GitHub token for pushing the documentation, logging in with the
-    # Travis command line utility and so on. The token is stored in the
-    # ${GITHUB_TOKEN} environment variable.
-    - secure: ""
-
 matrix:
   include:
    # The first case in the matrix for a given compiler defines how to install
@@ -71,6 +60,11 @@ matrix:
 
     # Site
 #    - env: COMPILER=clang++-3.7 BUILD_TYPE=Release Site=true
+        # GitHub token for pushing the documentation, logging in with the
+        # Travis command line utility and so on. The token is stored in the
+        # ${GITHUB_TOKEN} environment variable.
+#        - secure: ""
+
 #      addons: *clang37
 
 # TODO: GCC 5 compiler
@@ -103,7 +97,7 @@ install:
   - travis_retry wget --quiet -O - ${LLVM_URL} | tar --strip-components=1 ${TAR_FMT} -C llvm
   - travis_retry wget --quiet -O - ${LIBCXX_URL} | tar --strip-components=1 ${TAR_FMT} -C llvm/projects/libcxx
   - travis_retry wget --quiet -O - ${LIBCXXABI_URL} | tar --strip-components=1 ${TAR_FMT} -C llvm/projects/libcxxabi
-  - (cd llvm/build && cmake .. -DCMAKE_CXX_COMPILER=clang++ && make cxx -j2)
+  - (cd llvm/build && cmake .. -DCMAKE_CXX_COMPILER=${COMPILER} && make cxx -j2)
 
   ############################################################################
   # Install a recent Doxygen
@@ -191,3 +185,6 @@ script:
 #    urls: https://webhooks.gitter.im/e/ce1e3a2036d94b4a644f
 #    on_success: change
 #    on_failure: always
+
+notifications:
+  email: false
