@@ -3,7 +3,7 @@
 ///
 /// Detailed documentation of the file goes here
 
-namespace project_name {
+namespace htree {
 
 inline namespace v1 {
 namespace component {
@@ -21,4 +21,4 @@ int bar(B b) { return b.b + 1; }
 
 }  // namespace v1
   
-}  // namespace project_name
+}  // namespace htree

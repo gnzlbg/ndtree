@@ -176,9 +176,9 @@ before_script:
   # something like that, it's either a compiler bug or an error that will show
   # up regardless of the Boost version. Hence, we use the memory checker only
   # once for each compiler.
-  - cmake .. -DCMAKE_CXX_COMPILER=${COMPILER} -DCMAKE_BUILD_TYPE=${BUILD_TYPE} -DPROJECT_NAME_ENABLE_WERROR=ON
-  - if [[ "${Valgrind}" == "true" ]]; then cmake .. -DPROJECT_NAME_ENABLE_VALGRIND=ON; fi
-  - if [[ "${ASan}" == "true" ]]; then cmake .. -DPROJECT_NAME_ENABLE_ASAN=ON; fi
+  - cmake .. -DCMAKE_CXX_COMPILER=${COMPILER} -DCMAKE_BUILD_TYPE=${BUILD_TYPE} -DHTREE_ENABLE_WERROR=ON
+  - if [[ "${Valgrind}" == "true" ]]; then cmake .. -DHTREE_ENABLE_VALGRIND=ON; fi
+  - if [[ "${ASan}" == "true" ]]; then cmake .. -DHTREE_ENABLE_ASAN=ON; fi
 
 script:
   ############################################################################
@@ -189,14 +189,12 @@ script:
   ############################################################################
   # - Compile with code coverage
   ############################################################################
-  - if [[ "${Coverage}" == "true" ]]; then cmake .. -DPROJECT_NAME_ENABLE_COVERAGE=ON; fi
+  - if [[ "${Coverage}" == "true" ]]; then cmake .. -DHTREE_ENABLE_COVERAGE=ON; fi
 
   ############################################################################
   # Build and run the unit tests and examples.
   ############################################################################
-  - make tests -k -j2
-  - make examples -k -j2 &>/dev/null
-  - if [[ "${Valgrind}" != "true" ]]; then make check -k; fi
+  - make check -k -j 2
   - if [[ "${Valgrind}" == "true" ]]; then ctest -VV -D ExperimentalMemCheck; fi
 
 after_success:
@@ -207,7 +205,7 @@ after_success:
   # - strip test/ and example/ subdirectories from coverage report
   # - upload report to coveralls
   ############################################################################
-  - if [[ "${Coverage}" == "true" ]]; then export NAME=cpp_skeleton; fi
+  - if [[ "${Coverage}" == "true" ]]; then export NAME=htree; fi
   - if [[ "${Coverage}" == "true" ]]; then sudo apt-get install -qq python-yaml lcov; fi
   - if [[ "${Coverage}" == "true" ]]; then gem install coveralls-lcov; fi
   - if [[ "${Coverage}" == "true" ]]; then lcov --directory ./ --base-directory ./ --capture --output-file coverage.info; fi
@@ -218,7 +216,6 @@ after_success:
   # Update the documentation
   ############################################################################
   - if [[ "${Site}" == "true" && "${TRAVIS_PULL_REQUEST}" == "false" && "${TRAVIS_BRANCH}" == "master" ]]; then make gh-pages.push; fi # &>/dev/null; fi
-
 
 #notifications:
 #  webhooks:

@@ -12,14 +12,14 @@ add_custom_target(examples
 # are useful for illustration, even if the implementation is not actually
 # presented. We don't want to generate warnings for that or need to comment
 # out all unused parameter names.
-project_name_append_flag(PROJECT_NAME_HAS_WNO_UNUSED_PARAMETER -Wno-unused-parameter)
+htree_append_flag(HTREE_HAS_WNO_UNUSED_PARAMETER -Wno-unused-parameter)
 
-#   project_name_add_example(<name> ...)
+#   htree_add_example(<name> ...)
 #
-# Equivalent to `project_name_add_test`, except the created test is also added
+# Equivalent to `htree_add_test`, except the created test is also added
 # as a dependency of the `examples` target.
-function(project_name_add_example name)
-    project_name_add_test(${ARGV})
+function(htree_add_example name)
+    htree_add_test(${name} ${ARGN})
     add_dependencies(examples ${name})
 endfunction()
 
@@ -27,18 +27,18 @@ endfunction()
 #
 # Examples that are not available due to caveats are removed
 # from this list below.
-file(GLOB_RECURSE PROJECT_NAME_EXAMPLE_SOURCES "${project_name_SOURCE_DIR}/example/*.cpp")
+file(GLOB_RECURSE HTREE_EXAMPLE_SOURCES "${htree_SOURCE_DIR}/example/*.cpp")
 
 ##############################################################################
 # Include directories
 ##############################################################################
-include_directories(${project_name_SOURCE_DIR}/include)
+include_directories(${htree_SOURCE_DIR}/include)
 
 ##############################################################################
 # Add all the examples
 ##############################################################################
-foreach(_file IN LISTS PROJECT_NAME_EXAMPLE_SOURCES)
-    project_name_target_name_for(_target "${_file}")
+foreach(_file IN LISTS HTREE_EXAMPLE_SOURCES)
+    htree_target_name_for(_target "${_file}")
     add_executable(${_target} EXCLUDE_FROM_ALL "${_file}")
-    project_name_add_example(${_target} ${CMAKE_CURRENT_BINARY_DIR}/${_target})
+    htree_add_example(${_target} ${CMAKE_CURRENT_BINARY_DIR}/${_target})
 endforeach()

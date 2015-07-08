@@ -4,7 +4,7 @@
 /// Project namespace
 ///
 /// All the code is in this namespace
-namespace project_name {
+namespace htree {
 
 /// Version 1 of the project
 ///
@@ -23,4 +23,4 @@ struct A {
 int foo(A a) { return a.a + 1; }
 
 }  // namespace v1
-}  // namespace project_name
+}  // namespace htree

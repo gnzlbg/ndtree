@@ -1,4 +1,5 @@
 Copyright 2013-2015 Louis Dionne
+Copyright 2015 Gonzalo Brito Gadeschi
 
 Boost Software License - Version 1.0 - August 17th, 2003
 
