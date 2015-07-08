@@ -192,6 +192,7 @@ endif()
 
 # Packages
 htree_pkg(cppformat "-DFMT_HEADER_ONLY" "")
+htree_pkg(range-v3 "-DRANGES_SUPPRESS_IOTA_WARNING" "")
 
 ##############################################################################
 # Setup the URL to the official repository on GitHub.
