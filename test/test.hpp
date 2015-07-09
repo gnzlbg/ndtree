@@ -6,7 +6,8 @@
 #include <cstdlib>
 #include <utility>
 #include <iostream>
-#include <format.h>
+#include <htree/utility/fmt.hpp>
+#include <htree/utility/ranges.hpp>
 
 /// Unit-testing utilities
 namespace test {
@@ -49,10 +50,11 @@ template <class T> struct R {
   bool dismissed_ = false;
 
   template <class U> void oops(U const& u) const {
-    fmt::print("> ERROR: CHECK failed '{}'\n > \t {} ({})\n", expr_, filename_,
-               lineno_);
+    ::htree::fmt::print(stderr, "> ERROR: CHECK failed '{}'\n > \t {} ({})\n",
+                        expr_, filename_, lineno_);
     if (dismissed_)
-      fmt::print("> \tEXPECTED: {}\n> \tACTUAL: {} \n", stream(u), stream(t_));
+      ::htree::fmt::print(stderr, "> \tEXPECTED: {}\n> \tACTUAL: {} \n",
+                          stream(u), stream(t_));
     ++failures();
   }
   void dismiss() { dismissed_ = true; }
@@ -133,5 +135,28 @@ inline int result() { return detail::failures() ? EXIT_FAILURE : EXIT_SUCCESS; }
                     " doesn't throw an exception of type: " #ExceptionType \
                     ".");                                                  \
   } while (false)
+
+template <typename Val, typename Rng>
+void check_equal(Rng&& actual, std::initializer_list<Val> expected) {
+  auto begin0 = ranges::begin(actual);
+  auto end0 = ranges::end(actual);
+  auto begin1 = ranges::begin(expected), end1 = ranges::end(expected);
+  for (; begin0 != end0 && begin1 != end1; ++begin0, ++begin1)
+    CHECK(*begin0 == *begin1);
+  CHECK(begin0 == end0);
+  CHECK(begin1 == end1);
+}
+
+template <typename Rng, typename Rng2>
+void check_equal(Rng&& actual, Rng2&& expected) {
+  auto begin0 = ranges::begin(actual);
+  auto end0 = ranges::end(actual);
+  auto begin1 = ranges::begin(expected);
+  auto end1 = ranges::end(expected);
+  for (; begin0 != end0 && begin1 != end1; ++begin0, ++begin1)
+    CHECK(*begin0 == *begin1);
+  CHECK(begin0 == end0);
+  CHECK(begin1 == end1);
+}
 
 }  // namespace test

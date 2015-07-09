@@ -1,6 +1,6 @@
 #pragma once
 /// \file at.hpp HTREE_AT macro
-#include <format.h>
+#include <htree/utility/fmt.hpp>
 
 namespace htree {
 
@@ -23,8 +23,8 @@ struct source_location {
 
 /// Formats a source code location
 #define HTREE_FMT_AT(AT)                                             \
-  fmt::format("  at function: {}\n  at file: {}\n  at line: {}\n\n", \
+  ::htree::fmt::format("  at function: {}\n  at file: {}\n  at line: {}\n\n", \
               AT.function_name, AT.file_name, AT.line_number)
 
 /// Formats a source code location
-#define HTREE_PRINT_AT(AT) fmt::print(HTREE_FMT_AT(AT))
+#define HTREE_PRINT_AT(AT) ::htree::fmt::print(HTREE_FMT_AT(AT))

@@ -268,8 +268,8 @@ add_subdirectory(test)
 # Setup the `check` target to build and then run all the tests and examples.
 ##############################################################################
 add_custom_target(check ALL
-    COMMAND ${CMAKE_CTEST_COMMAND} --VV #--output-on-failure
-    WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
-    DEPENDS tests examples
-    COMMENT "Build and then run all the tests and examples.")
+  COMMAND ${CMAKE_CTEST_COMMAND} --output-on-failure -R "test.+"
+  WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+  DEPENDS tests examples
+  COMMENT "Build and then run all the tests and examples.")
 

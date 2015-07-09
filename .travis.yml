@@ -176,7 +176,7 @@ before_script:
   # something like that, it's either a compiler bug or an error that will show
   # up regardless of the Boost version. Hence, we use the memory checker only
   # once for each compiler.
-  - cmake .. -DCMAKE_CXX_COMPILER=${COMPILER} -DCMAKE_BUILD_TYPE=${BUILD_TYPE} -DHTREE_ENABLE_WERROR=ON
+  - cmake .. -DCMAKE_CXX_COMPILER=${COMPILER} -DCMAKE_BUILD_TYPE=${BUILD_TYPE}
   - if [[ "${Valgrind}" == "true" ]]; then cmake .. -DHTREE_ENABLE_VALGRIND=ON; fi
   - if [[ "${ASan}" == "true" ]]; then cmake .. -DHTREE_ENABLE_ASAN=ON; fi
 

@@ -1,4 +1,4 @@
-#include <htree/test_header.hpp>
+#include <htree/geohash.hpp>
 #include "test.hpp"
 
 using namespace htree;
