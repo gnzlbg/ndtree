@@ -59,6 +59,8 @@ matrix:
     - env: COMPILER=clang++-3.7 BUILD_TYPE=Release
       addons: *clang37
 
+matrix:
+  allow_failures:
     # GCC 5, debug build
     - env: COMPILER=g++-5 BUILD_TYPE=Debug
       addons: &gcc5

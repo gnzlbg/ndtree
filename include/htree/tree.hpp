@@ -158,7 +158,8 @@ template <int nd> struct tree {
   /// Nodes in sibling group \p s
   static constexpr auto nodes(siblings_idx s) noexcept {
     const auto fn = first_node(s);
-    return node_idx::rng(*fn, *fn + no_children());
+    return !is_root(s) ? node_idx::rng(*fn, *fn + no_children())
+                       : node_idx::rng(0_n, 1_n);
   }
 
  public:
@@ -333,6 +334,50 @@ template <int nd> struct tree {
            and all_of(first_children_, [](node_idx i) { return !i; });
   }
 
+  /// Swaps the memory location of the sibling groups \p a and \p b
+  void swap(sibligs_idx a, siblings_idx b) noexcept {
+    // 0) Break early: both not in use -> nothing to do
+    if (is_free(sgL) && is_free(sgR)) { return; }
+
+    /// 1) swap siblings -> children edges, and children -> sibling edges:
+    auto update_cg_parent = [&](siblings_idx s) {
+      const auto child_cg = children_group(s);
+      if (child_cg) { set_parent(child_cg, s); }
+    };
+    for (auto&& n : view::zip(nodes(sgL), nodes(sgR))) {
+      using std::swap;
+      swap(first_children_[*get<0>(n)], first_children_[*get<1>(n)]);
+      update_cg_parent(get<0>(n));
+      update_cg_parent(get<1>(n));
+    };
+
+    /// 2) swap parent -> sibling edges, and sibling -> parent edges:
+    auto update_parent_sibling_e = [&](auto parent, auto sibling_g) {
+      if (parent) {
+        set_first_child(parent, sibling_g);
+        set_parent(sibling_g, parent);
+      } else {
+        set_parent(sibling_g, node_idx{});
+      }
+    };
+    {
+      const auto pL = parent(sgL);
+      const auto pR = parent(sgR);
+      update_parent_sibling_e(pL, sgR);
+      update_parent_sibling_e(pR, sgL);
+    }
+
+    /// 3) update the first free sibling group flag:
+    ///    - if one of the nodes is inactive:
+    if ((is_free(sgL) || is_free(sgR)) &&
+        /// - if the flag is between the range:
+        (std::min(sgL, sgR) <= first_free_sibling_group()
+         && first_free_sibling_group() <= std::max(sgL, sgR))) {
+      first_free_sibling_group_()
+       = first_free_sibling_group(std::min(sgL, sgR));
+    }
+  }
+
   ///@}  // Memory management
 
  public:
@@ -344,6 +389,31 @@ template <int nd> struct tree {
     HTREE_ASSERT(is_reseted(), "tree is not reseted");
     initialize_root_node();
   }
+
+  /// \name Spatial algorithms
+  ///@{
+
+  /// Sorts the tree in depth-first order, with the siblings of each group
+  /// sorted in Morton Z-Curve order
+  ///
+  /// Complexity O(N)
+  ///
+  /// \post is_compact() && is_sorted()
+  sibling_idx sort(siblings_idx s = 0_sg,
+                   siblings_idx should_sg = 0_sg) noexcept {
+    for (auto n : nodes(s)) {
+      if (is_leaf(n)) { continue; }
+      ++should_sg;
+
+      auto c_sg = children_group(n);
+      if (c_sg != should_sg) { swap(c_sg, should); }
+
+      should_sg = sort(c_sg, should_sg);
+    }
+    return should_sg;
+  }
+
+  ///@}
 };
 
 }  // namespace htree

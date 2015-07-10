@@ -1,5 +1,8 @@
 #pragma once
 /// \file tagged_sentinel_optional.hpp
+///
+/// TODO: relax RandomIncrementable concepts
+///
 #include <limits>
 #include <string>
 #include <htree/utility/ranges.hpp>
@@ -73,6 +76,26 @@ struct tagged_sentinel_optional {
     os << *a;
     return os;
   };
+
+  CONCEPT_REQUIRES(RandomAccessIncrementable<T>())
+  this_t& operator++() noexcept {
+    ++(*this);
+    return (*this);
+  }
+
+  CONCEPT_REQUIRES(RandomAccessIncrementable<T>())
+  this_t operator++(int) noexcept {
+    this_t tmp(*this);
+    ++(*this);
+    return tmp;
+  }
+
+
+
+  CONCEPT_REQUIRES(RandomAccessIncrementable<T>())
+  friend this_t operator+(this_t const& other) noexcept {
+    return this_t{(*this) + (*other)};
+  }
 };
 
 }  // namespace htree
