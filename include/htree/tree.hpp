@@ -77,7 +77,7 @@ template <int nd> struct tree {
     return parents_[*s];
   }
 
-  /// Mutate the parent node of the sibling group \p to \p value
+  /// Mutate the parent node of the sibling group \p s to \p value
   ///
   /// \warning not thread-safe
   void set_parent(siblings_idx s, node_idx value) noexcept {
@@ -89,7 +89,7 @@ template <int nd> struct tree {
   }
 
  public:
-  /// Parent node of node \p
+  /// Parent node of node \p n
   node_idx parent(node_idx n) const noexcept {
     return parent(sibling_group(n));
   }
@@ -108,7 +108,7 @@ template <int nd> struct tree {
     return first_children_[*n];
   }
 
-  /// Mutate the value of the first child of node \p to value
+  /// Mutate the value of the first child of node \p n to \p value
   ///
   /// \warning not thread-safe
   void set_first_child(node_idx n, node_idx value) noexcept {
@@ -225,7 +225,7 @@ template <int nd> struct tree {
     return !parent(s);
   }
 
-  /// Is a node part of a free sibling group?
+  /// Is node \p n part of a free sibling group?
   bool is_free(node_idx n) const noexcept { return is_free(sibling_group(n)); }
 
  public:
@@ -237,11 +237,12 @@ template <int nd> struct tree {
     return is_leaf(n) ? 0 : no_children();
   }
 
+  /// Execute function \p f on every parent of node \p n until the root node
   template <class F> void traverse_parents(node_idx n, F&& f) const noexcept {
     while ((n = parent(n))) { f(n); };
   }
 
-  /// Level of node \p n within the tree
+  /// Level of node \p n (distance from the root node)
   int level(node_idx n) const noexcept {
     HTREE_ASSERT(!is_free(n), "node {} is free and doesn't have a level", *n);
     int l = 0;
@@ -263,12 +264,12 @@ template <int nd> struct tree {
   /// \name Memory management
   ///@{
 
-  /// Node capacity
+  /// Maximum number of nodes that the tree can hold
   std::size_t capacity() const noexcept {
     return 1 + (ranges::size(parents_) - 1) * no_children();
   }
 
-  /// Node size
+  /// Number of nodes in the tree
   std::size_t size() const noexcept { return size_; }
 
   /// Is the tree empty?
@@ -411,6 +412,8 @@ template <int nd> struct tree {
   ///@}  // Memory management
 
  public:
+  /// Creates a tree with capacity for \p capacity_ nodes and initializes it
+  /// with a root node
   tree(std::size_t capacity_)
    : parents_(*sibling_group(node_idx{static_cast<int>(capacity_ - 1)}) + 1)
    , first_children_(capacity()) {
@@ -424,8 +427,8 @@ template <int nd> struct tree {
   ///@{
 
  private:
-  /// Sorts the tree in depth-first order, with the siblings of each group
-  /// sorted in Morton Z-Curve order
+  /// Sorts the sub-tree spanned by sibling group \s in depth-first order, with
+  /// the siblings of each group sorted in Morton Z-Curve order.
   ///
   /// Runtime complexity: O(N), where N is the number of nodes in the tree.
   /// Space complexity: O(log(N)) stack frames.
