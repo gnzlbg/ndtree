@@ -59,15 +59,18 @@ template <int nd> struct tree {
   /// \name Graph edges (parent/children)
   ///
   ///@{
+
  private:
   /// Sibling group of node \p n
   static constexpr siblings_idx sibling_group(node_idx n) noexcept {
+    HTREE_ASSERT(n, "cannot compute sibling group of invalid node");
     return siblings_idx{
      static_cast<int>(math::floor((*n + no_children() - 1.f) / no_children()))};
   }
 
   /// Parent node of sibling group \p s
   node_idx parent(siblings_idx s) const noexcept {
+    HTREE_ASSERT(s, "cannot obtain parent of invalid sibling group");
     HTREE_ASSERT(*s >= 0 and static_cast<std::size_t>(*s) < parents_.size(),
                  "sg {} is out-of-bounds for parents [{}, {})", *s, 0,
                  parents_.size());
@@ -78,6 +81,7 @@ template <int nd> struct tree {
   ///
   /// \warning not thread-safe
   void set_parent(siblings_idx s, node_idx value) noexcept {
+    HTREE_ASSERT(s, "cannot set parent of invalid sibling group");
     HTREE_ASSERT(*s >= 0 and static_cast<std::size_t>(*s) < parents_.size(),
                  "sg {} is out-of-bounds for parents [{}, {})", *s, 0,
                  parents_.size());
@@ -96,6 +100,7 @@ template <int nd> struct tree {
  private:
   /// First children of node \p n
   node_idx first_child(node_idx n) const noexcept {
+    HTREE_ASSERT(n, "cannot obtain first child of invalid node");
     HTREE_ASSERT(*n >= 0
                   and static_cast<std::size_t>(*n) < first_children_.size(),
                  "node {} is out-of-bounds for first_child [{}, {})", *n, 0,
@@ -107,6 +112,7 @@ template <int nd> struct tree {
   ///
   /// \warning not thread-safe
   void set_first_child(node_idx n, node_idx value) noexcept {
+    HTREE_ASSERT(n, "cannot set first child of invalid node");
     HTREE_ASSERT(*n >= 0
                   and static_cast<std::size_t>(*n) < first_children_.size(),
                  "node {} is out-of-bounds for first_child [{}, {})", *n, 0,
@@ -116,7 +122,8 @@ template <int nd> struct tree {
 
   /// Sibling group of children of node \p n
   siblings_idx children_group(node_idx n) const noexcept {
-    return sibling_group(first_child(n));
+    auto c = first_child(n);
+    return c ? sibling_group(c) : siblings_idx{};
   }
 
   /// First node in sibling group \p s
@@ -181,10 +188,25 @@ template <int nd> struct tree {
     // | transform each sibling group into a range of its nodes:
     //   this produces a range of ranges of nodes
     // | flatten out the range
-    return siblings_idx::rng(first_sg(), last_sg())
-           | view::filter([&](siblings_idx s) { return !is_free(s); })
+    return sibling_groups()
            | view::transform([](siblings_idx s) { return nodes(s); })
            | view::join;
+  }
+
+  /// Selects leaf nodes
+  auto leaf() const noexcept {
+    return view::filter([&](node_idx i) { return is_leaf(i); });
+  }
+
+  /// Selects nodes with children
+  auto with_children() const noexcept {
+    return view::remove_if([&](node_idx i) { return is_leaf(i); });
+  }
+
+ private:
+  auto sibling_groups() const noexcept {
+    return siblings_idx::rng(first_sg(), last_sg())
+           | view::filter([&](siblings_idx s) { return !is_free(s); });
   }
 
  private:
@@ -215,11 +237,15 @@ template <int nd> struct tree {
     return is_leaf(n) ? 0 : no_children();
   }
 
+  template <class F> void traverse_parents(node_idx n, F&& f) const noexcept {
+    while ((n = parent(n))) { f(n); };
+  }
+
   /// Level of node \p n within the tree
   int level(node_idx n) const noexcept {
     HTREE_ASSERT(!is_free(n), "node {} is free and doesn't have a level", *n);
     int l = 0;
-    while ((n = parent(n))) { ++l; }
+    traverse_parents(n, [&](node_idx) { ++l; });
     return l;
   }
 
@@ -335,47 +361,51 @@ template <int nd> struct tree {
   }
 
   /// Swaps the memory location of the sibling groups \p a and \p b
-  void swap(sibligs_idx a, siblings_idx b) noexcept {
+  ///
+  /// \pre no sibling group can be swapped with the root's node sibling group
+  /// \pre no sibling group can be swapped with itself
+  void swap(siblings_idx a, siblings_idx b) noexcept {
+    HTREE_ASSERT(a != 0_sg and b != 0_sg, "root node is not swappable");
+    HTREE_ASSERT(a || b, "at least one of both sg must be valid");
+    HTREE_ASSERT(a != b, "self-swap not allowed for sg {}", a ? *a : -1);
+
     // 0) Break early: both not in use -> nothing to do
-    if (is_free(sgL) && is_free(sgR)) { return; }
+    if (is_free(a) and is_free(b)) { return; }
 
     /// 1) swap siblings -> children edges, and children -> sibling edges:
-    auto update_cg_parent = [&](siblings_idx s) {
+    auto update_cg_parent = [&](node_idx s) {
       const auto child_cg = children_group(s);
       if (child_cg) { set_parent(child_cg, s); }
     };
-    for (auto&& n : view::zip(nodes(sgL), nodes(sgR))) {
-      using std::swap;
-      swap(first_children_[*get<0>(n)], first_children_[*get<1>(n)]);
-      update_cg_parent(get<0>(n));
-      update_cg_parent(get<1>(n));
+    for (auto n : view::zip(nodes(a), nodes(b))) {
+      auto l = get<0>(n), r = get<1>(n);
+      ranges::swap(first_children_[*l], first_children_[*r]);
+      update_cg_parent(l);
+      update_cg_parent(r);
     };
 
     /// 2) swap parent -> sibling edges, and sibling -> parent edges:
-    auto update_parent_sibling_e = [&](auto parent, auto sibling_g) {
-      if (parent) {
-        set_first_child(parent, sibling_g);
-        set_parent(sibling_g, parent);
-      } else {
-        set_parent(sibling_g, node_idx{});
-      }
+    auto update_parent_sibling_e = [&](node_idx parent, siblings_idx s) {
+      if (parent) { set_first_child(parent, first_node(s)); }
+      set_parent(s, parent);
     };
     {
-      const auto pL = parent(sgL);
-      const auto pR = parent(sgR);
-      update_parent_sibling_e(pL, sgR);
-      update_parent_sibling_e(pR, sgL);
+      auto p_a = parent(a);
+      auto p_b = parent(b);
+      update_parent_sibling_e(p_a, b);
+      update_parent_sibling_e(p_b, a);
     }
 
     /// 3) update the first free sibling group flag:
     ///    - if one of the nodes is inactive:
-    if ((is_free(sgL) || is_free(sgR)) &&
-        /// - if the flag is between the range:
-        (std::min(sgL, sgR) <= first_free_sibling_group()
-         && first_free_sibling_group() <= std::max(sgL, sgR))) {
-      first_free_sibling_group_()
-       = first_free_sibling_group(std::min(sgL, sgR));
-    }
+    auto update_first_free_sg = [&](siblings_idx i, siblings_idx j) {
+      if (is_free(i)) {
+        first_free_sibling_group_
+         = (j == first_free_sibling_group_) ? i : first_free_sibling_group_;
+      }
+    };
+    update_first_free_sg(a, b);
+    update_first_free_sg(b, a);
   }
 
   ///@}  // Memory management
@@ -393,26 +423,55 @@ template <int nd> struct tree {
   /// \name Spatial algorithms
   ///@{
 
+ private:
   /// Sorts the tree in depth-first order, with the siblings of each group
   /// sorted in Morton Z-Curve order
   ///
-  /// Complexity O(N)
+  /// Runtime complexity: O(N), where N is the number of nodes in the tree.
+  /// Space complexity: O(log(N)) stack frames.
+  ///
+  /// \param s [in] Start sibling group. All nodes below it will be sorted
+  ///
+  /// \pre \p s is at its correct position
+  ///
+  /// The algorithm is recursive. It assumes that the input group \p s is at its
+  /// correct position in memory. It then traverses the children groups of its
+  /// siblings in deapth-first order. If the children group of a sibling is not
+  /// at its correct position, it is swapped with the group at the correct
+  /// position.
   ///
   /// \post is_compact() && is_sorted()
-  sibling_idx sort(siblings_idx s = 0_sg,
-                   siblings_idx should_sg = 0_sg) noexcept {
-    for (auto n : nodes(s)) {
-      if (is_leaf(n)) { continue; }
-      ++should_sg;
+  siblings_idx sort(siblings_idx s) noexcept {
+    siblings_idx should = s;
+    for (auto n : nodes(s) | with_children()) {
+      ++should;
 
-      auto c_sg = children_group(n);
-      if (c_sg != should_sg) { swap(c_sg, should); }
+      siblings_idx c_sg = children_group(n);
 
-      should_sg = sort(c_sg, should_sg);
+      if (c_sg != should) {
+        swap(c_sg, should);
+        should = sort(should);
+      } else {
+        should = sort(c_sg);
+      }
     }
-    return should_sg;
+
+    return should;
   }
 
+ public:
+  /// Sorts the tree in depth-first order, with the siblings of each group
+  /// sorted in Morton Z-Curve order
+  ///
+  /// Runtime complexity: O(N), where N is the number of nodes in the tree.
+  /// Space complexity: O(log(N)) stack frames.
+  ///
+  /// \post is_compact() && is_sorted()
+  void sort() noexcept {
+    sort(0_sg);
+    first_free_sibling_group_ = sibling_group(node_idx{(int)size()});
+    HTREE_ASSERT(is_compact(), "the tree must be compact after sorting");
+  }
   ///@}
 };
 

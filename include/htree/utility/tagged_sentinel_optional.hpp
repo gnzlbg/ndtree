@@ -79,22 +79,20 @@ struct tagged_sentinel_optional {
 
   CONCEPT_REQUIRES(RandomAccessIncrementable<T>())
   this_t& operator++() noexcept {
-    ++(*this);
+    ++value;
     return (*this);
   }
 
   CONCEPT_REQUIRES(RandomAccessIncrementable<T>())
   this_t operator++(int) noexcept {
     this_t tmp(*this);
-    ++(*this);
+    ++value;
     return tmp;
   }
 
-
-
   CONCEPT_REQUIRES(RandomAccessIncrementable<T>())
-  friend this_t operator+(this_t const& other) noexcept {
-    return this_t{(*this) + (*other)};
+  friend this_t operator+(this_t const& a, this_t const& b) noexcept {
+    return this_t{(*a) + (*b)};
   }
 };
 

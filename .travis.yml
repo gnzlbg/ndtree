@@ -3,10 +3,8 @@
 # (See accompanying file LICENSE.md or copy at http://boost.org/LICENSE_1_0.txt)
 
 language: c++
-compiler: clang
 os: linux
-# sudo: false | TODO: required by python-yaml and lcov
-sudo: required
+sudo: false
 
 # This describes the test matrix
 #
@@ -23,19 +21,18 @@ sudo: required
 #   - Generates website
 matrix:
   include:
-   # The first case in the matrix for a given compiler defines how to install
-   # the compiler under addons, that is, we specify the ubuntu packages required
-   # and their sources (repositories).
-   #
-   # For example, for clang 3.7 trunk we need to get the nightly packages from
-   # the llvm repository for ubuntu precise.
-   #
-   # We store them in the variable clang37 using &clang37 which we can reference
-   # in the different builds using *clang37. This is done for each compiler.
-   #
-   # For each build we also define all the global variables specified above
-   # TODO: use defaults and define only some of them
-
+    # The first case in the matrix for a given compiler defines how to install
+    # the compiler under addons, that is, we specify the ubuntu packages required
+    # and their sources (repositories).
+    #
+    # For example, for clang 3.7 trunk we need to get the nightly packages from
+    # the llvm repository for ubuntu precise.
+    #
+    # We store them in the variable clang37 using &clang37 which we can reference
+    # in the different builds using *clang37. This is done for each compiler.
+    #
+    # For each build we also define all the global variables specified above
+    # TODO: use defaults and define only some of them
     # clang 3.7, debug build
     - env: COMPILER=clang++-3.7 BUILD_TYPE=Debug
       addons: &clang37
@@ -43,6 +40,8 @@ matrix:
           packages:
             - clang-3.7
             - valgrind
+            - python-yaml
+            - lcov
           sources:
             - ubuntu-toolchain-r-test
             - llvm-toolchain-precise # latest
@@ -59,21 +58,9 @@ matrix:
     - env: COMPILER=clang++-3.7 BUILD_TYPE=Release
       addons: *clang37
 
-matrix:
-  allow_failures:
-    # GCC 5, debug build
-    - env: COMPILER=g++-5 BUILD_TYPE=Debug
-      addons: &gcc5
-        apt:
-          packages:
-            - g++-5
-            - valgrind
-          sources:
-            - ubuntu-toolchain-r-test
-
-    # GCC 5, release build, valgrind
-    - env: COMPILER=g++-5 BUILD_TYPE=Release Valgrind=true
-      addons: *gcc5
+    # clang 3.7, debug, site
+    - env: COMPILER=clang++-3.7 BUILD_TYPE=Debug Coverage=true
+      addons: *clang37
 
 # Site generation job
 #
@@ -85,18 +72,6 @@ env:
     # Travis command line utility and so on. The token is stored in the
     # ${GITHUB_TOKEN} environment variable.
     - secure: "Qlsp65HRdMW5UWfta/ZoynOnWQFMeVwxE7XU9yF1VnQXxpTEJFfgPY93ikPWX2NV9Hs53RwIwXD60cKXw6rMlqKIPMCrfG0zvJSmSjbP61IRat3jNmpXb6d4R855nk1AOlU6qJdEYtC0uuFYVe1p7XUEaUsEX+r1NKoiO2vg4Tc+zIIQdMEo5lWpH+XxkLipCq+9J9w4YY9phffkL3hPI9CM3tQtjv2l0XMcpKDRLdFXuBEh48yoyD6vf8b4XCVpn3rWw2PGSNLrUm2lCuYJwB5nlNhBSoTu/abNwpt7k69fcRmpGfVZsAyC0xp17ER1Qh5d79uzRZZvC+/H4TblI/djgfpFbGA+aRPe3uNJeOMJatbz3FoGrOkAvQ1thTB+hw+oNI7Z/Y/tS9OuOhVOEoJ3pysx7h2YdRGRprcOkRa39LBeABCsdgLd9IucsbxmJg76yeHWssldK6Tag7mVifOmnegaS0K8JcEXnhjiua98By1+4gtI8GFBynsd90tD5Miv/e9Q0FFM86B+Zf7FMauUQAeoXipqqsG/68+WynyKsbdxQPBHoZlMrmu+Bsma1k2rgg+D4TARC9cNCIkRuDg7nc4dyGS3r1IdeomzWpwU4C4kKudBo4tKRoUB9zaAn47iYqBWk2Q8y+dOlxR/l2mYM5yEkRqyPGxG+v2O/NI="
-  matrix:
-    - COMPILER=clang++-3.7 BUILD_TYPE=Debug Coverage=true Site=true
-addons:
-  apt:
-    packages:
-      - clang-3.7
-      # Not allowed yet: 
-      #- python-yaml
-      #- lcov
-    sources:
-      - ubuntu-toolchain-r-test
-      - llvm-toolchain-precise # latest
 
 install:
   ############################################################################
@@ -178,7 +153,8 @@ before_script:
   # something like that, it's either a compiler bug or an error that will show
   # up regardless of the Boost version. Hence, we use the memory checker only
   # once for each compiler.
-  - cmake .. -DCMAKE_CXX_COMPILER=${COMPILER} -DCMAKE_BUILD_TYPE=${BUILD_TYPE}
+  - cmake .. -DCMAKE_CXX_COMPILER=${COMPILER} -DCMAKE_BUILD_TYPE=${BUILD_TYPE} -DHTREE_ENABLE_WERROR=On
+  - if [[ "${BUILD_TYPE}" == "Debug" ]]; then cmake .. -DHTREE_ENABLE_ASSERTIONS=ON; fi
   - if [[ "${Valgrind}" == "true" ]]; then cmake .. -DHTREE_ENABLE_VALGRIND=ON; fi
   - if [[ "${ASan}" == "true" ]]; then cmake .. -DHTREE_ENABLE_ASAN=ON; fi
 
@@ -191,7 +167,7 @@ script:
   ############################################################################
   # - Compile with code coverage
   ############################################################################
-  - if [[ "${Coverage}" == "true" ]]; then cmake .. -DHTREE_ENABLE_COVERAGE=ON; fi
+  - if [[ "${Coverage}" == "true" ]]; then cmake .. -DHTREE_ENABLE_COVERAGE=ON -DHTREE_ENABLE_DEBUG_INFORMATION=ON; fi
 
   ############################################################################
   # Build and run the unit tests and examples.
@@ -207,11 +183,10 @@ after_success:
   # - strip test/ and example/ subdirectories from coverage report
   # - upload report to coveralls
   ############################################################################
-  - if [[ "${Coverage}" == "true" ]]; then export NAME=htree; fi
-  - if [[ "${Coverage}" == "true" ]]; then sudo apt-get install -qq python-yaml lcov; fi
+  - if [[ "${Coverage}" == "true" ]]; then sudo apt-get install -qq lcov; fi
   - if [[ "${Coverage}" == "true" ]]; then gem install coveralls-lcov; fi
   - if [[ "${Coverage}" == "true" ]]; then lcov --directory ./ --base-directory ./ --capture --output-file coverage.info; fi
-  - if [[ "${Coverage}" == "true" ]]; then lcov --remove coverage.info "/usr*" "*/$NAME/test/*" "*/$NAME/example/*" -o coverage.info; fi
+  - if [[ "${Coverage}" == "true" ]]; then lcov --remove coverage.info "/usr*" "*/htree/test/*" "*/htree/example/*" "*/htree/build/*" "*/htree/deps/*"  -o coverage.info; fi
   - if [[ "${Coverage}" == "true" ]]; then coveralls-lcov coverage.info; fi
 
   ############################################################################
