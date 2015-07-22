@@ -4,12 +4,13 @@
 /// TODO:
 /// - replace int static casts with something better
 ///
+#include <memory>
+#include <ndtree/types.hpp>
 #include <ndtree/utility/assert.hpp>
 #include <ndtree/utility/fmt.hpp>
 #include <ndtree/utility/math.hpp>
 #include <ndtree/utility/ranges.hpp>
-#include <ndtree/core.hpp>
-#include <ndtree/utility/tagged_ranged.hpp>
+#include <ndtree/utility/bounded.hpp>
 
 namespace ndtree {
 inline namespace v1 {
@@ -27,12 +28,14 @@ template <int nd> struct tree {
   ///
   ///@{
 
+  /// Sibling group capacity
+  siblings_idx sg_capacity_ = 0_sg;
   /// Parent of a children group
-  std::vector<node_idx> parents_;
+  std::unique_ptr<node_idx[]> parents_;
   /// First child node of a given node
-  std::vector<node_idx> first_children_;
+  std::unique_ptr<node_idx[]> first_children_;
   /// Number of nodes in the tree
-  std::size_t size_ = 0;
+  node_idx size_ = 0_n;
   /// First group of sibling nodes that is free
   siblings_idx first_free_sibling_group_{0};
 
@@ -43,18 +46,20 @@ template <int nd> struct tree {
   ///@{
 
   /// Number of spatial dimensions
-  static constexpr int dimension() noexcept { return nd; }
+  static constexpr int_t dimension() noexcept { return nd; }
 
   /// Range of spatial dimensions
-  static constexpr auto dimensions() noexcept { return view::iota(0, nd); }
+  static constexpr auto dimensions() noexcept {
+    return view::iota(uint_t{0}, uint_t{nd});
+  }
   NDTREE_STATIC_ASSERT_RANDOM_ACCESS_SIZED_RANGE(dimensions());
 
   /// Number of children per node
-  static constexpr int no_children() noexcept { return math::ipow(2, nd); }
+  static constexpr uint_t no_children() noexcept { return math::ipow(2, nd); }
 
   /// Position in parent of node \p n
-  static constexpr int position_in_parent(node_idx n) noexcept {
-    return ((*n) - 1) % no_children();
+  static constexpr uint_t position_in_parent(node_idx n) noexcept {
+    return ((*n) - uint_t{1}) % no_children();
   }
 
   ///@}  // Spatial constants
@@ -66,16 +71,16 @@ template <int nd> struct tree {
   /// Sibling group of node \p n
   static constexpr siblings_idx sibling_group(node_idx n) noexcept {
     NDTREE_ASSERT(n, "cannot compute sibling group of invalid node");
-    return siblings_idx{
-     static_cast<int>(math::floor((*n + no_children() - 1.f) / no_children()))};
+    return siblings_idx{static_cast<int_t>(
+     math::floor((*n + no_children() - 1.f) / no_children()))};
   }
 
   /// Parent node of sibling group \p s
   node_idx parent(siblings_idx s) const noexcept {
     NDTREE_ASSERT(s, "cannot obtain parent of invalid sibling group");
-    NDTREE_ASSERT(*s >= 0 and static_cast<std::size_t>(*s) < parents_.size(),
-                  "sg {} is out-of-bounds for parents [{}, {})", *s, 0,
-                  parents_.size());
+    NDTREE_ASSERT(s >= 0_sg and s < sibling_group_capacity(),
+                  "sg {} is out-of-bounds for parents [{}, {})", s, 0,
+                  sibling_group_capacity());
     return parents_[*s];
   }
 
@@ -85,9 +90,9 @@ template <int nd> struct tree {
   /// \warning not thread-safe
   void set_parent(siblings_idx s, node_idx value) noexcept {
     NDTREE_ASSERT(s, "cannot set parent of invalid sibling group");
-    NDTREE_ASSERT(*s >= 0 and static_cast<std::size_t>(*s) < parents_.size(),
-                  "sg {} is out-of-bounds for parents [{}, {})", *s, 0,
-                  parents_.size());
+    NDTREE_ASSERT(s >= 0_sg and s < sibling_group_capacity(),
+                  "sg {} is out-of-bounds for parents [{}, {})", s, 0,
+                  sibling_group_capacity());
     parents_[*s] = value;
   }
 
@@ -97,16 +102,15 @@ template <int nd> struct tree {
     return parent(sibling_group(n));
   }
 
-  using child_pos = bounded<int, 0, no_children(), struct child_pos_tag>;
+  using child_pos = bounded<uint_t, 0, no_children(), struct child_pos_tag>;
 
  private:
   /// First children of node \p n
   node_idx first_child(node_idx n) const noexcept {
     NDTREE_ASSERT(n, "cannot obtain first child of invalid node");
-    NDTREE_ASSERT(*n >= 0
-                   and static_cast<std::size_t>(*n) < first_children_.size(),
-                  "node {} is out-of-bounds for first_child [{}, {})", *n, 0,
-                  first_children_.size());
+    NDTREE_ASSERT(n >= 0_n and n < capacity(),
+                  "node {} is out-of-bounds for first_child [{}, {})", n, 0,
+                  capacity());
     return first_children_[*n];
   }
 
@@ -120,10 +124,9 @@ template <int nd> struct tree {
   /// \warning not thread-safe
   void set_first_child(node_idx n, node_idx value) noexcept {
     NDTREE_ASSERT(n, "cannot set first child of invalid node");
-    NDTREE_ASSERT(*n >= 0
-                   and static_cast<std::size_t>(*n) < first_children_.size(),
-                  "node {} is out-of-bounds for first_child [{}, {})", *n, 0,
-                  first_children_.size());
+    NDTREE_ASSERT(n >= 0_n and n < capacity(),
+                  "node {} is out-of-bounds for first_child [{}, {})", n, 0,
+                  capacity());
     first_children_[*n] = value;
   }
 
@@ -147,16 +150,14 @@ template <int nd> struct tree {
   auto children(node_idx n) const noexcept {
     const auto fc = first_child(n);
     return fc ? boxed_ints<node_idx>(*fc, *fc + no_children())
-              : boxed_ints<node_idx>(0, 0);
+              : boxed_ints<node_idx>(0_n, 0_n);
   }
 
  private:
   /// First node of the tree
   static constexpr node_idx first_node() noexcept { return 0_n; }
   /// Last node of the tree
-  node_idx last_node() const noexcept {
-    return node_idx{static_cast<int>(capacity())};
-  }
+  node_idx last_node() const noexcept { return capacity(); }
 
   /// First sibling group of the tree
   static constexpr siblings_idx first_sg() noexcept { return 0_sg; }
@@ -248,7 +249,7 @@ template <int nd> struct tree {
   bool is_leaf(node_idx n) const noexcept { return !first_child(n); }
 
   /// Number of childrens of the node \p n
-  int no_children(node_idx n) const noexcept {
+  int_t no_children(node_idx n) const noexcept {
     return is_leaf(n) ? 0 : no_children();
   }
 
@@ -258,9 +259,9 @@ template <int nd> struct tree {
   }
 
   /// Level of node \p n (distance from the root node)
-  int level(node_idx n) const noexcept {
+  int_t level(node_idx n) const noexcept {
     NDTREE_ASSERT(!is_free(n), "node {} is free and doesn't have a level", *n);
-    int l = 0;
+    int_t l = 0;
     traverse_parents(n, [&](node_idx) { ++l; });
     return l;
   }
@@ -270,8 +271,7 @@ template <int nd> struct tree {
   /// That is, no free sibling groups before the last sibling group in use.
   ///
   bool is_compact() const noexcept {
-    return first_free_sibling_group_
-           == sibling_group(node_idx{static_cast<int>(size())});
+    return first_free_sibling_group_ == sibling_group(size());
   }
 
   ///@}  // Graph edges (parent/children)
@@ -279,16 +279,50 @@ template <int nd> struct tree {
   /// \name Memory management
   ///@{
 
-  /// Maximum number of nodes that the tree can hold
-  std::size_t capacity() const noexcept {
-    return 1 + (ranges::size(parents_) - 1) * no_children();
+  /// Number of sibling groups required to hold \p no_nodes nodes
+  static constexpr siblings_idx no_sibling_groups(node_idx no_nodes) noexcept {
+    return siblings_idx{
+     no_nodes > 0 ? *sibling_group(node_idx{*no_nodes - 1}) + 1 : 0};
   }
 
+  /// Number of nodes that can be holded by \p no_sibling_groups sibling groups
+  static constexpr node_idx no_nodes(siblings_idx no_sibling_groups) noexcept {
+    switch (*no_sibling_groups) {
+      case 0: {
+        return 0_n;
+      }
+      case 1: {
+        return 1_n;
+      }
+      default: {
+        return node_idx{(*no_sibling_groups - 1) * no_children() + 1};
+      }
+    }
+  }
+
+  /// Maximum number of sibling groups that the tree can hold
+  siblings_idx sibling_group_capacity() const noexcept { return sg_capacity_; }
+
+  /// Maximum number of nodes that the tree can hold
+  node_idx capacity() const noexcept {
+    return no_nodes(sibling_group_capacity());
+  }
+
+ private:
+  constexpr auto all_parents() const noexcept {
+    return view::counted(parents_.get(), *sibling_group_capacity());
+  }
+
+  constexpr auto all_children() const noexcept {
+    return view::counted(first_children_.get(), *capacity());
+  }
+
+ public:
   /// Number of nodes in the tree
-  std::size_t size() const noexcept { return size_; }
+  node_idx size() const noexcept { return *size_; }
 
   /// Is the tree empty?
-  bool empty() const noexcept { return size_ == 0; }
+  bool empty() const noexcept { return size_ == 0_n; }
 
   /// Refine node \p p and returns children group idx
   ///
@@ -305,7 +339,7 @@ template <int nd> struct tree {
     const auto s = first_free_sibling_group_;
     NDTREE_ASSERT(is_free(s), "node {}: first free sg {} is not free", *p, *s);
 
-    size_ += no_children();
+    size_ += node_idx{no_children()};
 
     ++first_free_sibling_group_;
     auto remaining_sgs
@@ -341,7 +375,7 @@ template <int nd> struct tree {
     const auto cg = children_group(p);
     NDTREE_ASSERT(!is_free(cg), "node {}: its child group {} is free", *p, *cg);
 
-    size_ -= no_children();
+    size_ -= node_idx{no_children()};
 
     if (*cg < *first_free_sibling_group_) { first_free_sibling_group_ = cg; }
 
@@ -372,8 +406,8 @@ template <int nd> struct tree {
   /// Is the tree reseted?
   bool is_reseted() {
     return size_ == 0 and first_free_sibling_group_ == 0_sg
-           and all_of(parents_, [](node_idx i) { return !i; })
-           and all_of(first_children_, [](node_idx i) { return !i; });
+           and all_of(all_parents(), [](node_idx i) { return !i; })
+           and all_of(all_children(), [](node_idx i) { return !i; });
   }
 
  public:
@@ -430,13 +464,14 @@ template <int nd> struct tree {
   ///@}  // Memory management
 
  public:
-  /// Creates a tree with capacity for \p capacity_ nodes and initializes it
+  /// Creates a tree with capacity for at least \p cap nodes and initializes it
   /// with a root node
-  tree(std::size_t capacity_)
-   : parents_(*sibling_group(node_idx{static_cast<int>(capacity_ - 1)}) + 1)
-   , first_children_(capacity()) {
-    NDTREE_ASSERT(capacity_ > 0,
-                  "cannot construct tree with zero capacity ({})", capacity_);
+  tree(uint_t cap)
+   : sg_capacity_(no_sibling_groups(cap))
+   , parents_(std::make_unique<node_idx[]>(*sibling_group_capacity()))
+   , first_children_(std::make_unique<node_idx[]>(*capacity())) {
+    NDTREE_ASSERT(capacity() > 0_n,
+                  "cannot construct tree with zero capacity ({})", capacity());
     NDTREE_ASSERT(is_reseted(), "tree is not reseted");
     initialize_root_node();
   }

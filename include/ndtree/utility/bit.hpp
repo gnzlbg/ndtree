@@ -1,5 +1,6 @@
 #pragma once
 /// \file bit.hpp Bit manipulation
+#include <ndtree/types.hpp>
 #include <ndtree/utility/assert.hpp>
 #include <ndtree/utility/ranges.hpp>
 #include <ndtree/utility/math.hpp>
@@ -13,7 +14,7 @@ namespace bit {
 
 /// Gets the value of the \p i-th bit of the integer \p data
 template <class Int, CONCEPT_REQUIRES_(Integral<Int>{})>
-constexpr bool get(Int data, int i) {
+constexpr bool get(Int data, uint_t i) {
   NDTREE_ASSERT(i >= 0 and i < 8 * sizeof(Int{}),
                 "bit index out-of-bounds [0, {})", 8 * sizeof(Int{}));
   return data & (1 << i);
@@ -21,7 +22,7 @@ constexpr bool get(Int data, int i) {
 
 /// Sets the \p i-th bit of \p data to \p value
 template <class Int, CONCEPT_REQUIRES_(Integral<Int>{})>
-constexpr void set(Int& data, int i, bool value) {
+constexpr void set(Int& data, uint_t i, bool value) {
   NDTREE_ASSERT(i >= 0 and i < 8 * sizeof(Int{}),
                 "bit index out-of-bounds [0, {})", 8 * sizeof(Int{}));
 
@@ -44,10 +45,14 @@ constexpr auto to_int(Int data, Int from = 0, Int to = max) -> Int {
 }
 
 template <class Int, CONCEPT_REQUIRES_(Integral<Int>{})>
-constexpr void swap(Int& data, int a, int b) {
+constexpr void swap(Int& data, uint_t a, uint_t b) {
   bool tmp = get(data, a);
   set(data, a, get(data, b));
   set(data, b, tmp);
+}
+
+template <class Int, CONCEPT_REQUIRES_(Integral<Int>{})> auto bits() noexcept {
+  return view::iota(uint_t{0}, uint_t{8 * sizeof(Int{})});
 }
 
 }  // namespace bit

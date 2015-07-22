@@ -11,29 +11,36 @@
 #else
 #include <ndtree/tree.hpp>
 #endif
+#include <ndtree/algorithm/node_location.hpp>
+#include <ndtree/algorithm/find_node.hpp>
 
 struct test_node {
   ndtree::node_idx idx;
   int level;
   ndtree::node_idx parent;
   std::vector<ndtree::node_idx> children;
+  std::vector<ndtree::uint_t> pos_in_parent;
 };
 
 static const constexpr auto i = std::numeric_limits<int>::max();
 
-test_node n(int idx, int level, int parent,
-            std::initializer_list<int> children) {
+test_node n(int idx, int level, int parent, std::initializer_list<int> children,
+            std::initializer_list<int> pos_in_parent = {}) {
   test_node t;
   t.idx = ndtree::node_idx{idx};
   t.level = level;
-  t.parent = parent == i? ndtree::node_idx{} : ndtree::node_idx{parent};
+  t.parent = parent == i ? ndtree::node_idx{} : ndtree::node_idx{parent};
   t.children.resize(children.size());
   ranges::transform(children, begin(t.children),
                     [](int c) { return ndtree::node_idx{c}; });
+  t.pos_in_parent.resize(pos_in_parent.size());
+  ranges::transform(pos_in_parent, begin(t.pos_in_parent),
+                    [](int p) { return static_cast<ndtree::uint_t>(p); });
+
   return t;
 }
 
-void check_node(ndtree::tree<1>& t, test_node n) {
+template <int nd> void check_node(ndtree::tree<nd>& t, test_node n) {
   if (n.parent) {
     CHECK(!t.is_root(n.idx));
   } else {
@@ -55,6 +62,10 @@ void check_node(ndtree::tree<1>& t, test_node n) {
     } else {
       CHECK(n.children.size() == 0ul);
     }
+  }
+  if (n.pos_in_parent.size() > 0) {
+    test::check_equal(ndtree::node_location(t, n.idx)(), n.pos_in_parent);
+    CHECK(ndtree::find_node(t, ndtree::location<nd>(n.pos_in_parent)) == n.idx);
   }
 }
 

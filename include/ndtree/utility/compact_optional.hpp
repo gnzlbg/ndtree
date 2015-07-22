@@ -165,6 +165,18 @@ class compact_optional : public detail::compact_optional_base<N> {
     return this_t{(*a) + (*b)};
   }
 
+  CONCEPT_REQUIRES(RandomAccessIncrementable<value_type>())
+  this_t& operator+=(this_t const& other) noexcept {
+    value_ += *other;
+    return *this;
+  }
+
+  CONCEPT_REQUIRES(RandomAccessIncrementable<value_type>())
+  this_t& operator-=(this_t const& other) noexcept {
+    value_ -= *other;
+    return *this;
+  }
+
   template <class OStream>
   friend constexpr OStream& operator<<(OStream& os, this_t const& a) {
     os << *a;

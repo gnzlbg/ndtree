@@ -23,6 +23,22 @@ int main() {
   static_assert(tree_t::sibling_group(5_n) == 3_sg, "");
   static_assert(tree_t::sibling_group(6_n) == 3_sg, "");
 
+  static_assert(tree_t::no_sibling_groups(0_n) == 0_sg, "");
+  static_assert(tree_t::no_sibling_groups(1_n) == 1_sg, "");
+  static_assert(tree_t::no_sibling_groups(2_n) == 2_sg, "");
+  static_assert(tree_t::no_sibling_groups(3_n) == 2_sg, "");
+  static_assert(tree_t::no_sibling_groups(4_n) == 3_sg, "");
+  static_assert(tree_t::no_sibling_groups(5_n) == 3_sg, "");
+  static_assert(tree_t::no_sibling_groups(6_n) == 4_sg, "");
+
+  static_assert(tree_t::no_nodes(0_sg) == 0_n, "");
+  static_assert(tree_t::no_nodes(1_sg) == 1_n, "");
+  static_assert(tree_t::no_nodes(2_sg) == 3_n, "");
+  static_assert(tree_t::no_nodes(3_sg) == 5_n, "");
+  static_assert(tree_t::no_nodes(4_sg) == 7_n, "");
+  static_assert(tree_t::no_nodes(5_sg) == 9_n, "");
+  static_assert(tree_t::no_nodes(6_sg) == 11_n, "");
+
   tree<1> t(20);
   t.refine(0_n);
   t.refine(1_n);

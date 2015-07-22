@@ -12,8 +12,8 @@ inline namespace v1 {
 struct node_location_fn {
   template <typename Tree>
   auto operator()(Tree const& t, node_idx n) const
-   noexcept -> location<Tree::dimension(), Tree::max_level()> {
-    location<Tree::dimension(), Tree::max_level()> loc;
+   noexcept -> location<Tree::dimension()> {
+    location<Tree::dimension()> loc;
 
     while (!t.is_root(n)) {
       loc.push(Tree::position_in_parent(n));

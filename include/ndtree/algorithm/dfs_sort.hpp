@@ -55,7 +55,7 @@ struct dfs_sort_fn {
   /// \post is_compact() && is_sorted()
   template <typename Tree> void operator()(Tree& t) const noexcept {
     sort_impl(t, 0_sg);
-    t.set_first_free_sibling_group(t.sibling_group(node_idx{(int)t.size()}));
+    t.set_first_free_sibling_group(t.sibling_group(t.size()));
     NDTREE_ASSERT(t.is_compact(), "the tree must be compact after sorting");
   }
 };

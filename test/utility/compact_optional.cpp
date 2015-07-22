@@ -9,7 +9,7 @@
 #include <utility>
 #include <string>
 #include <ndtree/utility/compact_optional.hpp>
-#include "test.hpp"
+#include "../test.hpp"
 
 using namespace ndtree;
 
