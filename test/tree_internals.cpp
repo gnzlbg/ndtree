@@ -1,12 +1,12 @@
 #include "test.hpp"
 #include <fstream>
 
-#define HTREE_TEST_PRIVATE_AS_PUBLIC
+#define NDTREE_TEST_PRIVATE_AS_PUBLIC
 #include "test_tree.hpp"
 
-using namespace htree;
+using namespace ndtree;
 
-HTREE_STATIC_ASSERT_RANDOM_ACCESS_SIZED_RANGE(
+NDTREE_STATIC_ASSERT_RANDOM_ACCESS_SIZED_RANGE(
  std::declval<tree<1>>().nodes(siblings_idx{}));
 
 // static_assert(BidirectionalRange<decltype(std::declval<tree<1>>().nodes())>{},

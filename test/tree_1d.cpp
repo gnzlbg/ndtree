@@ -1,18 +1,19 @@
 #include <fstream>
 #include "test.hpp"
-//#define HTREE_TEST_PRIVATE_AS_PUBLIC
+//#define NDTREE_TEST_PRIVATE_AS_PUBLIC
 #include "test_tree.hpp"
+#include <ndtree/algorithm/sort.hpp>
 
-using namespace htree;
+using namespace ndtree;
 
 /// Explicit instantiate it
-template struct htree::tree<1>;
+template struct ndtree::tree<1>;
 
-HTREE_STATIC_ASSERT_RANDOM_ACCESS_SIZED_RANGE(
+NDTREE_STATIC_ASSERT_RANDOM_ACCESS_SIZED_RANGE(
  std::declval<tree<1>>().children(node_idx{}));
-HTREE_STATIC_ASSERT_RANDOM_ACCESS_SIZED_RANGE(std::declval<tree<1>>()());
+NDTREE_STATIC_ASSERT_RANDOM_ACCESS_SIZED_RANGE(std::declval<tree<1>>()());
 
-HTREE_STATIC_ASSERT_RANDOM_ACCESS_SIZED_RANGE(tree<1>::child_positions());
+NDTREE_STATIC_ASSERT_RANDOM_ACCESS_SIZED_RANGE(tree<1>::child_positions());
 
 struct uniform_tree {
   std::vector<test_node> nodes{
@@ -170,7 +171,7 @@ int main() {
     CHECK(!t.is_compact());
     check_all(t, tree_after_coarsen{});
 
-    t.sort();
+    dfs_sort(t);
     CHECK(t.is_compact());
     check_all(t, tree_after_coarsen_sorted{});
   }

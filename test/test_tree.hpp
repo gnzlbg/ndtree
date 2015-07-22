@@ -1,22 +1,22 @@
 #pragma once
 /// \file test_tree.hpp
 
-#ifdef HTREE_TEST_PRIVATE_AS_PUBLIC
+#ifdef NDTREE_TEST_PRIVATE_AS_PUBLIC
 // I know what I'm doing TM:
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wkeyword-macro"
 #define private public
-#include <htree/htree.hpp>
+#include <ndtree/ndtree.hpp>
 #pragma clang diagnostic pop
 #else
-#include <htree/tree.hpp>
+#include <ndtree/tree.hpp>
 #endif
 
 struct test_node {
-  htree::node_idx idx;
+  ndtree::node_idx idx;
   int level;
-  htree::node_idx parent;
-  std::vector<htree::node_idx> children;
+  ndtree::node_idx parent;
+  std::vector<ndtree::node_idx> children;
 };
 
 static const constexpr auto i = std::numeric_limits<int>::max();
@@ -24,16 +24,16 @@ static const constexpr auto i = std::numeric_limits<int>::max();
 test_node n(int idx, int level, int parent,
             std::initializer_list<int> children) {
   test_node t;
-  t.idx = htree::node_idx{idx};
+  t.idx = ndtree::node_idx{idx};
   t.level = level;
-  t.parent = htree::node_idx{parent};
+  t.parent = parent == i? ndtree::node_idx{} : ndtree::node_idx{parent};
   t.children.resize(children.size());
   ranges::transform(children, begin(t.children),
-                    [](int c) { return htree::node_idx{c}; });
+                    [](int c) { return ndtree::node_idx{c}; });
   return t;
 }
 
-void check_node(htree::tree<1>& t, test_node n) {
+void check_node(ndtree::tree<1>& t, test_node n) {
   if (n.parent) {
     CHECK(!t.is_root(n.idx));
   } else {
@@ -59,13 +59,13 @@ void check_node(htree::tree<1>& t, test_node n) {
 }
 
 template <class ReferenceTree>
-void check_all(htree::tree<1>& t, ReferenceTree const& tref) {
+void check_all(ndtree::tree<1>& t, ReferenceTree const& tref) {
   for (auto&& n : tref.nodes) { check_node(t, n); }
 }
 
 template <class Ostream, class Tree>
 void pretty_print(Ostream&& os, Tree const& t) {
-  using namespace htree;
+  using namespace ndtree;
   using std::to_string;
   os << "digraph graphname {\n";
   os << "concentrate=true\n";

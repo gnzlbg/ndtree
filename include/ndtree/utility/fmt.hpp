@@ -2,10 +2,12 @@
 /// \file fmt.hpp Formatting utilties
 #include <format.h>
 
-namespace htree {
+namespace ndtree {
+inline namespace v1 {
 namespace fmt {
 
 using namespace ::fmt;
 
 }  // namespace fmt
-}  // namespace htree
+}  // namespace v1
+}  // namespace ndtree

@@ -153,10 +153,10 @@ before_script:
   # something like that, it's either a compiler bug or an error that will show
   # up regardless of the Boost version. Hence, we use the memory checker only
   # once for each compiler.
-  - cmake .. -DCMAKE_CXX_COMPILER=${COMPILER} -DCMAKE_BUILD_TYPE=${BUILD_TYPE} -DHTREE_ENABLE_WERROR=On
-  - if [[ "${BUILD_TYPE}" == "Debug" ]]; then cmake .. -DHTREE_ENABLE_ASSERTIONS=ON; fi
-  - if [[ "${Valgrind}" == "true" ]]; then cmake .. -DHTREE_ENABLE_VALGRIND=ON; fi
-  - if [[ "${ASan}" == "true" ]]; then cmake .. -DHTREE_ENABLE_ASAN=ON; fi
+  - cmake .. -DCMAKE_CXX_COMPILER=${COMPILER} -DCMAKE_BUILD_TYPE=${BUILD_TYPE} -DNDTREE_ENABLE_WERROR=On
+  - if [[ "${BUILD_TYPE}" == "Debug" ]]; then cmake .. -DNDTREE_ENABLE_ASSERTIONS=ON; fi
+  - if [[ "${Valgrind}" == "true" ]]; then cmake .. -DNDTREE_ENABLE_VALGRIND=ON; fi
+  - if [[ "${ASan}" == "true" ]]; then cmake .. -DNDTREE_ENABLE_ASAN=ON; fi
 
 script:
   ############################################################################
@@ -167,7 +167,7 @@ script:
   ############################################################################
   # - Compile with code coverage
   ############################################################################
-  - if [[ "${Coverage}" == "true" ]]; then cmake .. -DHTREE_ENABLE_COVERAGE=ON -DHTREE_ENABLE_DEBUG_INFORMATION=ON; fi
+  - if [[ "${Coverage}" == "true" ]]; then cmake .. -DNDTREE_ENABLE_COVERAGE=ON -DNDTREE_ENABLE_DEBUG_INFORMATION=ON; fi
 
   ############################################################################
   # Build and run the unit tests and examples.
@@ -186,7 +186,7 @@ after_success:
   - if [[ "${Coverage}" == "true" ]]; then sudo apt-get install -qq lcov; fi
   - if [[ "${Coverage}" == "true" ]]; then gem install coveralls-lcov; fi
   - if [[ "${Coverage}" == "true" ]]; then lcov --directory ./ --base-directory ./ --capture --output-file coverage.info; fi
-  - if [[ "${Coverage}" == "true" ]]; then lcov --remove coverage.info "/usr*" "*/htree/test/*" "*/htree/example/*" "*/htree/build/*" "*/htree/deps/*"  -o coverage.info; fi
+  - if [[ "${Coverage}" == "true" ]]; then lcov --remove coverage.info "/usr*" "*/ndtree/test/*" "*/ndtree/example/*" "*/ndtree/build/*" "*/ndtree/deps/*"  -o coverage.info; fi
   - if [[ "${Coverage}" == "true" ]]; then coveralls-lcov coverage.info; fi
 
   ############################################################################

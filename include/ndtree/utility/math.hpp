@@ -1,16 +1,17 @@
 #pragma once
 /// \file math.hpp Math utilities
-#include <htree/utility/ranges.hpp>
+#include <type_traits>
+#include <ndtree/utility/ranges.hpp>
 
-namespace htree {
+namespace ndtree {
+inline namespace v1 {
 /// Mathematical utilities
 namespace math {
 
 /// Computes b^e for (b,e) integers
-///
-/// Note: overflows for e >= (64-1) / ilog(b,2);
-constexpr long ipow(const long b, const long e) {
-  return e == 0l ? 1l : b * ipow(b, e - 1l);
+template <class Int, CONCEPT_REQUIRES_(std::is_integral<Int>{})>
+constexpr Int ipow(const Int b, const Int e) {
+  return e == 0l ? 1l : b * ipow(b, e - static_cast<Int>(1));
 }
 
 /// Constexpr version of cmath floor
@@ -22,4 +23,5 @@ constexpr Float floor(Float x) {
 }
 
 }  // namespace math
-}  // namespace htree
+}  // namespace v1
+}  // namespace ndtree

@@ -6,8 +6,8 @@
 #include <cstdlib>
 #include <utility>
 #include <iostream>
-#include <htree/utility/fmt.hpp>
-#include <htree/utility/ranges.hpp>
+#include <ndtree/utility/fmt.hpp>
+#include <ndtree/utility/ranges.hpp>
 
 /// Unit-testing utilities
 namespace test {
@@ -50,10 +50,10 @@ template <class T> struct R {
   bool dismissed_ = false;
 
   template <class U> void oops(U const& u) const {
-    ::htree::fmt::print(stderr, "> ERROR: CHECK failed '{}'\n > \t {} ({})\n",
+    ::ndtree::fmt::print(stderr, "> ERROR: CHECK failed '{}'\n > \t {} ({})\n",
                         expr_, filename_, lineno_);
     if (dismissed_)
-      ::htree::fmt::print(stderr, "> \tEXPECTED: {}\n> \tACTUAL: {} \n",
+      ::ndtree::fmt::print(stderr, "> \tEXPECTED: {}\n> \tACTUAL: {} \n",
                           stream(u), stream(t_));
     ++failures();
   }
@@ -131,7 +131,7 @@ inline int result() { return detail::failures() ? EXIT_FAILURE : EXIT_SUCCESS; }
                                                                            \
     if (exception_thrown_) { break; }                                      \
                                                                            \
-    HTREE_TERMINATE("Expression: " #expr                                   \
+    NDTREE_TERMINATE("Expression: " #expr                                   \
                     " doesn't throw an exception of type: " #ExceptionType \
                     ".");                                                  \
   } while (false)

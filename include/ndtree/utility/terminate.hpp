@@ -1,19 +1,19 @@
 #pragma once
 /// \file terminate.hpp Program termination routines
 #include <stdexcept>
-#include <htree/utility/fmt.hpp>
-#include <htree/utility/at.hpp>
+#include <ndtree/utility/fmt.hpp>
+#include <ndtree/utility/at.hpp>
 
 // This requires the gnu/clang zero-variadic-macro-arguments language extension
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wgnu-zero-variadic-macro-arguments"
 
 /// Terminates the program
-#define HTREE_TERMINATE(message, ...)                                        \
+#define NDTREE_TERMINATE(message, ...)                                        \
   [[ cold, noinline ]] do {                                                  \
-    ::htree::fmt::print(                                                     \
+    ::ndtree::fmt::print(                                                     \
      stderr, "\nFATAL ERROR:\n\n  message: " message "\n\n", ##__VA_ARGS__); \
-    HTREE_PRINT_AT(HTREE_AT_);                                               \
+    NDTREE_PRINT_AT(NDTREE_AT_);                                               \
     std::terminate();                                                        \
   }                                                                          \
   while (false)
