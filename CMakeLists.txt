@@ -99,12 +99,16 @@ ndtree_append_flag(NDTREE_HAS___EXTERN_ALWAYS_INLINE -D__extern_always_inline=in
 
 # Compiler flags controlled by CMake options above
 if (NDTREE_ENABLE_WERROR)
-    ndtree_append_flag(NDTREE_HAS_WERROR -Werror)
-    ndtree_append_flag(NDTREE_HAS_WX -WX)
-  endif()
+  ndtree_append_flag(NDTREE_HAS_WERROR -Werror)
+  ndtree_append_flag(NDTREE_HAS_WX -WX)
+endif()
 
 if (NDTREE_ENABLE_ASAN)
-  ndtree_append_flag(NDTREE_HAS_SANITIZE "-fsanitize=address,integer,undefined,leak")
+  set(NDTREE_ASAN_FLAGS "-fsanitize=address,integer,undefined,leak")
+  # Currently failing:
+  # ndtree_append_flag(NDTREE_HAS_SANITIZE "${NDTREE_ASAN_FLAGS}")
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${NDTREE_ASAN_FLAGS}")
+  set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${NDTREE_ASAN_FLAGS}")
   ndtree_append_flag(NDTREE_HAS_NO_OMIT_FRAME_POINTER -fno-omit-frame-pointer)
   ndtree_append_flag(NDTREE_HAS_NO_SANITIZE "-fno-sanitize=unsigned-integer-overflow")
 else()
