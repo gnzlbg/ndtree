@@ -50,7 +50,7 @@ template <int nd> struct tree {
 
   /// Range of spatial dimensions
   static constexpr auto dimensions() noexcept {
-    return view::iota(uint_t{0}, uint_t{nd});
+    return view::iota(0_u, uint_t{nd});
   }
   NDTREE_STATIC_ASSERT_RANDOM_ACCESS_SIZED_RANGE(dimensions());
 
@@ -59,7 +59,7 @@ template <int nd> struct tree {
 
   /// Position in parent of node \p n
   static constexpr uint_t position_in_parent(node_idx n) noexcept {
-    return ((*n) - uint_t{1}) % no_children();
+    return ((*n) - 1_u) % no_children();
   }
 
   ///@}  // Spatial constants

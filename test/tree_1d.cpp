@@ -5,7 +5,7 @@
 #include <ndtree/algorithm/dfs_sort.hpp>
 #include <ndtree/algorithm/node_location.hpp>
 
-using namespace ndtree;
+using namespace test;
 
 /// Explicit instantiate it
 template struct ndtree::tree<1>;
@@ -17,7 +17,7 @@ NDTREE_STATIC_ASSERT_RANDOM_ACCESS_SIZED_RANGE(std::declval<tree<1>>()());
 NDTREE_STATIC_ASSERT_RANDOM_ACCESS_SIZED_RANGE(tree<1>::child_positions());
 
 struct uniform_tree {
-  std::vector<test_node> nodes{
+  std::vector<node> nodes{
    {n(0, 0, i, {1, 2}, {})},        //
    {n(1, 1, 0, {3, 4}, {0})},       //
    {n(2, 1, 0, {5, 6}, {1})},       //
@@ -38,7 +38,7 @@ struct uniform_tree {
 };
 
 struct tree_after_refine {
-  std::vector<test_node> nodes{
+  std::vector<node> nodes{
    {n(7, 3, 3, {}, {0, 0, 0})},         //
    {n(8, 3, 3, {17, 18}, {0, 0, 1})},   //
    {n(9, 3, 4, {19, 20}, {0, 1, 0})},   //
@@ -58,7 +58,7 @@ struct tree_after_refine {
 };
 
 struct tree_after_coarsen {
-  std::vector<test_node> nodes{
+  std::vector<node> nodes{
    {n(0, 0, i, {1, 2})},    //
    {n(1, 1, 0, {3, 4})},    //
    {n(2, 1, 0, {5, 6})},    //
@@ -82,7 +82,7 @@ struct tree_after_coarsen {
 };
 
 struct tree_after_coarsen_sorted {
-  std::vector<test_node> nodes{
+  std::vector<node> nodes{
    {n(0, 0, i, {1, 2})},     //
    {n(1, 1, 0, {3, 4})},     //
    {n(2, 1, 0, {13, 14})},   //
@@ -108,19 +108,19 @@ struct tree_after_coarsen_sorted {
 void check_construction() {
   {
     tree<1> t(1);
-    CHECK(t.capacity() == 1ul);
-    CHECK(t.size() == 1ul);
+    CHECK(t.capacity() == 1_u);
+    CHECK(t.size() == 1_u);
     CHECK(!t.empty());
     CHECK(t.is_leaf(0_n));
   }
 
   {
-    CHECK(tree<1>(1).capacity() == 1ul);
-    CHECK(tree<1>(2).capacity() == 3ul);
-    CHECK(tree<1>(3).capacity() == 3ul);
-    CHECK(tree<1>(4).capacity() == 5ul);
-    CHECK(tree<1>(14).capacity() == 15ul);
-    CHECK(tree<1>(15).capacity() == 15ul);
+    CHECK(tree<1>(1).capacity() == 1_u);
+    CHECK(tree<1>(2).capacity() == 3_u);
+    CHECK(tree<1>(3).capacity() == 3_u);
+    CHECK(tree<1>(4).capacity() == 5_u);
+    CHECK(tree<1>(14).capacity() == 15_u);
+    CHECK(tree<1>(15).capacity() == 15_u);
   }
 }
 
@@ -128,67 +128,67 @@ int main() {
   check_construction();
   {
     tree<1> t(20);
-    CHECK(t.capacity() == 21ul);
-    CHECK(t.size() == 1ul);
+    CHECK(t.capacity() == 21_u);
+    CHECK(t.size() == 1_u);
     CHECK(t.is_leaf(0_n));
     t.refine(0_n);
     CHECK(!t.is_leaf(0_n));
-    CHECK(t.size() == 3ul);
+    CHECK(t.size() == 3_u);
 
     {  // node locs
       auto l1 = node_location(t, 1_n);
-      CHECK(l1.level == 1_l);
+      CHECK(l1.level == 1_u);
       CHECK(l1[1] == 0u);
       auto l2 = node_location(t, 2_n);
-      CHECK(l2.level == 1_l);
+      CHECK(l2.level == 1_u);
       CHECK(l2[1] == 1u);
     }
 
     t.refine(1_n);
-    CHECK(t.size() == 5ul);
+    CHECK(t.size() == 5_u);
 
     {  // node locs
       auto l3 = node_location(t, 3_n);
-      CHECK(l3.level == 2_l);
-      CHECK(l3[1] == 0u);
-      CHECK(l3[2] == 0u);
+      CHECK(l3.level == 2_u);
+      CHECK(l3[1] == 0_u);
+      CHECK(l3[2] == 0_u);
       auto l4 = node_location(t, 4_n);
-      CHECK(l4.level == 2_l);
-      CHECK(l4[1] == 0u);
-      CHECK(l4[2] == 1u);
+      CHECK(l4.level == 2_u);
+      CHECK(l4[1] == 0_u);
+      CHECK(l4[2] == 1_u);
     }
 
     t.refine(2_n);
-    CHECK(t.size() == 7ul);
+    CHECK(t.size() == 7_u);
 
     t.refine(3_n);
-    CHECK(t.size() == 9ul);
+    CHECK(t.size() == 9_u);
     t.refine(4_n);
-    CHECK(t.size() == 11ul);
+    CHECK(t.size() == 11_u);
     t.refine(5_n);
-    CHECK(t.size() == 13ul);
+    CHECK(t.size() == 13_u);
     t.refine(6_n);
-    CHECK(t.size() == 15ul);
+    CHECK(t.size() == 15_u);
 
     check_all(t, uniform_tree{});
     CHECK(t.is_compact());
 
     t.refine(11_n);
-    CHECK(t.size() == 17ul);
+    CHECK(t.size() == 17_u);
     t.refine(8_n);
-    CHECK(t.size() == 19ul);
+    CHECK(t.size() == 19_u);
     t.refine(9_n);
-    CHECK(t.size() == 21ul);
+    CHECK(t.size() == 21_u);
 
     check_all(t, tree_after_refine{});
     CHECK(t.is_compact());
 
     t.coarsen(11_n);
-    CHECK(t.size() == 19ul);
+    CHECK(t.size() == 19_u);
     CHECK(!t.is_compact());
 
     t.coarsen(5_n);
-    CHECK(t.size() == 17ul);
+    CHECK(t.size() == 17_u);
 
     CHECK(!t.is_compact());
     check_all(t, tree_after_coarsen{});

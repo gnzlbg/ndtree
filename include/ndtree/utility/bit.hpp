@@ -52,7 +52,7 @@ constexpr void swap(Int& data, uint_t a, uint_t b) {
 }
 
 template <class Int, CONCEPT_REQUIRES_(Integral<Int>{})> auto bits() noexcept {
-  return view::iota(uint_t{0}, uint_t{8 * sizeof(Int{})});
+  return view::iota(0_u, static_cast<uint_t>(8_u * sizeof(Int{})));
 }
 
 }  // namespace bit

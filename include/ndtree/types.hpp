@@ -10,6 +10,14 @@ using int_t = int_fast32_t;
 using uint_t = uint_fast32_t;
 using num_t = double;
 
+constexpr int_t operator"" _i(unsigned long long int i) {
+  return static_cast<int_t>(i);
+}
+
+constexpr uint_t operator"" _u(unsigned long long int i) {
+  return static_cast<uint_t>(i);
+}
+
 /// Index of a node within a tree
 using node_idx
  = compact_optional<empty_scalar_value<uint_t, std::numeric_limits<int>::max()>,
@@ -26,10 +34,6 @@ using siblings_idx
 
 constexpr siblings_idx operator"" _sg(unsigned long long int i) {
   return siblings_idx{static_cast<uint_t>(i)};
-}
-
-constexpr uint_t operator"" _l(unsigned long long int i) {
-  return static_cast<uint_t>(i);
 }
 
 }  // namespace v1

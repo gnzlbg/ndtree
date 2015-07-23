@@ -4,7 +4,7 @@
 #define NDTREE_TEST_PRIVATE_AS_PUBLIC
 #include "test_tree.hpp"
 
-using namespace ndtree;
+using namespace test;
 
 NDTREE_STATIC_ASSERT_RANDOM_ACCESS_SIZED_RANGE(
  std::declval<tree<1>>().nodes(siblings_idx{}));
@@ -39,12 +39,16 @@ int main() {
   static_assert(tree_t::no_nodes(5_sg) == 9_n, "");
   static_assert(tree_t::no_nodes(6_sg) == 11_n, "");
 
+  // TODO:
+  // check no sibling groups close to numeric_limits<uint_t>::max()
+  // place asserts that check that we never overflow
+
   tree<1> t(20);
   t.refine(0_n);
   t.refine(1_n);
 
   struct test_ns {
-    std::vector<test_node> nodes{
+    std::vector<node> nodes{
      {n(0, 0, i, {1, 2})},  //
      {n(1, 1, 0, {3, 4})},  //
      {n(2, 1, 0, {})},      //
@@ -59,7 +63,7 @@ int main() {
   t.swap(1_sg, 2_sg);
   {
     struct test_s {
-      std::vector<test_node> nodes{
+      std::vector<node> nodes{
        {n(0, 0, i, {3, 4})},  //
        {n(1, 2, 3, {})},      //
        {n(2, 2, 3, {})},      //

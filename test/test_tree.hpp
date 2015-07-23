@@ -14,33 +14,37 @@
 #include <ndtree/algorithm/node_location.hpp>
 #include <ndtree/algorithm/find_node.hpp>
 
-struct test_node {
-  ndtree::node_idx idx;
+namespace test {
+
+using namespace ndtree;
+
+struct node {
+  node_idx idx;
   int level;
-  ndtree::node_idx parent;
-  std::vector<ndtree::node_idx> children;
-  std::vector<ndtree::uint_t> pos_in_parent;
+  node_idx parent;
+  std::vector<node_idx> children;
+  std::vector<uint_t> pos_in_parent;
 };
 
 static const constexpr auto i = std::numeric_limits<int>::max();
 
-test_node n(int idx, int level, int parent, std::initializer_list<int> children,
-            std::initializer_list<int> pos_in_parent = {}) {
-  test_node t;
-  t.idx = ndtree::node_idx{idx};
+node n(int idx, int level, int parent, std::initializer_list<int> children,
+       std::initializer_list<int> pos_in_parent = {}) {
+  node t;
+  t.idx = node_idx{idx};
   t.level = level;
-  t.parent = parent == i ? ndtree::node_idx{} : ndtree::node_idx{parent};
+  t.parent = parent == i ? node_idx{} : node_idx{parent};
   t.children.resize(children.size());
   ranges::transform(children, begin(t.children),
-                    [](int c) { return ndtree::node_idx{c}; });
+                    [](int c) { return node_idx{c}; });
   t.pos_in_parent.resize(pos_in_parent.size());
   ranges::transform(pos_in_parent, begin(t.pos_in_parent),
-                    [](int p) { return static_cast<ndtree::uint_t>(p); });
+                    [](int p) { return static_cast<uint_t>(p); });
 
   return t;
 }
 
-template <int nd> void check_node(ndtree::tree<nd>& t, test_node n) {
+template <int nd> void check_node(tree<nd>& t, node n) {
   if (n.parent) {
     CHECK(!t.is_root(n.idx));
   } else {
@@ -49,7 +53,7 @@ template <int nd> void check_node(ndtree::tree<nd>& t, test_node n) {
   CHECK(t.parent(n.idx) == n.parent);
   CHECK(t.level(n.idx) == n.level);
   CHECK(t.no_children(n.idx) == (int)n.children.size());
-  if (n.children.size() == 0) {
+  if (n.children.size() == 0_u) {
     CHECK(t.is_leaf(n.idx));
   } else {
     CHECK(!t.is_leaf(n.idx));
@@ -60,17 +64,17 @@ template <int nd> void check_node(ndtree::tree<nd>& t, test_node n) {
     if (c) {
       CHECK(c == n.children[*p]);
     } else {
-      CHECK(n.children.size() == 0ul);
+      CHECK(n.children.size() == 0_u);
     }
   }
-  if (n.pos_in_parent.size() > 0) {
-    test::check_equal(ndtree::node_location(t, n.idx)(), n.pos_in_parent);
-    CHECK(ndtree::find_node(t, ndtree::location<nd>(n.pos_in_parent)) == n.idx);
+  if (n.pos_in_parent.size() > 0_u) {
+    test::check_equal(node_location(t, n.idx)(), n.pos_in_parent);
+    CHECK(find_node(t, location<nd>(n.pos_in_parent)) == n.idx);
   }
 }
 
 template <class ReferenceTree>
-void check_all(ndtree::tree<1>& t, ReferenceTree const& tref) {
+void check_all(tree<1>& t, ReferenceTree const& tref) {
   for (auto&& n : tref.nodes) { check_node(t, n); }
 }
 
@@ -129,3 +133,5 @@ void pretty_print(Ostream&& os, Tree const& t) {
 
   os << "}" << std::endl;
 }
+
+}  // namespace test

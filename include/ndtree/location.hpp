@@ -20,7 +20,7 @@ template <int nd, typename T = uint_t> struct location {
   uint_t level = 0;
 
   static constexpr auto dimensions() noexcept {
-    return view::ints(uint_t{0}, uint_t{nd});
+    return view::ints(0_u, uint_t{nd});
   }
 
   static constexpr uint_t max_level() noexcept { return 8 * sizeof(T{}); }
@@ -58,8 +58,7 @@ template <int nd, typename T = uint_t> struct location {
   }
 
   auto operator()() const noexcept {
-    return (level == 0 ? view::iota(uint_t{0}, uint_t{0})
-                       : view::iota(uint_t{1}, level + uint_t{1}))
+    return (level == 0_u ? view::iota(0_u, 0_u) : view::iota(1_u, level + 1_u))
            | view::transform([&](uint_t l) { return (*this)[l]; });
   }
 
