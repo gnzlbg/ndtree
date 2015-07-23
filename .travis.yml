@@ -47,8 +47,8 @@ matrix:
             - llvm-toolchain-precise # latest
 
     # clang 3.7, release build, ASan
-    - env: COMPILER=clang++-3.7 BUILD_TYPE=Release ASan=true
-      addons: *clang37
+    # - env: COMPILER=clang++-3.7 BUILD_TYPE=Release ASan=true
+    #  addons: *clang37
 
     # clang 3.7, release build, valgrind
     - env: COMPILER=clang++-3.7 BUILD_TYPE=Release Valgrind=true
