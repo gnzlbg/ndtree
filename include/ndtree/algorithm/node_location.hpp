@@ -2,6 +2,7 @@
 /// \file node_location.hpp
 #include <ndtree/location.hpp>
 #include <ndtree/types.hpp>
+#include <ndtree/utility/assert.hpp>
 #include <ndtree/utility/static_const.hpp>
 
 namespace ndtree {
@@ -11,8 +12,9 @@ inline namespace v1 {
 /// Computes the location code of a node within the tree
 struct node_location_fn {
   template <typename Tree>
-  auto operator()(Tree const& t, node_idx n) const
-   noexcept -> location<Tree::dimension()> {
+  auto operator()(Tree const& t, node_idx n) const noexcept
+   -> location<Tree::dimension()> {
+    NDTREE_ASSERT(n, "cannot compute the location of an invalid node");
     location<Tree::dimension()> loc;
 
     while (!t.is_root(n)) {

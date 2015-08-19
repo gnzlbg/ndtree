@@ -2,9 +2,13 @@
 /// \file location.hpp
 #include <array>
 #include <ndtree/types.hpp>
+#include <ndtree/relations.hpp>
 #include <ndtree/utility/bit.hpp>
 #include <ndtree/utility/math.hpp>
 #include <ndtree/utility/ranges.hpp>
+#include <ndtree/utility/compact_optional.hpp>
+
+#include <iostream>
 
 namespace ndtree {
 inline namespace v1 {
@@ -15,30 +19,62 @@ inline namespace v1 {
 /// The underlying storage type T determines the maximum level
 /// within the tree that can be represented.
 ///
+/// TODO: reconsider the storage format
+/// TODO: make level a member function
+/// TODO: make x and level private
+/// TODO: rework optional location
+/// TODO: check overflow from array of floats
+///
+/// Right now optimized for insertion but makes it a pain for shifting
+/// coordinates and doing useful stuff with the location hashes
+///
 template <int nd, typename T = uint_t> struct location {
+  using this_t = location<nd, T>;
+  using opt_this_t = compact_optional<this_t>;
+  using value_type = this_t;
+  using storage_type = this_t;
+  using reference_type = this_t const&;
+
   std::array<T, nd> x;
   uint_t level = 0;
 
-  static constexpr auto dimensions() noexcept {
-    return view::ints(0_u, uint_t{nd});
-  }
+  static constexpr auto dimensions() noexcept { return ndtree::dimensions(nd); }
 
   static constexpr uint_t max_level() noexcept { return 8 * sizeof(T{}); }
+
+  constexpr auto levels() const noexcept {
+    return level == 0 ? view::iota(0_u, 0_u) : view::iota(1_u, level + 1_u);
+  }
+
+  void reset_bits() noexcept {
+    for (auto&& d : dimensions()) { x[d] = static_cast<T>(0); }
+  }
 
   location() = default;
 
   location(std::array<float, nd> x_, int l) : level(l) {
+    reset_bits();
     NDTREE_ASSERT(l < max_level(), "");
+
+    for (auto&& d : dimensions()) {
+      NDTREE_ASSERT(x_[d] > 0. and x_[d] < 1., "location from non-normalized "
+                                               "float (d: {}, x[d]: {}) "
+                                               "out-of-range (0., 1.)",
+                    d, x_[d]);
+    }
+
     constexpr uint_t scale = math::ipow(2, l);
     for (auto&& d : dimensions()) { x[d] = x_[d] * scale; }
   }
 
   location(std::initializer_list<uint_t> ps) {
+    reset_bits();
     for (auto&& p : ps) { push(p); }
   }
 
   // from root:
   template <class Rng, CONCEPT_REQUIRES_(Range<Rng>())> location(Rng&& ps) {
+    reset_bits();
     for (auto&& p : ps) { push(p); }
   }
 
@@ -77,19 +113,59 @@ template <int nd, typename T = uint_t> struct location {
   }
 
   uint_t to_int(uint_t d) const noexcept {
-    return bit::to_int(x[d], 1, level + 1);
+    return bit::to_int_r(x[d], static_cast<T>(1), static_cast<T>(level + 1));
   }
 
-  uint_t to_int() const noexcept {
-    auto tmp = shuffle(x, 1, level);
-    return bit::to_int(tmp, 0, level * nd);
+  void from_int_r(uint_t d, uint_t v) noexcept {
+    uint_t i = 1;
+    for (auto l : levels() | view::reverse) {
+      std::cout << "l = " << l << std::endl;
+      bit::set(x[d], i, bit::get(v, l - 1));
+      ++i;
+    }
   }
 
-  // constexpr void shift(std::array<float, nd> x_) {
-  //   for (auto&& d : dimensions()) { auto i = bit::to_int(x[d], 1, level + 1);
-  //   }
-  // }
+  friend opt_this_t shift(this_t l, uint_t d, int_t v) noexcept {
+    uint_t xi = l.to_int(d);
+    if (!bit::overflows_on_add(xi, v, l.level)) {
+      xi += v;
+      l.x[d]
+       = bit::to_int_r(xi, static_cast<T>(0), static_cast<T>(l.level + 1));
+      return opt_this_t{l};
+    } else {
+      return opt_this_t{};
+    }
+  }
+
+  static constexpr this_t empty_value() noexcept {
+    this_t t;
+    t.level = std::numeric_limits<uint_t>::max();
+    return t;
+  }
+  static constexpr bool is_empty_value(this_t v) noexcept {
+    return v.level == std::numeric_limits<uint_t>::max();
+  }
+
+  static constexpr value_type const& access_value(
+   storage_type const& v) noexcept {
+    return v;
+  }
+  static constexpr value_type const& store_value(value_type const& v) noexcept {
+    return v;
+  }
+  static constexpr value_type&& store_value(value_type&& v) noexcept {
+    return std::move(v);
+  }
 };
+
+/// Optional location
+template <int nd, typename T = uint_t>
+using optional_location = typename location<nd, T>::opt_this_t;
+
+template <int nd, typename T>
+optional_location<nd, T> parent(location<nd, T> l) noexcept {
+  l.level == 0 ? optional_location<nd, T>{} : optional_location<nd, T>{l.pop()};
+}
 
 template <int nd> constexpr bool operator==(location<nd> a, location<nd> b) {
   return a.level == 0 ? a.level == b.level

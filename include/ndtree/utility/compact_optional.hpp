@@ -98,8 +98,9 @@ class compact_optional_base {
 
 }  // namespace detail
 
-template <typename N, typename tag = default_tag>  //
+template <typename N, typename Tag = default_tag>  //
 class compact_optional : public detail::compact_optional_base<N> {
+  using tag = Tag;
   using this_t = compact_optional<N, tag>;
   using super = detail::compact_optional_base<N>;
   using super::value_;

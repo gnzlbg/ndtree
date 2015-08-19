@@ -51,10 +51,10 @@ template <class T> struct R {
 
   template <class U> void oops(U const& u) const {
     ::ndtree::fmt::print(stderr, "> ERROR: CHECK failed '{}'\n > \t {} ({})\n",
-                        expr_, filename_, lineno_);
+                         expr_, filename_, lineno_);
     if (dismissed_)
       ::ndtree::fmt::print(stderr, "> \tEXPECTED: {}\n> \tACTUAL: {} \n",
-                          stream(u), stream(t_));
+                           stream(u), stream(t_));
     ++failures();
   }
   void dismiss() { dismissed_ = true; }
@@ -122,18 +122,18 @@ inline int result() { return detail::failures() ? EXIT_FAILURE : EXIT_SUCCESS; }
 #define CHECK(...) \
   (void)(test::detail::S{__FILE__, __LINE__, #__VA_ARGS__}->*__VA_ARGS__) /**/
 
-#define THROWS(expr, ExceptionType)                                        \
-  do {                                                                     \
-    bool exception_thrown_ = false;                                        \
-    try {                                                                  \
-      (expr);                                                              \
-    } catch (const ExceptionType&) { exception_thrown_ = true; }           \
-                                                                           \
-    if (exception_thrown_) { break; }                                      \
-                                                                           \
+#define THROWS(expr, ExceptionType)                                         \
+  do {                                                                      \
+    bool exception_thrown_ = false;                                         \
+    try {                                                                   \
+      (expr);                                                               \
+    } catch (const ExceptionType&) { exception_thrown_ = true; }            \
+                                                                            \
+    if (exception_thrown_) { break; }                                       \
+                                                                            \
     NDTREE_TERMINATE("Expression: " #expr                                   \
-                    " doesn't throw an exception of type: " #ExceptionType \
-                    ".");                                                  \
+                     " doesn't throw an exception of type: " #ExceptionType \
+                     ".");                                                  \
   } while (false)
 
 template <typename Val, typename Rng>

@@ -9,16 +9,23 @@ inline namespace v1 {
 //
 
 /// Find the index of a node at a given location
+///
+/// Returns invalid if a node at the exact location was not found
 struct find_node_fn {
   template <typename Tree>
-  auto operator()(Tree const& t, location<Tree::dimension()> loc) const
-   noexcept -> node_idx {
+  auto operator()(Tree const& t, location<Tree::dimension()> loc) const noexcept
+   -> node_idx {
     node_idx n = 0_n;
     for (auto&& p : loc()) {
       n = t.child(n, typename Tree::child_pos{p});
-      if (!n) { break; }
+      if (!n) { return node_idx{}; }
     }
     return n;
+  }
+  template <typename Tree>
+  auto operator()(Tree const& t, optional_location<Tree::dimension()> loc) const
+   noexcept -> node_idx {
+    return loc ? (*this)(t, *loc) : node_idx{};
   }
 };
 

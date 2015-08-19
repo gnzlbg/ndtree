@@ -13,6 +13,8 @@
 #endif
 #include <ndtree/algorithm/node_location.hpp>
 #include <ndtree/algorithm/find_node.hpp>
+#include <ndtree/algorithm/find_node_neighbor.hpp>
+#include <ndtree/relations.hpp>
 
 namespace test {
 
@@ -24,22 +26,29 @@ struct node {
   node_idx parent;
   std::vector<node_idx> children;
   std::vector<uint_t> pos_in_parent;
+  std::vector<node_idx> face_neighbors;
 };
 
 static const constexpr auto i = std::numeric_limits<int>::max();
 
-node n(int idx, int level, int parent, std::initializer_list<int> children,
-       std::initializer_list<int> pos_in_parent = {}) {
+node n(uint_t idx, int level, int parent,
+       std::initializer_list<uint_t> children,
+       std::initializer_list<int> pos_in_parent = {},
+       std::initializer_list<uint_t> face_neighbors = {}) {
   node t;
   t.idx = node_idx{idx};
   t.level = level;
   t.parent = parent == i ? node_idx{} : node_idx{parent};
   t.children.resize(children.size());
   ranges::transform(children, begin(t.children),
-                    [](int c) { return node_idx{c}; });
+                    [](int c) { return c != i ? node_idx{c} : node_idx{}; });
   t.pos_in_parent.resize(pos_in_parent.size());
   ranges::transform(pos_in_parent, begin(t.pos_in_parent),
                     [](int p) { return static_cast<uint_t>(p); });
+
+  t.face_neighbors.resize(face_neighbors.size());
+  ranges::transform(face_neighbors, begin(t.face_neighbors),
+                    [](int c) { return c != i ? node_idx{c} : node_idx{}; });
 
   return t;
 }
@@ -67,9 +76,22 @@ template <int nd> void check_node(tree<nd>& t, node n) {
       CHECK(n.children.size() == 0_u);
     }
   }
+  {  // check location: compute node location, find node at location, both must
+     // be the same node:
+    auto l = node_location(t, n.idx);
+    auto nn = find_node(t, l);
+    CHECK(nn == n.idx);
+  }
   if (n.pos_in_parent.size() > 0_u) {
     test::check_equal(node_location(t, n.idx)(), n.pos_in_parent);
     CHECK(find_node(t, location<nd>(n.pos_in_parent)) == n.idx);
+  }
+  if (n.face_neighbors.size() > 0_u) {
+    using neighbor_idx = neighbor_idx_t<face_neighbors<nd>>;
+    for (auto&& p : neighbor_idx::rng()) {
+      CHECK(find_node_neighbor(t, node_location(t, n.idx), p)
+            == n.face_neighbors[*p]);
+    }
   }
 }
 

@@ -36,5 +36,10 @@ constexpr siblings_idx operator"" _sg(unsigned long long int i) {
   return siblings_idx{static_cast<uint_t>(i)};
 }
 
+template <class T> using get_tag_t = typename T::tag;
+
+/// Neighbor tags
+struct same_level_tag {};
+
 }  // namespace v1
 }  // namespace ndtree

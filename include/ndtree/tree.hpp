@@ -6,6 +6,7 @@
 ///
 #include <memory>
 #include <ndtree/types.hpp>
+#include <ndtree/relations.hpp>
 #include <ndtree/utility/assert.hpp>
 #include <ndtree/utility/fmt.hpp>
 #include <ndtree/utility/math.hpp>
@@ -16,27 +17,34 @@ namespace ndtree {
 inline namespace v1 {
 //
 
-/// nd-octree
-///
-/// TODO
-///
+/// nd-octree data-structure
 template <int nd> struct tree {
  private:
   /// \name Data
   ///
-  /// All member variables of the tree.
+  /// Memory layout: siblings (node with the same parent) are stored
+  /// contiguously in memory in Morton Z-Curve order.
+  ///
+  /// The order of groups of children is arbitrary.
+  ///
+  /// Memory requirements: 1 word + 1 / no_children word per node
+  /// - each node stores the index of its first child
+  /// - each group of siblings stores the index of its parent
+  ///
+  /// All member variables of the tree are documented in this section.
   ///
   ///@{
 
-  /// Sibling group capacity
+  /// Sibling group capacity: maximum number of sibling groups that the tree can
+  /// store
   siblings_idx sg_capacity_ = 0_sg;
-  /// Parent of a children group
-  std::unique_ptr<node_idx[]> parents_;
-  /// First child node of a given node
-  std::unique_ptr<node_idx[]> first_children_;
+  /// Indices to the parent node of each sibling group (1 index / sibling group)
+  std::unique_ptr<node_idx[]> parents_ = nullptr;
+  /// Indices of the first children of each node (1 index / node)
+  std::unique_ptr<node_idx[]> first_children_ = nullptr;
   /// Number of nodes in the tree
   node_idx size_ = 0_n;
-  /// First group of sibling nodes that is free
+  /// First group of siblings that is free (i.e. not in use)
   siblings_idx first_free_sibling_group_{0};
 
   ///@}  // Data
@@ -45,21 +53,23 @@ template <int nd> struct tree {
   /// \name Spatial constants
   ///@{
 
-  /// Number of spatial dimensions
+  /// Number of spatial dimensions of the tree
   static constexpr int_t dimension() noexcept { return nd; }
 
-  /// Range of spatial dimensions
-  static constexpr auto dimensions() noexcept {
-    return view::iota(0_u, uint_t{nd});
-  }
+  /// Range of spatial dimensions of the tree: [0, nd)
+  static constexpr auto dimensions() noexcept { return ndtree::dimensions(nd); }
   NDTREE_STATIC_ASSERT_RANDOM_ACCESS_SIZED_RANGE(dimensions());
 
   /// Number of children per node
   static constexpr uint_t no_children() noexcept { return math::ipow(2, nd); }
 
-  /// Position in parent of node \p n
+  /// Position of node \p n within its parent
+  ///
+  /// \post n == child(parent(n), position_in_parent(n))
+  ///
   static constexpr uint_t position_in_parent(node_idx n) noexcept {
     return ((*n) - 1_u) % no_children();
+    // post-condition is recursive and cannot be asserted
   }
 
   ///@}  // Spatial constants
@@ -68,14 +78,14 @@ template <int nd> struct tree {
   ///
   ///@{
 
-  /// Sibling group of node \p n
+  /// Index of the sibling group of node \p n
   static constexpr siblings_idx sibling_group(node_idx n) noexcept {
     NDTREE_ASSERT(n, "cannot compute sibling group of invalid node");
     return siblings_idx{static_cast<int_t>(
      math::floor((*n + no_children() - 1.f) / no_children()))};
   }
 
-  /// Parent node of sibling group \p s
+  /// Index of the parent node of the sibling group \p s
   node_idx parent(siblings_idx s) const noexcept {
     NDTREE_ASSERT(s, "cannot obtain parent of invalid sibling group");
     NDTREE_ASSERT(s >= 0_sg and s < sibling_group_capacity(),
@@ -85,33 +95,42 @@ template <int nd> struct tree {
   }
 
  private:
-  /// Mutate the parent node of the sibling group \p s to \p value
+  /// Sets the index of the parent node of the sibling group \p s to \p value
   ///
-  /// \warning not thread-safe
+  /// \post parent(s) == value
+  ///
+  /// \warning not thread-safe (requires external synchronization)
   void set_parent(siblings_idx s, node_idx value) noexcept {
     NDTREE_ASSERT(s, "cannot set parent of invalid sibling group");
     NDTREE_ASSERT(s >= 0_sg and s < sibling_group_capacity(),
                   "sg {} is out-of-bounds for parents [{}, {})", s, 0,
                   sibling_group_capacity());
     parents_[*s] = value;
+    NDTREE_ASSERT(parent(s) == value, "");
   }
 
  public:
-  /// Parent node of node \p n
+  /// Index of the parent node of node \p n
   node_idx parent(node_idx n) const noexcept {
     return parent(sibling_group(n));
   }
 
+  /// Child position type is a uint_t bounded in [0, no_children)
   using child_pos = bounded<uint_t, 0, no_children(), struct child_pos_tag>;
 
  private:
-  /// First children of node \p n
+  /// Index of the first children of node \p n
+  ///
+  /// \post !c || first_child(n) == child(n, 0)
+  /// \post !c || parent(first_child(n)) == n
+  ///
   node_idx first_child(node_idx n) const noexcept {
     NDTREE_ASSERT(n, "cannot obtain first child of invalid node");
     NDTREE_ASSERT(n >= 0_n and n < capacity(),
                   "node {} is out-of-bounds for first_child [{}, {})", n, 0,
                   capacity());
     return first_children_[*n];
+    // cannot assert post-condition because swap temporarily violates it
   }
 
   /// First node in sibling group \p s
@@ -119,7 +138,9 @@ template <int nd> struct tree {
     return (*s == 0) ? 0_n : node_idx{1 + no_children() * (*s - 1)};
   }
 
-  /// Mutate the value of the first child of node \p n to \p value
+  /// Sets the index of the first child of node \p n to \p value
+  ///
+  /// \post child(n, 0) == value
   ///
   /// \warning not thread-safe
   void set_first_child(node_idx n, node_idx value) noexcept {
@@ -128,16 +149,17 @@ template <int nd> struct tree {
                   "node {} is out-of-bounds for first_child [{}, {})", n, 0,
                   capacity());
     first_children_[*n] = value;
+    NDTREE_ASSERT(child(n, child_pos{0}) == value, "");
   }
 
  public:
-  /// Sibling group of children of node \p n
+  /// Index of the group of children of node \p n
   siblings_idx children_group(node_idx n) const noexcept {
     auto c = first_child(n);
     return c ? sibling_group(c) : siblings_idx{};
   }
 
-  /// Range of child positions
+  /// Range of child positions: [0, no_children)
   static constexpr auto child_positions() noexcept { return child_pos::rng(); }
 
   /// Child node at position \p p of node \p n
@@ -198,30 +220,30 @@ template <int nd> struct tree {
   ///
   /// \note The tree does not need to be compact
   auto nodes() const noexcept {
-    // Explanation:
-    // create range of all sibling groups (including free ones)
-    // | filter out free sibling groups (only sibling groups in use remain)
-    // | transform each sibling group into a range of its nodes:
-    //   this produces a range of ranges of nodes
-    // | flatten out the range
-    return sibling_groups()
+    return sibling_groups()  // range of all non-free sibling groups
+           // map each sibling group into a range of its nodes
+           // (which produces a range of ranges of nodes):
            | view::transform([](siblings_idx s) { return nodes(s); })
+           // flatten the range into a range of nodes:
            | view::join;
   }
 
-  /// Selects leaf nodes
+  /// Range filter that selects leaf nodes only
   auto leaf() const noexcept {
     return view::filter([&](node_idx i) { return is_leaf(i); });
   }
 
-  /// Selects nodes with children
+  /// Range filter that selects nodes with children only
   auto with_children() const noexcept {
     return view::remove_if([&](node_idx i) { return is_leaf(i); });
   }
 
  private:
+  /// All non-free sibling group indices in the tree
   auto sibling_groups() const noexcept {
+    // range of all sibling groups from [0, sibling_group_capacity)
     return boxed_ints<siblings_idx>(first_sg(), last_sg())
+           // select those sibling groups that are not free
            | view::filter([&](siblings_idx s) { return !is_free(s); });
   }
 
@@ -464,6 +486,8 @@ template <int nd> struct tree {
   ///@}  // Memory management
 
  public:
+  tree() = default;
+
   /// Creates a tree with capacity for at least \p cap nodes and initializes it
   /// with a root node
   tree(uint_t cap)
