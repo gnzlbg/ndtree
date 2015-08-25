@@ -9,8 +9,8 @@ namespace ndtree {
 inline namespace v1 {
 //
 
-/// Computes the location code of a node within the tree
 struct node_location_fn {
+  /// Location code of the node with index \p n within the tree \p t
   template <typename Tree>
   auto operator()(Tree const& t, node_idx n) const noexcept
    -> location<Tree::dimension()> {

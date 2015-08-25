@@ -18,22 +18,22 @@ NDTREE_STATIC_ASSERT_RANDOM_ACCESS_SIZED_RANGE(tree<1>::child_positions());
 
 struct uniform_tree {
   std::vector<node> nodes{
-   {n(0, 0, i, {1, 2}, {}, {i, i})},        //
-   {n(1, 1, 0, {3, 4}, {0}, {i, 2})},       //
-   {n(2, 1, 0, {5, 6}, {1}, {1, i})},       //
-   {n(3, 2, 1, {7, 8}, {0, 0}, {i, 4})},    //
-   {n(4, 2, 1, {9, 10}, {0, 1}, {3, 5})},   //
-   {n(5, 2, 2, {11, 12}, {1, 0}, {4, 6})},  //
-   {n(6, 2, 2, {13, 14}, {1, 1}, {5, i})},  //
-   {n(7, 3, 3, {}, {0, 0, 0}, {i, 8})},     //
-   {n(8, 3, 3, {}, {0, 0, 1}, {7, 9})},     //
-   {n(9, 3, 4, {}, {0, 1, 0}, {8, 10})},    //
-   {n(10, 3, 4, {}, {0, 1, 1}, {9, 11})},   //
-   {n(11, 3, 5, {}, {1, 0, 0}, {10, 12})},  //
-   {n(12, 3, 5, {}, {1, 0, 1}, {11, 13})},  //
-   {n(13, 3, 6, {}, {1, 1, 0}, {12, 14})},  //
-   {n(14, 3, 6, {}, {1, 1, 1}, {13, i})}    //
-                                            //
+   {n(0, 0, i, cs{1, 2}, pip{}, {i, i})},        //
+   {n(1, 1, 0, cs{3, 4}, pip{0}, {i, 2})},       //
+   {n(2, 1, 0, cs{5, 6}, pip{1}, {1, i})},       //
+   {n(3, 2, 1, cs{7, 8}, pip{0, 0}, {i, 4})},    //
+   {n(4, 2, 1, cs{9, 10}, pip{0, 1}, {3, 5})},   //
+   {n(5, 2, 2, cs{11, 12}, pip{1, 0}, {4, 6})},  //
+   {n(6, 2, 2, cs{13, 14}, pip{1, 1}, {5, i})},  //
+   {n(7, 3, 3, cs{}, pip{0, 0, 0}, {i, 8})},     //
+   {n(8, 3, 3, cs{}, pip{0, 0, 1}, {7, 9})},     //
+   {n(9, 3, 4, cs{}, pip{0, 1, 0}, {8, 10})},    //
+   {n(10, 3, 4, cs{}, pip{0, 1, 1}, {9, 11})},   //
+   {n(11, 3, 5, cs{}, pip{1, 0, 0}, {10, 12})},  //
+   {n(12, 3, 5, cs{}, pip{1, 0, 1}, {11, 13})},  //
+   {n(13, 3, 6, cs{}, pip{1, 1, 0}, {12, 14})},  //
+   {n(14, 3, 6, cs{}, pip{1, 1, 1}, {13, i})}    //
+                                                    //
   };
 };
 
@@ -105,8 +105,8 @@ struct tree_after_coarsen_sorted {
   };
 };
 
-void check_construction() {
-  {
+int main() {
+  { // check construction
     tree<1> t(1);
     CHECK(t.capacity() == 1_u);
     CHECK(t.size() == 1_u);
@@ -114,7 +114,7 @@ void check_construction() {
     CHECK(t.is_leaf(0_n));
   }
 
-  {
+  { // check capacity
     CHECK(tree<1>(1).capacity() == 1_u);
     CHECK(tree<1>(2).capacity() == 3_u);
     CHECK(tree<1>(3).capacity() == 3_u);
@@ -122,22 +122,6 @@ void check_construction() {
     CHECK(tree<1>(14).capacity() == 15_u);
     CHECK(tree<1>(15).capacity() == 15_u);
   }
-}
-
-std::vector<int> foo(std::initializer_list<int> a = {}) {
-  auto v = std::vector<int>{} | action::push_back(a);
-  return v;
-}
-
-int main() {
-  std::vector<int> v;
-  v = std::move(v) | action::push_back({1, 2, 3});
-  test::check_equal(v, {1, 2, 3});
-
-  // //auto c = foo();
-  // auto d = foo({1, 2, 3, 4, 5, 6});
-  // return test::result();
-  check_construction();
   {
     tree<1> t(20);
     CHECK(t.capacity() == 21_u);

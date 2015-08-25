@@ -3,8 +3,8 @@
 #include <array>
 #include <ndtree/location.hpp>
 #include <ndtree/types.hpp>
+#include <ndtree/relations/tree.hpp>
 #include <ndtree/utility/math.hpp>
-#include <ndtree/relations.hpp>
 #include <ndtree/utility/static_const.hpp>
 
 namespace ndtree {

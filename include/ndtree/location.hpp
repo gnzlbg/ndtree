@@ -2,7 +2,7 @@
 /// \file location.hpp
 #include <array>
 #include <ndtree/types.hpp>
-#include <ndtree/relations.hpp>
+#include <ndtree/relations/tree.hpp>
 #include <ndtree/utility/bit.hpp>
 #include <ndtree/utility/math.hpp>
 #include <ndtree/utility/ranges.hpp>

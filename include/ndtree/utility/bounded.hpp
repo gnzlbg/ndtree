@@ -13,7 +13,7 @@ template <class T, T from, T to, class Tag = void> struct bounded {
   using reference_type = value_type&;
   value_type value;
 
-  bounded(T v) : value{v} {
+  constexpr bounded(T v = from) : value{v} {
     NDTREE_ASSERT(value >= from and value < to,
                   "value is out-of-bounds [{}, {})", from, to);
   }

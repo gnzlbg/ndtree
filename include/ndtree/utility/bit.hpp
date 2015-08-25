@@ -107,7 +107,8 @@ constexpr uint_t max_value(uint_t no_bits) {
 }
 
 /// Does adding \p offset to the first \p no_bits of \p value overflows?
-constexpr bool overflows_on_add(uint_t value, int_t offset,
+template <class Integer, CONCEPT_REQUIRES_(SignedIntegral<Integer>{})>
+constexpr bool overflows_on_add(uint_t value, Integer offset,
                                 uint_t no_bits = width<uint_t>) {
   if (offset >= int_t{0}) {
     return max_value(no_bits) - value < static_cast<uint_t>(offset);
@@ -117,7 +118,8 @@ constexpr bool overflows_on_add(uint_t value, int_t offset,
 }
 
 /// Does adding \p offset to the first \p no_bits of \p value overflows?
-constexpr bool overflows_on_add(uint_t value, uint_t offset,
+template <class Integer, CONCEPT_REQUIRES_(UnsignedIntegral<Integer>{})>
+constexpr bool overflows_on_add(uint_t value, Integer offset,
                                 uint_t no_bits = width<uint_t>) {
   return max_value(no_bits) - value < static_cast<uint_t>(offset);
 }

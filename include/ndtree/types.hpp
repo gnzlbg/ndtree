@@ -36,10 +36,17 @@ constexpr siblings_idx operator"" _sg(unsigned long long int i) {
   return siblings_idx{static_cast<uint_t>(i)};
 }
 
+/// nd-tree
+template <int nd> struct tree;
+
+/// Child position range
+template <typename tree> using child_pos = typename tree::child_pos;
+
 template <class T> using get_tag_t = typename T::tag;
 
 /// Neighbor tags
 struct same_level_tag {};
+struct child_level_tag {};
 
 }  // namespace v1
 }  // namespace ndtree

@@ -6,7 +6,7 @@
 ///
 #include <memory>
 #include <ndtree/types.hpp>
-#include <ndtree/relations.hpp>
+#include <ndtree/relations/tree.hpp>
 #include <ndtree/utility/assert.hpp>
 #include <ndtree/utility/fmt.hpp>
 #include <ndtree/utility/math.hpp>
@@ -57,11 +57,15 @@ template <int nd> struct tree {
   static constexpr int_t dimension() noexcept { return nd; }
 
   /// Range of spatial dimensions of the tree: [0, nd)
-  static constexpr auto dimensions() noexcept { return ndtree::dimensions(nd); }
+  static constexpr auto dimensions() noexcept {
+    return ndtree::dimensions(dimension());
+  }
   NDTREE_STATIC_ASSERT_RANDOM_ACCESS_SIZED_RANGE(dimensions());
 
   /// Number of children per node
-  static constexpr uint_t no_children() noexcept { return math::ipow(2, nd); }
+  static constexpr uint_t no_children() noexcept {
+    return ndtree::no_children(nd);
+  }
 
   /// Position of node \p n within its parent
   ///
@@ -500,6 +504,15 @@ template <int nd> struct tree {
     initialize_root_node();
   }
 };
+
+/// Binary tree
+using binary_tree = tree<1>;
+
+/// Quad-tree
+using quad_tree = tree<2>;
+
+/// Oct-tree
+using oct_tree = tree<3>;
 
 }  // namespace v1
 }  // namespace ndtree

@@ -1,5 +1,6 @@
 #include "test.hpp"
-#include <ndtree/relations.hpp>
+#include <ndtree/relations/tree.hpp>
+#include <ndtree/relations/neighbor.hpp>
 
 using namespace ndtree;
 
@@ -206,6 +207,13 @@ int main() {
     test::check_equal(fn[5_ni], neighbor_offset<3>{{1, -1, 1}});
     test::check_equal(fn[6_ni], neighbor_offset<3>{{-1, 1, 1}});
     test::check_equal(fn[7_ni], neighbor_offset<3>{{1, 1, 1}});
+  }
+
+  /// Test max no neighbors
+  {
+    static_assert(max_no_neighbors(1) == 2, "");
+    static_assert(max_no_neighbors(2) == 12, "");
+    static_assert(max_no_neighbors(3) == 56, "");
   }
 
   return test::result();

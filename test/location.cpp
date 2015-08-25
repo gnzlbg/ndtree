@@ -92,6 +92,5 @@ int main() {
   // test shift
   /// test that shift fails
 
-
   return test::result();
 }
