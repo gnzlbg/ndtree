@@ -44,7 +44,7 @@ matrix:
             - lcov
           sources:
             - ubuntu-toolchain-r-test
-            - llvm-toolchain-precise # latest
+            - llvm-toolchain-precise-3.7 
 
     # clang 3.7, release build, ASan
     # - env: COMPILER=clang++-3.7 BUILD_TYPE=Release ASan=true
