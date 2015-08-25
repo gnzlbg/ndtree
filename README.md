@@ -1,24 +1,25 @@
-# ND-Tree <a href="https://travis-ci.org/gnzlbg/htree" target="_blank">![Build Status][badge.Travis]</a> <a href="https://coveralls.io/r/gnzlbg/htree" target="_blank">![Coverage Status][badge.Coveralls]</a>
+# ND-Tree <a href="https://travis-ci.org/gnzlbg/ndtree" target="_blank">![Build Status][badge.Travis]</a> <a href="https://coveralls.io/r/gnzlbg/ndtree" target="_blank">![Coverage Status][badge.Coveralls]</a>
 
-> Data-oriented pointer-free edge based n-dimensional region octree data
-> structure and algorithms
+> Data-oriented pointer-free edge based n-dimensional region octree and algorithms
 
-The implementation has a relatively low memory usage (`1 + 1/2^nd` words per
-node), ok complexity guarantees (`log(N)` root-to-node and node-to-root
-traversals), and doesn't care about the layout of the node data as long as you
-can swap 2 elements (this allows you to use a SOA layout if you want).
+**DISCLAIMER**: this library is a work in progress and woefully incomplete!
 
-I've tried to keep the implementation of the tree itself as minimal as possible.
-Useful concepts like geohashes are implemented externally allowing you to have a
-geohash with small memory foot-print for storage purposes and a different one
-with fast neighbor queries for e.g. collision detection. 
+This library provides a minimal `nd`-dimensional octree implementation
+(`tree<nd>`) with a relatively low memory usage (`1 + 1/2^nd` words per node),
+_ok_ complexity guarantees (`log(N)` root-to-node and node-to-root traversals),
+and configurable node data layout (as long as you can swap two elements), which
+allows using a Struct of Arrays data layout for your node data if you want.
+
+Geohashes are implemented externally (but used by some algorithms). You can
+implement your own for different purposes (e.g. fast neighbor queries,
+low-memory foot-print, ...).
 
 ### Quick start
 
 The data-structure itself is in `<ndtree/tree.hpp>`, the algorithms are in
 `<ndtree/algorithm/...>`. In the following minimal example it is shown how to
 create a custom quad-tree for 2D nearest-neighbor searches that uses a SOA
-layout for the points.
+layout for the points (very WIP).
 
 ```c++
 #include <ndtree/tree.hpp>
@@ -124,54 +125,45 @@ int main() {
 
   - fully configurable: SOA/AOS/user-defined
 
-- Thread safety: thread unsafe
+- Thread safety: 
 
-  - insertion/removal of nodes requires external synchronization.
-  - read-only operations (that is, anything else) is thread safe.
-  - TODO: provide an internally synchronized wrapper over the data structure
-
+  - insertion/removal of nodes requires external synchronization (is not thread-safe!).
+  - anything else is thread safe.
+  - TODO: provide a wrapper with internal synchronization.
+  
 - Traversal complexities:
 
   - node-to-root and root-to-node traversals are `O(log(N))` where `N` is the
     number of nodes in the tree.
 
-  - traversal to neighbor nodes are also `O(log(N))` but if the location hash of
-  the node:
-    - is not know, they require two traversals,
-    - is known, they require one traversal (but this requires extra storage)
+  - traversal to neighbor nodes are also `O(log(N))` and require one
+    root-to-neighbor traversal if the location hash is known (otherwise an extra
+    node-to-root traversal to compute the location hash)
 
 - Sorting:
 
   - siblings are always sorted after a Morton Z-Curve
-  - sibling groups (that is the block) are freely sortable
+  - groups of siblings are freely sortable
     - DFS sorting is implemented.
     - TODO: implement BFS/Hilbert/... 
 
 - Location hashes:
 
   - The storage of the location hash is configurable:
-  - For fast neighbor searches:
-    - WIP: a location hash with `1 + nd` words of memory to find nodes at a particular level
-    - TODO: a location hash with `nd` words of memory to find leaf nodes
-  - For low memory storage
+  - For fast neighbor searches: a location hash with `1 + nd` words of memory to
+    find nodes at a particular level
+  - For low memory storage:
     - TODO: a location hash with `2` words of memory for nodes at a particular level
     - TODO: a location hash with `1` word of memory for leaf nodes
 
-  - User-defined location hashes are supported, so if for example the number of
-    levels of the tree is very small (or very large) users can provide their own
-    location hashes optimized for their particular application and still use all
-    the algorithms provided by the library
-
-Algorithms:
+- Algorithms:
 
   - computing location hashes
   - DFS sorting
-  - TODO: find node neighbors
+  - find node neighbors
   - TODO: find nodes in a region
   - TODO: point insertion/removal
   - TODO: closest point
-
-
 
 <!-- Links -->
 [badge.Travis]: https://travis-ci.org/gnzlbg/ndtree.svg?branch=master
