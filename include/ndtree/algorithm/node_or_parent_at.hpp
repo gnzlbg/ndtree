@@ -10,7 +10,7 @@ inline namespace v1 {
 
 struct node_or_parent_at_fn {
   struct node {
-    node_idx idx = 0_n;
+    node_idx idx{};
     uint_t level = 0_u;
   };
 
@@ -25,7 +25,7 @@ struct node_or_parent_at_fn {
   template <typename Tree>
   auto operator()(Tree const& t, location<Tree::dimension()> loc) const noexcept
    -> node {
-    node result{};
+    node result{0_n, 0_u};
     for (auto&& p : loc()) {
       auto m = t.child(result.idx, typename Tree::child_pos{p});
       if (!m) { break; }

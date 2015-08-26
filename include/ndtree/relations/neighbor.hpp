@@ -110,6 +110,10 @@ template <int nd, int m> struct manifold_neighbors {
   static_assert(nd >= 0 and nd <= 3, "");
 
   static constexpr uint_t dimension() noexcept { return nd; }
+  static constexpr auto dimensions() noexcept {
+    return ndtree::dimensions(dimension());
+  }
+  static constexpr uint_t rank() noexcept { return m; }
 
   static constexpr uint_t size() noexcept {
     return no_neighbors(nd, nd - m, same_level_tag{});
@@ -117,23 +121,24 @@ template <int nd, int m> struct manifold_neighbors {
 
   using neighbor_idx = bounded<uint_t, 0_u, size(), manifold_neighbors<nd, m>>;
 
+  /// Range of neighbor positions
   auto operator()() const noexcept { return neighbor_idx::rng(); }
 
-  /// Offset of location code
+  /// Returns the offset for the neighbor in position \p i
   constexpr neighbor_offset<nd> operator[](neighbor_idx i) const noexcept {
     NDTREE_ASSERT(i, "");
     const auto n = *i;
     neighbor_offset<nd> o;
     switch (m) {
       case 1: {  // nd - 1
-        for (auto&& d : dimensions(nd)) {
+        for (auto&& d : dimensions()) {
           o[d] = (n / 2) == d % nd ? (n % 2 ? 1 : -1) : 0;
         }
         return o;
       }
       case 2: {  // nd - 2
         if (n < 4) {
-          for (auto&& d : dimensions(nd)) {
+          for (auto&& d : dimensions()) {
             o[d] = (n / math::ipow(2_u, d)) % 2 ? 1 : -1;
           }
           if (nd == 3) { o[2] = 0; }
@@ -147,7 +152,7 @@ template <int nd, int m> struct manifold_neighbors {
         return o;
       }
       case 3: {  // nd - 3
-        for (auto&& d : dimensions(nd)) {
+        for (auto&& d : dimensions()) {
           o[d] = (n / math::ipow(2_u, d)) % 2 ? 1 : -1;
         }
         return o;
@@ -195,24 +200,37 @@ using surface_neighbors =
              // planes:
              meta::if_c<m == 3 and nd == 3, face_neighbors<3>, meta::nil_>>>;
 
-struct neighbor_idx {
-  uint_t value;
-  template <class T, T from, T to, class Tag>
-  operator bounded<T, from, to, Tag>() const noexcept {
-    return bounded<T, from, to, Tag>{value};
-  }
-};
-
-constexpr neighbor_idx operator"" _ni(unsigned long long int i) {
-  return neighbor_idx{static_cast<uint_t>(i)};
-}
-
 constexpr auto max_no_neighbors(int nd) {
   int s = 0;
   for (int i = 1; i != nd + 1; ++i) {
     s += no_neighbors(nd, i, child_level_tag{});
   }
   return s;
+}
+
+/// Opposite neighbor position
+///
+/// The neighbor with position \p p of a given node, has that node as neighbor
+/// in the "opposite neighbor position" within the same neighbor set / manifold.
+///
+template <typename neighbor_idx>
+constexpr auto opposite(neighbor_idx p) -> neighbor_idx {
+  using manifold = get_tag_t<neighbor_idx>;
+  switch (manifold::rank()) {
+    case 1: {
+      const bool f = *p % 2;
+      return (!f) * (*p + 1) + f * (*p - 1);
+    }
+    case 2: {
+      const constexpr std::array<uint_t, 12> stencil{
+       {3, 2, 1, 0, 9, 8, 11, 10, 5, 4, 7, 6}};
+      return stencil[*p];
+    }
+    case 3: {
+      return no_children(manifold::dimension()) - 1 - (*p);
+    }
+    default: { NDTREE_TERMINATE("unimplemented"); }
+  }
 }
 
 ///@} Neighbor relations

@@ -18,64 +18,65 @@ NDTREE_STATIC_ASSERT_RANDOM_ACCESS_SIZED_RANGE(tree<1>::child_positions());
 
 struct uniform_tree {
   std::vector<node> nodes{
-   {n(0, 0, i, cs{1, 2}, pip{}, {i, i})},        //
-   {n(1, 1, 0, cs{3, 4}, pip{0}, {i, 2})},       //
-   {n(2, 1, 0, cs{5, 6}, pip{1}, {1, i})},       //
-   {n(3, 2, 1, cs{7, 8}, pip{0, 0}, {i, 4})},    //
-   {n(4, 2, 1, cs{9, 10}, pip{0, 1}, {3, 5})},   //
-   {n(5, 2, 2, cs{11, 12}, pip{1, 0}, {4, 6})},  //
-   {n(6, 2, 2, cs{13, 14}, pip{1, 1}, {5, i})},  //
-   {n(7, 3, 3, cs{}, pip{0, 0, 0}, {i, 8})},     //
-   {n(8, 3, 3, cs{}, pip{0, 0, 1}, {7, 9})},     //
-   {n(9, 3, 4, cs{}, pip{0, 1, 0}, {8, 10})},    //
-   {n(10, 3, 4, cs{}, pip{0, 1, 1}, {9, 11})},   //
-   {n(11, 3, 5, cs{}, pip{1, 0, 0}, {10, 12})},  //
-   {n(12, 3, 5, cs{}, pip{1, 0, 1}, {11, 13})},  //
-   {n(13, 3, 6, cs{}, pip{1, 1, 0}, {12, 14})},  //
-   {n(14, 3, 6, cs{}, pip{1, 1, 1}, {13, i})}    //
-                                                    //
+   {idx{0}, lvl{0}, pn{i}, cs{1, 2}, pip{}, fn{i, i}, en{}, cn{}, an{}},  //
+   {idx{1}, lvl{1}, pn{0}, cs{3, 4}, pip{0}, fn{i, 2}, an{5}},            //
+   {idx{2}, lvl{1}, pn{0}, cs{5, 6}, pip{1}, fn{1, i}, an{4}},            //
+   {idx{3}, lvl{2}, pn{1}, cs{7, 8}, pip{0, 0}, fn{i, 4}, an{9}},         //
+   {idx{4}, lvl{2}, pn{1}, cs{9, 10}, pip{0, 1}, fn{3, 5}, an{8, 11}},    //
+   {idx{5}, lvl{2}, pn{2}, cs{11, 12}, pip{1, 0}, fn{4, 6}, an{10, 13}},  //
+   {idx{6}, lvl{2}, pn{2}, cs{13, 14}, pip{1, 1}, fn{5, i}, an{12}},      //
+   {idx{7}, lvl{3}, pn{3}, cs{}, pip{0, 0, 0}, fn{i, 8}, an{8}},          //
+   {idx{8}, lvl{3}, pn{3}, cs{}, pip{0, 0, 1}, fn{7, 9}, an{7, 9}},       //
+   {idx{9}, lvl{3}, pn{4}, cs{}, pip{0, 1, 0}, fn{8, 10}, an{8, 10}},     //
+   {idx{10}, lvl{3}, pn{4}, cs{}, pip{0, 1, 1}, fn{9, 11}, an{9, 11}},    //
+   {idx{11}, lvl{3}, pn{5}, cs{}, pip{1, 0, 0}, fn{10, 12}, an{10, 12}},  //
+   {idx{12}, lvl{3}, pn{5}, cs{}, pip{1, 0, 1}, fn{11, 13}, an{11, 13}},  //
+   {idx{13}, lvl{3}, pn{6}, cs{}, pip{1, 1, 0}, fn{12, 14}, an{12, 14}},  //
+   {idx{14}, lvl{3}, pn{6}, cs{}, pip{1, 1, 1}, fn{13, i}, an{13}}        //
+                                                                          //
   };
 };
 
 struct tree_after_refine {
   std::vector<node> nodes{
-   {n(7, 3, 3, {}, {0, 0, 0}, {i, 8})},           //
-   {n(8, 3, 3, {17, 18}, {0, 0, 1}, {7, 9})},     //
-   {n(9, 3, 4, {19, 20}, {0, 1, 0}, {8, 10})},    //
-   {n(10, 3, 4, {}, {0, 1, 1}, {9, 11})},         //
-   {n(11, 3, 5, {15, 16}, {1, 0, 0}, {10, 12})},  //
-   {n(12, 3, 5, {}, {1, 0, 1}, {11, 13})},        //
-   {n(13, 3, 6, {}, {1, 1, 0}, {12, 14})},        //
-   {n(14, 3, 6, {}, {1, 1, 1}, {13, i})},         //
-   {n(15, 4, 11, {}, {1, 0, 0, 0}, {i, 16})},     //
-   {n(16, 4, 11, {}, {1, 0, 0, 1}, {15, i})},     //
-   {n(17, 4, 8, {}, {0, 0, 1, 0}, {i, 18})},      //
-   {n(18, 4, 8, {}, {0, 0, 1, 1}, {17, 19})},     //
-   {n(19, 4, 9, {}, {0, 1, 0, 0}, {18, 20})},     //
-   {n(20, 4, 9, {}, {0, 1, 0, 1}, {19, i})}       //
-                                                  //
+   {idx{7}, lvl{3}, pn{3}, cs{}, pip{0, 0, 0}, fn{i, 8}, an{17}},             //
+   {idx{8}, lvl{3}, pn{3}, cs{17, 18}, pip{0, 0, 1}, fn{7, 9}, an{7, 19}},    //
+   {idx{9}, lvl{3}, pn{4}, cs{19, 20}, pip{0, 1, 0}, fn{8, 10}, an{10, 18}},  //
+   {idx{10}, lvl{3}, pn{4}, cs{}, pip{0, 1, 1}, fn{9, 11}, an{15, 20}},       //
+   {idx{11}, lvl{3}, pn{5}, cs{15, 16}, pip{1, 0, 0}, fn{10, 12},
+    an{10, 12}},                                                             //
+   {idx{12}, lvl{3}, pn{5}, cs{}, pip{1, 0, 1}, fn{11, 13}, an{13, 16}},     //
+   {idx{13}, lvl{3}, pn{6}, cs{}, pip{1, 1, 0}, fn{12, 14}, an{12, 14}},     //
+   {idx{14}, lvl{3}, pn{6}, cs{}, pip{1, 1, 1}, fn{13, i}, an{13}},          //
+   {idx{15}, lvl{4}, pn{11}, cs{}, pip{1, 0, 0, 0}, fn{i, 16}, an{10, 16}},  //
+   {idx{16}, lvl{4}, pn{11}, cs{}, pip{1, 0, 0, 1}, fn{15, i}, an{12, 15}},  //
+   {idx{17}, lvl{4}, pn{8}, cs{}, pip{0, 0, 1, 0}, fn{i, 18}, an{7, 18}},    //
+   {idx{18}, lvl{4}, pn{8}, cs{}, pip{0, 0, 1, 1}, fn{17, 19}, an{17, 19}},  //
+   {idx{19}, lvl{4}, pn{9}, cs{}, pip{0, 1, 0, 0}, fn{18, 20}, an{18, 20}},  //
+   {idx{20}, lvl{4}, pn{9}, cs{}, pip{0, 1, 0, 1}, fn{19, i}, an{10, 19}}    //
+                                                                             //
   };
 };
 
 struct tree_after_coarsen {
   std::vector<node> nodes{
-   {n(0, 0, i, {1, 2})},    //
-   {n(1, 1, 0, {3, 4})},    //
-   {n(2, 1, 0, {5, 6})},    //
-   {n(3, 2, 1, {7, 8})},    //
-   {n(4, 2, 1, {9, 10})},   //
-   {n(5, 2, 2, {})},        //
-   {n(6, 2, 2, {13, 14})},  //
-   {n(7, 3, 3, {})},        //
-   {n(8, 3, 3, {17, 18})},  //
-   {n(9, 3, 4, {19, 20})},  //
-   {n(10, 3, 4, {})},       //
-   {n(13, 3, 6, {})},       //
-   {n(14, 3, 6, {})},       //
-   {n(17, 4, 8, {})},       //
-   {n(18, 4, 8, {})},       //
-   {n(19, 4, 9, {})},       //
-   {n(20, 4, 9, {})}        //
+   {idx{0}, lvl{0}, pn{i}, cs{1, 2}, fn{i, i}, an{}},           //
+   {idx{1}, lvl{1}, pn{0}, cs{3, 4}, fn{i, 2}, an{5}},          //
+   {idx{2}, lvl{1}, pn{0}, cs{5, 6}, fn{1, i}, an{4}},          //
+   {idx{3}, lvl{2}, pn{1}, cs{7, 8}, fn{i, 4}, an{9}},          //
+   {idx{4}, lvl{2}, pn{1}, cs{9, 10}, fn{3, 5}, an{5, 8}},      //
+   {idx{5}, lvl{2}, pn{2}, cs{}, fn{4, 6}, an{10, 13}},         //
+   {idx{6}, lvl{2}, pn{2}, cs{13, 14}, fn{5, i}, an{5}},        //
+   {idx{7}, lvl{3}, pn{3}, cs{}, fn{i, 8}, an{17}},             //
+   {idx{8}, lvl{3}, pn{3}, cs{17, 18}, fn{7, 9}, an{7, 19}},    //
+   {idx{9}, lvl{3}, pn{4}, cs{19, 20}, fn{8, 10}, an{10, 18}},  //
+   {idx{10}, lvl{3}, pn{4}, cs{}, fn{9, i}, an{5, 20}},         //
+   {idx{13}, lvl{3}, pn{6}, cs{}, fn{i, 14}, an{5, 14}},        //
+   {idx{14}, lvl{3}, pn{6}, cs{}, fn{13, i}, an{13}},           //
+   {idx{17}, lvl{4}, pn{8}, cs{}, fn{i, 18}, an{7, 18}},        //
+   {idx{18}, lvl{4}, pn{8}, cs{}, fn{17, 19}, an{17, 19}},      //
+   {idx{19}, lvl{4}, pn{9}, cs{}, fn{18, 20}, an{18, 20}},      //
+   {idx{20}, lvl{4}, pn{9}, cs{}, fn{19, i}, an{10, 19}}        //
 
    //
   };
@@ -83,30 +84,30 @@ struct tree_after_coarsen {
 
 struct tree_after_coarsen_sorted {
   std::vector<node> nodes{
-   {n(0, 0, i, {1, 2})},     //
-   {n(1, 1, 0, {3, 4})},     //
-   {n(2, 1, 0, {13, 14})},   //
-   {n(3, 2, 1, {5, 6})},     //
-   {n(4, 2, 1, {9, 10})},    //
-   {n(5, 3, 3, {})},         //
-   {n(6, 3, 3, {7, 8})},     //
-   {n(7, 4, 6, {})},         //
-   {n(8, 4, 6, {})},         //
-   {n(9, 3, 4, {11, 12})},   //
-   {n(10, 3, 4, {})},        //
-   {n(11, 4, 9, {})},        //
-   {n(12, 4, 9, {})},        //
-   {n(13, 2, 2, {})},        //
-   {n(14, 2, 2, {15, 16})},  //
-   {n(15, 3, 14, {})},       //
-   {n(16, 3, 14, {})}        //
+   {idx{0}, lvl{0}, pn{i}, cs{1, 2}},     //
+   {idx{1}, lvl{1}, pn{0}, cs{3, 4}},     //
+   {idx{2}, lvl{1}, pn{0}, cs{13, 14}},   //
+   {idx{3}, lvl{2}, pn{1}, cs{5, 6}},     //
+   {idx{4}, lvl{2}, pn{1}, cs{9, 10}},    //
+   {idx{5}, lvl{3}, pn{3}, cs{}},         //
+   {idx{6}, lvl{3}, pn{3}, cs{7, 8}},     //
+   {idx{7}, lvl{4}, pn{6}, cs{}},         //
+   {idx{8}, lvl{4}, pn{6}, cs{}},         //
+   {idx{9}, lvl{3}, pn{4}, cs{11, 12}},   //
+   {idx{10}, lvl{3}, pn{4}, cs{}},        //
+   {idx{11}, lvl{4}, pn{9}, cs{}},        //
+   {idx{12}, lvl{4}, pn{9}, cs{}},        //
+   {idx{13}, lvl{2}, pn{2}, cs{}},        //
+   {idx{14}, lvl{2}, pn{2}, cs{15, 16}},  //
+   {idx{15}, lvl{3}, pn{14}, cs{}},       //
+   {idx{16}, lvl{3}, pn{14}, cs{}}        //
 
    //
   };
 };
 
 int main() {
-  { // check construction
+  {  // check construction
     tree<1> t(1);
     CHECK(t.capacity() == 1_u);
     CHECK(t.size() == 1_u);
@@ -114,7 +115,7 @@ int main() {
     CHECK(t.is_leaf(0_n));
   }
 
-  { // check capacity
+  {  // check capacity
     CHECK(tree<1>(1).capacity() == 1_u);
     CHECK(tree<1>(2).capacity() == 3_u);
     CHECK(tree<1>(3).capacity() == 3_u);
@@ -166,7 +167,7 @@ int main() {
     t.refine(6_n);
     CHECK(t.size() == 15_u);
 
-    check_all(t, uniform_tree{});
+    check_tree(t, uniform_tree{});
     CHECK(t.is_compact());
 
     t.refine(11_n);
@@ -176,7 +177,7 @@ int main() {
     t.refine(9_n);
     CHECK(t.size() == 21_u);
 
-    check_all(t, tree_after_refine{});
+    check_tree(t, tree_after_refine{});
     CHECK(t.is_compact());
 
     t.coarsen(11_n);
@@ -187,11 +188,11 @@ int main() {
     CHECK(t.size() == 17_u);
 
     CHECK(!t.is_compact());
-    check_all(t, tree_after_coarsen{});
+    check_tree(t, tree_after_coarsen{});
 
     dfs_sort(t);
     CHECK(t.is_compact());
-    check_all(t, tree_after_coarsen_sorted{});
+    check_tree(t, tree_after_coarsen_sorted{});
   }
 
   return test::result();

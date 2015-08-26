@@ -16,11 +16,17 @@
 #include <ndtree/algorithm/node_neighbor.hpp>
 #include <ndtree/algorithm/node_neighbors.hpp>
 #include <ndtree/relations/tree.hpp>
+#include <ndtree/utility/optional.hpp>
 
 namespace test {
 
 using namespace ndtree;
+using ndtree::optional;  // ??
 
+/// invalid value
+static const constexpr auto i = std::numeric_limits<int>::max();
+
+/// Testing utility for constructing a node with named argument lists
 template <class Tag> struct tagged_initializer_list {
   template <class... Args>
   tagged_initializer_list(Args&&... args)
@@ -31,161 +37,196 @@ template <class Tag> struct tagged_initializer_list {
   auto end() noexcept { return ndtree::end(data); }
   auto end() const noexcept { return ndtree::end(data); }
   auto size() const noexcept { return ndtree::size(data); }
-};
 
-/// Children
-using cs = tagged_initializer_list<class children_tag_>;
-/// Position in parent
-using pip = tagged_initializer_list<class position_in_parent_tag_>;
-
-struct node {
-  node_idx idx;
-  int level;
-  node_idx parent;
-  std::vector<node_idx> children;
-  std::vector<uint_t> pos_in_parent;
-  std::vector<node_idx> face_neighbors;
-  std::vector<node_idx> all_neighbors;
-};
-
-static const constexpr auto i = std::numeric_limits<int>::max();
-
-node n(uint_t idx, int level, int parent, cs children = {},
-       pip pos_in_parent = {},
-       std::initializer_list<uint_t> face_neighbors = {},
-       std::initializer_list<uint_t> all_neighbors = {}) {
-  node t;
-  t.idx = node_idx{idx};
-  t.level = level;
-  t.parent = parent == i ? node_idx{} : node_idx{parent};
-  t.children.resize(size(children));
-  ranges::transform(children, begin(t.children),
-                    [](int c) { return c != i ? node_idx{c} : node_idx{}; });
-  t.pos_in_parent.resize(size(pos_in_parent));
-  ranges::transform(pos_in_parent, begin(t.pos_in_parent),
-                    [](int p) { return static_cast<uint_t>(p); });
-
-  t.face_neighbors.resize(size(face_neighbors));
-  ranges::transform(face_neighbors, begin(t.face_neighbors),
-                    [](int c) { return c != i ? node_idx{c} : node_idx{}; });
-
-  t.all_neighbors.resize(size(all_neighbors));
-  ranges::transform(all_neighbors, begin(t.all_neighbors),
-                    [](int c) { return c != i ? node_idx{c} : node_idx{}; });
-
-  return t;
-}
-
-template <class Tree> void check_node(Tree const& t, node n) {
-  constexpr int nd = Tree::dimension();
-  if (n.parent) {
-    CHECK(!t.is_root(n.idx));
-  } else {
-    CHECK(t.is_root(n.idx));
-  }
-  CHECK(t.parent(n.idx) == n.parent);
-  CHECK(t.level(n.idx) == n.level);
-  CHECK(t.no_children(n.idx) == (int)size(n.children));
-  if (size(n.children) == 0_u) {
-    CHECK(t.is_leaf(n.idx));
-  } else {
-    CHECK(!t.is_leaf(n.idx));
-  }
-  test::check_equal(t.children(n.idx), n.children);
-  for (auto p : t.child_positions()) {
-    auto c = t.child(n.idx, p);
-    if (c) {
-      CHECK(c == n.children[*p]);
-    } else {
-      CHECK(size(n.children) == 0_u);
-    }
-  }
-  {  // check location: compute node location, find node at location, both must
-     // be the same node:
-    auto l = node_location(t, n.idx);
-    auto nn = node_at(t, l);
-    CHECK(nn == n.idx);
-  }
-  if (size(n.pos_in_parent) > 0_u) {
-    test::check_equal(node_location(t, n.idx)(), n.pos_in_parent);
-    CHECK(node_at(t, location<nd>(n.pos_in_parent)) == n.idx);
-  }
-  if (size(n.face_neighbors) > 0_u) {
-    using neighbor_idx = neighbor_idx_t<face_neighbors<nd>>;
-    for (auto&& p : neighbor_idx::rng()) {
-      CHECK(node_neighbor(t, node_location(t, n.idx), p)
-            == n.face_neighbors[*p]);
-    }
-  }
-  if (size(n.all_neighbors) > 0_u) {
-    auto neighbors = node_neighbors(t, node_location(t, n.idx));
-    CHECK(size(neighbors) == size(n.all_neighbors));
-    for (auto&& j : view::ints(0_u, size(neighbors))) {
-      CHECK(neighbors[j] == n.all_neighbors[j]);
-    }
-  }
-}
-
-template <class Tree, class ReferenceTree>
-void check_all(Tree const& t, ReferenceTree const& tref) {
-  for (auto&& n : tref.nodes) { check_node(t, n); }
-}
-
-/// Tree to dot
-template <class Ostream, class Tree>
-void pretty_print(Ostream&& os, Tree const& t) {
-  using namespace ndtree;
-  using std::to_string;
-  os << "digraph graphname {\n";
-  os << "concentrate=true\n";
-
-  const auto sibling_group_label
-   = [](const siblings_idx sg) { return "g" + to_string(*sg); };
-
-  const auto sibling_label
-   = [](const node_idx s) { return "s" + to_string(*s); };
-
-  const auto node_label = [=](const siblings_idx sg, const node_idx nIdx) {
-    return sibling_group_label(sg) + ":" + sibling_label(nIdx);
-  };
-
-  // write sibling groups:
-  const auto last = t.no_children();
-  RANGES_FOR(auto s, t.sibling_groups()) {
-    os << sibling_group_label(s);
-    os << "[label=\"";
-    os << "<gg" << *s << "> " << to_string(*s) << "* |";
-    auto c = 1;
-    RANGES_FOR(auto&& n, t.nodes(s)) {
-      os << "<" << sibling_label(n) << "> " << to_string(*n);
-      if (n != 0_n and c != last) { os << "|"; }
-      c++;
+  uint_t operator*() const noexcept {
+    if (ranges::size(data) != 1_u) {
+      NDTREE_TERMINATE(
+       "cannot dereference tagged_initializer_list of size {} != 1",
+       ranges::size(data));
     };
-    os << "\", shape=record];\n";
-  };
+    return at(data, 0);
+  }
+};
 
-  // write links from parent->children
-  RANGES_FOR(auto&& s, t.sibling_groups()) {
-    RANGES_FOR(auto&& n, t.nodes(s)) {
-      for (auto&& c : t.children(n)) {
-        if (c) {
-          os << node_label(s, n) << " -> " << node_label(t.sibling_group(c), c)
-             << ";\n";
-        }
+/// Node Index
+using idx = tagged_initializer_list<class node_idx_tag_>;
+/// Node Level
+using lvl = tagged_initializer_list<class level_tag_>;
+/// Node's parent node
+using pn = tagged_initializer_list<class parent_node_tag_>;
+/// Node's children
+using cs = tagged_initializer_list<class children_tag_>;
+/// Position in parent from root to node
+using pip = tagged_initializer_list<class position_in_parent_tag_>;
+/// Face neighbors
+using fn = tagged_initializer_list<class face_neighbors_tag_>;
+/// Edge neighbors
+using en = tagged_initializer_list<class edge_neighbors_tag_>;
+/// Corner neighbors
+using cn = tagged_initializer_list<class corner_neighbors_tag_>;
+/// All neighbors
+using an = tagged_initializer_list<class all_neighbors_tag_>;
+
+/// Test data for a single node
+struct node {
+  optional<node_idx> idx{};
+  optional<int> level{};
+  optional<node_idx> parent{};
+  optional<std::vector<node_idx>> children{};
+  optional<std::vector<uint_t>> pos_in_parent{};
+  optional<std::vector<node_idx>> face_neighbors{};
+  optional<std::vector<node_idx>> edge_neighbors{};
+  optional<std::vector<node_idx>> corner_neighbors{};
+  optional<std::vector<node_idx>> all_neighbors{};
+
+  node() = default;
+
+  template <typename Arg, typename... Args>
+  void init(Arg&& arg, Args&&... args) {
+    init(std::forward<Arg>(arg));
+    init(std::forward<Args>(args)...);
+  }
+
+  template <typename... Args> node(Args&&... args) {
+    init(std::forward<Args>(args)...);
+  }
+
+  void init(test::idx j) { idx = node_idx{*j}; }
+  void init(lvl l) { level = *l; }
+  void init(pn p) { parent = *p != i ? node_idx{*p} : node_idx{}; }
+  void init(cs c) {
+    children = std::vector<node_idx>(size(c));
+    ranges::transform(c, begin(*children),
+                      [](int j) { return j != i ? node_idx{j} : node_idx{}; });
+  }
+  void init(pip ps) {
+    pos_in_parent = std::vector<uint_t>(size(ps));
+    ranges::transform(ps, begin(*pos_in_parent),
+                      [](int p) { return static_cast<uint_t>(p); });
+  }
+  void init(fn ns) {
+    face_neighbors = std::vector<node_idx>(size(ns));
+    ranges::transform(ns, begin(*face_neighbors),
+                      [](int c) { return c != i ? node_idx{c} : node_idx{}; });
+  }
+  void init(en ns) {
+    edge_neighbors = std::vector<node_idx>(size(ns));
+    ranges::transform(ns, begin(*edge_neighbors),
+                      [](int c) { return c != i ? node_idx{c} : node_idx{}; });
+  }
+  void init(cn ns) {
+    corner_neighbors = std::vector<node_idx>(size(ns));
+    ranges::transform(ns, begin(*corner_neighbors),
+                      [](int c) { return c != i ? node_idx{c} : node_idx{}; });
+  }
+  void init(an ns) {
+    all_neighbors = std::vector<node_idx>(size(ns));
+    ranges::transform(ns, begin(*all_neighbors),
+                      [](int c) { return c != i ? node_idx{c} : node_idx{}; });
+  }
+};
+
+template <class Tree> void test_parent(Tree const& t, node const& n) {
+  // consistency:
+  if (t.parent(*n.idx)) {
+    CHECK(any_of(t.children(t.parent(*n.idx)),
+                 [&](auto&& c) { return c == *n.idx; }));
+    CHECK(!t.is_root(*n.idx));
+  } else {
+    CHECK(t.is_root(*n.idx));
+  }
+  // check parent node:
+  if (n.parent) { CHECK(t.parent(*n.idx) == *n.parent); }
+}
+
+template <class Tree> void test_level(Tree const& t, node const& n) {
+  // consistency:
+  if (t.level(*n.idx) == 0) {
+    CHECK(t.is_root(*n.idx));
+  } else {
+    CHECK(!t.is_root(*n.idx));
+  }
+  // check node level:
+  if (n.level) { CHECK(t.level(*n.idx) == *n.level); }
+}
+template <class Tree> void test_children(Tree const& t, node const& n) {
+  // consistency
+  if (t.no_children(*n.idx) == 0_u) {
+    CHECK(t.is_leaf(*n.idx));
+  } else {
+    CHECK(!t.is_leaf(*n.idx));
+    for (auto p : t.child_positions()) {
+      auto c = t.child(*n.idx, p);
+      if (c) { CHECK(t.parent(c) == *n.idx); }
+    }
+  }
+
+  if (n.children) {
+    CHECK(t.no_children(*n.idx) == (int)size(*n.children));
+    test::check_equal(t.children(*n.idx), *n.children);
+    for (auto p : t.child_positions()) {
+      auto c = t.child(*n.idx, p);
+      if (c) {
+        CHECK(c == (*n.children)[*p]);
+      } else {
+        CHECK(size(*n.children) == 0_u);
       }
     }
   }
+}
 
-  /// write links from sibling group - >parent
-  for (auto&& s : t.sibling_groups()) {
-    if (s == 0_sg) { continue; }
-    const auto p = t.parent(s);
-    const auto p_sg = t.sibling_group(p);
-    os << sibling_group_label(s) << ":g" << sibling_group_label(s) << " -> "
-       << node_label(p_sg, p) << ";\n";
+template <class Tree> void test_node_location(Tree const& t, node const& n) {
+  // consistency:
+  CHECK(node_at(t, node_location(t, *n.idx)) == *n.idx);
+}
+
+template <class Tree> void test_pos_in_parent(Tree const& t, node const& n) {
+  if (!n.pos_in_parent) { return; }
+  test::check_equal(node_location(t, *n.idx)(), *n.pos_in_parent);
+  CHECK(node_at(t, location<Tree::dimension()>(*n.pos_in_parent)) == *n.idx);
+}
+
+template <class Tree, class Neighbors, class NeighborType>
+void test_node_neighbor(Tree const& t, node const& n, Neighbors const& ns,
+                        NeighborType) {
+  if (!ns) { return; }
+  using neighbor_idx = neighbor_idx_t<NeighborType>;
+  CHECK(size(neighbor_idx::rng()) == size(*ns));
+  for (auto&& p : neighbor_idx::rng()) {
+    auto neighbor = node_neighbor(t, node_location(t, *n.idx), p);
+    CHECK(neighbor == (*ns)[*p]);
+    if (neighbor) {
+      CHECK(node_neighbor(t, node_location(t, neighbor), opposite(p))
+            == *n.idx);
+    }
   }
+}
 
-  os << "}" << std::endl;
+template <class Tree, class Neighbors>
+void test_node_neighbors(Tree const& t, node const& n, Neighbors const& ns) {
+  if (!ns) { return; }
+  auto neighbors = node_neighbors(t, node_location(t, *n.idx));
+  test::check_equal(neighbors, *ns);
+}
+
+template <class Tree> void check_node(Tree const& t, node n) {
+  test_parent(t, n);
+  test_level(t, n);
+  test_children(t, n);
+  test_node_location(t, n);
+  test_pos_in_parent(t, n);
+  test_node_neighbor(t, n, n.face_neighbors,
+                     face_neighbors<Tree::dimension()>{});
+  test_node_neighbor(t, n, n.edge_neighbors,
+                     edge_neighbors<Tree::dimension()>{});
+  test_node_neighbor(t, n, n.corner_neighbors,
+                     corner_neighbors<Tree::dimension()>{});
+  test_node_neighbors(t, n, n.all_neighbors);
+}
+
+template <class Tree, class ReferenceTree>
+void check_tree(Tree const& t, ReferenceTree const& tref) {
+  for (auto&& n : tref.nodes) { check_node(t, n); }
 }
 
 }  // namespace test

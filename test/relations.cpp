@@ -113,8 +113,8 @@ int main() {
     constexpr auto fn = face_neighbors<1>{};
     static_assert(fn.size() == 2, "");
     CHECK(size(fn()) == 2_u);
-    test::check_equal(fn[0_ni], neighbor_offset<1>{{-1}});
-    test::check_equal(fn[1_ni], neighbor_offset<1>{{1}});
+    test::check_equal(fn[0], neighbor_offset<1>{{-1}});
+    test::check_equal(fn[1], neighbor_offset<1>{{1}});
   }
 
   /// Check face neighbors: 2D
@@ -122,10 +122,10 @@ int main() {
     constexpr auto fn = face_neighbors<2>{};
     static_assert(fn.size() == 4, "");
     CHECK(size(fn()) == 4_u);
-    test::check_equal(fn[0_ni], neighbor_offset<2>{{-1, 0}});
-    test::check_equal(fn[1_ni], neighbor_offset<2>{{1, 0}});
-    test::check_equal(fn[2_ni], neighbor_offset<2>{{0, -1}});
-    test::check_equal(fn[3_ni], neighbor_offset<2>{{0, 1}});
+    test::check_equal(fn[0], neighbor_offset<2>{{-1, 0}});
+    test::check_equal(fn[1], neighbor_offset<2>{{1, 0}});
+    test::check_equal(fn[2], neighbor_offset<2>{{0, -1}});
+    test::check_equal(fn[3], neighbor_offset<2>{{0, 1}});
   }
 
   /// Check face neighbors: 3D
@@ -133,12 +133,12 @@ int main() {
     constexpr auto fn = face_neighbors<3>{};
     static_assert(fn.size() == 6, "");
     CHECK(size(fn()) == 6_u);
-    test::check_equal(fn[0_ni], neighbor_offset<3>{{-1, 0, 0}});
-    test::check_equal(fn[1_ni], neighbor_offset<3>{{1, 0, 0}});
-    test::check_equal(fn[2_ni], neighbor_offset<3>{{0, -1, 0}});
-    test::check_equal(fn[3_ni], neighbor_offset<3>{{0, 1, 0}});
-    test::check_equal(fn[4_ni], neighbor_offset<3>{{0, 0, -1}});
-    test::check_equal(fn[5_ni], neighbor_offset<3>{{0, 0, 1}});
+    test::check_equal(fn[0], neighbor_offset<3>{{-1, 0, 0}});
+    test::check_equal(fn[1], neighbor_offset<3>{{1, 0, 0}});
+    test::check_equal(fn[2], neighbor_offset<3>{{0, -1, 0}});
+    test::check_equal(fn[3], neighbor_offset<3>{{0, 1, 0}});
+    test::check_equal(fn[4], neighbor_offset<3>{{0, 0, -1}});
+    test::check_equal(fn[5], neighbor_offset<3>{{0, 0, 1}});
   }
 
   /// Check edge neighbors: 1D
@@ -153,10 +153,10 @@ int main() {
     constexpr auto fn = edge_neighbors<2>{};
     static_assert(fn.size() == 4, "");
     CHECK(size(fn()) == 4_u);
-    test::check_equal(fn[0_ni], neighbor_offset<2>{{-1, -1}});
-    test::check_equal(fn[1_ni], neighbor_offset<2>{{1, -1}});
-    test::check_equal(fn[2_ni], neighbor_offset<2>{{-1, 1}});
-    test::check_equal(fn[3_ni], neighbor_offset<2>{{1, 1}});
+    test::check_equal(fn[0], neighbor_offset<2>{{-1, -1}});
+    test::check_equal(fn[1], neighbor_offset<2>{{1, -1}});
+    test::check_equal(fn[2], neighbor_offset<2>{{-1, 1}});
+    test::check_equal(fn[3], neighbor_offset<2>{{1, 1}});
   }
 
   /// Check edge neighbors: 3D
@@ -164,20 +164,20 @@ int main() {
     constexpr auto fn = edge_neighbors<3>{};
     static_assert(fn.size() == 12, "");
     CHECK(size(fn()) == 12_u);
-    test::check_equal(fn[0_ni], neighbor_offset<3>{{-1, -1, 0}});
-    test::check_equal(fn[1_ni], neighbor_offset<3>{{1, -1, 0}});
-    test::check_equal(fn[2_ni], neighbor_offset<3>{{-1, 1, 0}});
-    test::check_equal(fn[3_ni], neighbor_offset<3>{{1, 1, 0}});
+    test::check_equal(fn[0], neighbor_offset<3>{{-1, -1, 0}});
+    test::check_equal(fn[1], neighbor_offset<3>{{1, -1, 0}});
+    test::check_equal(fn[2], neighbor_offset<3>{{-1, 1, 0}});
+    test::check_equal(fn[3], neighbor_offset<3>{{1, 1, 0}});
 
-    test::check_equal(fn[4_ni], neighbor_offset<3>{{-1, 0, -1}});
-    test::check_equal(fn[5_ni], neighbor_offset<3>{{1, 0, -1}});
-    test::check_equal(fn[6_ni], neighbor_offset<3>{{0, -1, -1}});
-    test::check_equal(fn[7_ni], neighbor_offset<3>{{0, 1, -1}});
+    test::check_equal(fn[4], neighbor_offset<3>{{-1, 0, -1}});
+    test::check_equal(fn[5], neighbor_offset<3>{{1, 0, -1}});
+    test::check_equal(fn[6], neighbor_offset<3>{{0, -1, -1}});
+    test::check_equal(fn[7], neighbor_offset<3>{{0, 1, -1}});
 
-    test::check_equal(fn[8_ni], neighbor_offset<3>{{-1, 0, 1}});
-    test::check_equal(fn[9_ni], neighbor_offset<3>{{1, 0, 1}});
-    test::check_equal(fn[10_ni], neighbor_offset<3>{{0, -1, 1}});
-    test::check_equal(fn[11_ni], neighbor_offset<3>{{0, 1, 1}});
+    test::check_equal(fn[8], neighbor_offset<3>{{-1, 0, 1}});
+    test::check_equal(fn[9], neighbor_offset<3>{{1, 0, 1}});
+    test::check_equal(fn[10], neighbor_offset<3>{{0, -1, 1}});
+    test::check_equal(fn[11], neighbor_offset<3>{{0, 1, 1}});
   }
 
   /// Check corner neighbors: 1D
@@ -199,14 +199,14 @@ int main() {
     constexpr auto fn = corner_neighbors<3>{};
     static_assert(fn.size() == 8, "");
     CHECK(size(fn()) == 8_u);
-    test::check_equal(fn[0_ni], neighbor_offset<3>{{-1, -1, -1}});
-    test::check_equal(fn[1_ni], neighbor_offset<3>{{1, -1, -1}});
-    test::check_equal(fn[2_ni], neighbor_offset<3>{{-1, 1, -1}});
-    test::check_equal(fn[3_ni], neighbor_offset<3>{{1, 1, -1}});
-    test::check_equal(fn[4_ni], neighbor_offset<3>{{-1, -1, 1}});
-    test::check_equal(fn[5_ni], neighbor_offset<3>{{1, -1, 1}});
-    test::check_equal(fn[6_ni], neighbor_offset<3>{{-1, 1, 1}});
-    test::check_equal(fn[7_ni], neighbor_offset<3>{{1, 1, 1}});
+    test::check_equal(fn[0], neighbor_offset<3>{{-1, -1, -1}});
+    test::check_equal(fn[1], neighbor_offset<3>{{1, -1, -1}});
+    test::check_equal(fn[2], neighbor_offset<3>{{-1, 1, -1}});
+    test::check_equal(fn[3], neighbor_offset<3>{{1, 1, -1}});
+    test::check_equal(fn[4], neighbor_offset<3>{{-1, -1, 1}});
+    test::check_equal(fn[5], neighbor_offset<3>{{1, -1, 1}});
+    test::check_equal(fn[6], neighbor_offset<3>{{-1, 1, 1}});
+    test::check_equal(fn[7], neighbor_offset<3>{{1, 1, 1}});
   }
 
   /// Test max no neighbors
@@ -214,6 +214,34 @@ int main() {
     static_assert(max_no_neighbors(1) == 2, "");
     static_assert(max_no_neighbors(2) == 12, "");
     static_assert(max_no_neighbors(3) == 56, "");
+  }
+
+  /// Test opposite neighbor stencils
+  {
+    auto test_opp_neighbors = [](auto neighbors, auto stencil) {
+      std::size_t i = 0;
+      CHECK(size(neighbors()) == size(stencil));
+      for (auto p : neighbors()) {
+        CHECK(opposite(p) == stencil[i++]);
+      }
+    };
+    test_opp_neighbors(face_neighbors<1>{}, std::array<uint_t, 2>{{1, 0}});
+    test_opp_neighbors(face_neighbors<2>{},
+                       std::array<uint_t, 4>{{1, 0, 3, 2}});
+    test_opp_neighbors(face_neighbors<3>{},
+                       std::array<uint_t, 6>{{1, 0, 3, 2, 5, 4}});
+
+    test_opp_neighbors(edge_neighbors<1>{}, std::array<uint_t, 0>{});
+    test_opp_neighbors(edge_neighbors<2>{},
+                       std::array<uint_t, 4>{{3, 2, 1, 0}});
+    test_opp_neighbors(
+     edge_neighbors<3>{},
+     std::array<uint_t, 12>{{3, 2, 1, 0, 9, 8, 11, 10, 5, 4, 7, 6}});
+
+    test_opp_neighbors(corner_neighbors<1>{}, std::array<uint_t, 0>{});
+    test_opp_neighbors(corner_neighbors<2>{}, std::array<uint_t, 0>{{}});
+    test_opp_neighbors(corner_neighbors<3>{},
+                       std::array<uint_t, 8>{{7, 6, 5, 4, 3, 2, 1, 0}});
   }
 
   return test::result();

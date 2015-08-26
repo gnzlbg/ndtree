@@ -49,34 +49,34 @@ int main() {
 
   struct test_ns {
     std::vector<node> nodes{
-     {n(0, 0, i, {1, 2})},  //
-     {n(1, 1, 0, {3, 4})},  //
-     {n(2, 1, 0, {})},      //
-     {n(3, 2, 1, {})},      //
-     {n(4, 2, 1, {})}       //
-                            //
+     {idx{0}, lvl{0}, pn{i}, cs{1, 2}},  //
+     {idx{1}, lvl{1}, pn{0}, cs{3, 4}},  //
+     {idx{2}, lvl{1}, pn{0}, cs{}},      //
+     {idx{3}, lvl{2}, pn{1}, cs{}},      //
+     {idx{4}, lvl{2}, pn{1}, cs{}}       //
+                                         //
     };
   };
 
-  { check_all(t, test_ns{}); }
+  { check_tree(t, test_ns{}); }
 
   t.swap(1_sg, 2_sg);
   {
     struct test_s {
       std::vector<node> nodes{
-       {n(0, 0, i, {3, 4})},  //
-       {n(1, 2, 3, {})},      //
-       {n(2, 2, 3, {})},      //
-       {n(3, 1, 0, {1, 2})},  //
-       {n(4, 1, 0, {})}       //
-                              //
+       {idx{0}, lvl{0}, pn{i}, cs{3, 4}},  //
+       {idx{1}, lvl{2}, pn{3}, cs{}},      //
+       {idx{2}, lvl{2}, pn{3}, cs{}},      //
+       {idx{3}, lvl{1}, pn{0}, cs{1, 2}},  //
+       {idx{4}, lvl{1}, pn{0}, cs{}}       //
+                                           //
       };
     };
-    check_all(t, test_s{});
+    check_tree(t, test_s{});
   }
 
   t.swap(1_sg, 2_sg);
-  { check_all(t, test_ns{}); }
+  { check_tree(t, test_ns{}); }
 
   return test::result();
 };

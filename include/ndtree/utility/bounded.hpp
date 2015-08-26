@@ -101,6 +101,12 @@ template <class T, T from, T to, class Tag = void> struct bounded {
                   "value is out-of-bounds [{}, {})", from, to);
     return *this;
   }
+
+  template <class OStream>
+  friend constexpr OStream& operator<<(OStream& os, this_t const& a) {
+    os << *a;
+    return os;
+  };
 };
 }  // namespace v1
 }  // namespace ndtree

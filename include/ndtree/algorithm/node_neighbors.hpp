@@ -17,16 +17,18 @@ struct node_neighbors_fn {
   /// (appends them to a push_back-able container)
   template <typename Manifold, typename Tree, typename PushBackableContainer,
             int nd = Tree::dimension()>
-  auto operator()(Manifold, Tree const& t, location<nd> loc,
+  auto operator()(Manifold positions, Tree const& t, location<nd> loc,
                   PushBackableContainer& s) const noexcept -> void {
     // For all same level neighbor positions
-    for (auto&& sl_pos : Manifold{}()) {
+    for (auto&& sl_pos : positions()) {
       auto neighbor
-       = node_or_parent_at(t, shift_location(loc, Manifold {}[sl_pos]));
-      NDTREE_ASSERT(neighbor.level == loc.level
-                     || neighbor.level == loc.level - 1,
+       = node_or_parent_at(t, shift_location(loc, positions[sl_pos]));
+      if (!neighbor.idx) { continue; }
+      NDTREE_ASSERT((neighbor.level == loc.level)
+                     || (neighbor.level == (loc.level - 1)),
                     "found neighbor must either be at the same level or at the "
                     "parent level");
+
       // if the neighbor found is a leaf node we are done
       // note: it is either at the same or parent level of the node
       // (doesn't matter which case it is, it is the correct neighbor)
@@ -35,6 +37,8 @@ struct node_neighbors_fn {
       } else {
         // if it has children we add the children sharing a face with the node
         for (auto&& cp : Manifold{}.children_sharing_face(sl_pos)) {
+          std::cerr << "  neighbor child: " << t.child(neighbor.idx, cp)
+                    << std::endl;
           s.push_back(t.child(neighbor.idx, cp));
         }
       }
