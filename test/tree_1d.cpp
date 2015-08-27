@@ -189,9 +189,16 @@ int main() {
     CHECK(!t.is_compact());
     check_tree(t, tree_after_coarsen{});
 
+    auto t2 = t;
+    CHECK(t == t2);
+    CHECK(!(t != t2));
+
     dfs_sort(t);
+    CHECK(t != t2);
+    CHECK(!(t == t2));
     CHECK(t.is_compact());
     check_tree(t, tree_after_coarsen_sorted{});
+
   }
 
   return test::result();

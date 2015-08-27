@@ -70,7 +70,7 @@ using an = tagged_initializer_list<class all_neighbors_tag_>;
 /// Test data for a single node
 struct node {
   optional<node_idx> idx{};
-  optional<int> level{};
+  optional<uint_t> level{};
   optional<node_idx> parent{};
   optional<std::vector<node_idx>> children{};
   optional<std::vector<uint_t>> pos_in_parent{};
@@ -162,7 +162,7 @@ template <class Tree> void test_children(Tree const& t, node const& n) {
   }
 
   if (n.children) {
-    CHECK(t.no_children(*n.idx) == (int)size(*n.children));
+    CHECK(t.no_children(*n.idx) == size(*n.children));
     test::check_equal(t.children(*n.idx), *n.children);
     for (auto p : t.child_positions()) {
       auto c = t.child(*n.idx, p);
@@ -206,6 +206,7 @@ template <class Tree, class Neighbors>
 void test_node_neighbors(Tree const& t, node const& n, Neighbors const& ns) {
   if (!ns) { return; }
   auto neighbors = node_neighbors(t, node_location(t, *n.idx));
+  CHECK(size(neighbors) == size(*ns));
   test::check_equal(neighbors, *ns);
 }
 
@@ -234,7 +235,7 @@ auto uniformly_refined_tree(uint_t level, uint_t level_capacity) -> tree<nd> {
   auto node_capacity = no_nodes_until_uniform_level(nd, level_capacity);
 
   tree<nd> t(node_capacity);
-  for (auto n : t.leaf_nodes()) {
+  RANGES_FOR(auto&& n, t.nodes() | t.leaf()) {
     if (t.level(n) < level) { t.refine(n); }
   }
 

@@ -274,7 +274,7 @@ template <int nd> struct tree {
   bool is_leaf(node_idx n) const noexcept { return !first_child(n); }
 
   /// Number of childrens of the node \p n
-  int_t no_children(node_idx n) const noexcept {
+  uint_t no_children(node_idx n) const noexcept {
     return is_leaf(n) ? 0 : no_children();
   }
 
@@ -284,9 +284,9 @@ template <int nd> struct tree {
   }
 
   /// Level of node \p n (distance from the root node)
-  int_t level(node_idx n) const noexcept {
+  uint_t level(node_idx n) const noexcept {
     NDTREE_ASSERT(!is_free(n), "node {} is free and doesn't have a level", *n);
-    int_t l = 0;
+    uint_t l = 0;
     traverse_parents(n, [&](node_idx) { ++l; });
     return l;
   }
@@ -504,7 +504,6 @@ template <int nd> struct tree {
   }
 
   tree(tree&& other) = default;
-  tree& operator=(tree&& other) = default;
 
   tree(tree const& other) : tree(*other.capacity()) {
     size_ = other.size_;
@@ -523,6 +522,10 @@ template <int nd> struct tree {
     }
   }
 
+  tree& operator=(tree other) {
+    ranges::swap(*this, other);
+    return *this;
+  }
 };
 
 /// Graph equality
@@ -533,7 +536,7 @@ template <int nd>
 bool operator==(tree<nd> const& a, tree<nd> const& b) noexcept {
   if (size(a) != size(b)) { return false; }
 
-  for (auto&& np : view::zip(a.nodes(), b.nodes())) {
+  RANGES_FOR(auto&& np, view::zip(a.nodes(), b.nodes())) {
     auto&& an = get<0>(np);
     auto&& bn = get<1>(np);
     if (a.parent(an) != b.parent(bn)) { return false; }

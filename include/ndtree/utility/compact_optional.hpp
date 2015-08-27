@@ -180,7 +180,11 @@ class compact_optional : public detail::compact_optional_base<N> {
 
   template <class OStream>
   friend constexpr OStream& operator<<(OStream& os, this_t const& a) {
-    os << *a;
+    if (a) {
+      os << *a;
+    } else {
+      os << '_';
+    }
     return os;
   };
 };

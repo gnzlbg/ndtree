@@ -37,8 +37,6 @@ struct node_neighbors_fn {
       } else {
         // if it has children we add the children sharing a face with the node
         for (auto&& cp : Manifold{}.children_sharing_face(sl_pos)) {
-          std::cerr << "  neighbor child: " << t.child(neighbor.idx, cp)
-                    << std::endl;
           s.push_back(t.child(neighbor.idx, cp));
         }
       }
