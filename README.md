@@ -14,6 +14,7 @@ Geohashes are implemented externally (but used by some algorithms). You can
 implement your own for different purposes (e.g. fast neighbor queries,
 low-memory foot-print, ...).
 
+<!---
 ### Quick start
 
 The data-structure itself is in `<ndtree/tree.hpp>`, the algorithms are in
@@ -99,6 +100,7 @@ int main() {
   return closest_neighbor;
 }
 ```
+-->
 
 ### Nomenclature
 
