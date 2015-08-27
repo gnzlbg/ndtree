@@ -218,30 +218,63 @@ int main() {
 
   /// Test opposite neighbor stencils
   {
-    auto test_opp_neighbors = [](auto neighbors, auto stencil) {
+    auto test_opposite_neighbor_positions = [](auto neighbors, auto stencil) {
       std::size_t i = 0;
       CHECK(size(neighbors()) == size(stencil));
-      for (auto p : neighbors()) {
-        CHECK(opposite(p) == stencil[i++]);
-      }
+      for (auto p : neighbors()) { CHECK(opposite(p) == stencil[i++]); }
     };
-    test_opp_neighbors(face_neighbors<1>{}, std::array<uint_t, 2>{{1, 0}});
-    test_opp_neighbors(face_neighbors<2>{},
-                       std::array<uint_t, 4>{{1, 0, 3, 2}});
-    test_opp_neighbors(face_neighbors<3>{},
-                       std::array<uint_t, 6>{{1, 0, 3, 2, 5, 4}});
+    // faces:
+    test_opposite_neighbor_positions(face_neighbors<1>{},
+                                     std::array<uint_t, 2>{{1, 0}});
+    test_opposite_neighbor_positions(face_neighbors<2>{},
+                                     std::array<uint_t, 4>{{1, 0, 3, 2}});
+    test_opposite_neighbor_positions(face_neighbors<3>{},
+                                     std::array<uint_t, 6>{{1, 0, 3, 2, 5, 4}});
 
-    test_opp_neighbors(edge_neighbors<1>{}, std::array<uint_t, 0>{});
-    test_opp_neighbors(edge_neighbors<2>{},
-                       std::array<uint_t, 4>{{3, 2, 1, 0}});
-    test_opp_neighbors(
+    // edges:
+    test_opposite_neighbor_positions(edge_neighbors<1>{},
+                                     std::array<uint_t, 0>{});
+    test_opposite_neighbor_positions(edge_neighbors<2>{},
+                                     std::array<uint_t, 4>{{3, 2, 1, 0}});
+    test_opposite_neighbor_positions(
      edge_neighbors<3>{},
      std::array<uint_t, 12>{{3, 2, 1, 0, 9, 8, 11, 10, 5, 4, 7, 6}});
 
-    test_opp_neighbors(corner_neighbors<1>{}, std::array<uint_t, 0>{});
-    test_opp_neighbors(corner_neighbors<2>{}, std::array<uint_t, 0>{{}});
-    test_opp_neighbors(corner_neighbors<3>{},
-                       std::array<uint_t, 8>{{7, 6, 5, 4, 3, 2, 1, 0}});
+    // corners:
+    test_opposite_neighbor_positions(corner_neighbors<1>{},
+                                     std::array<uint_t, 0>{});
+    test_opposite_neighbor_positions(corner_neighbors<2>{},
+                                     std::array<uint_t, 0>{{}});
+    test_opposite_neighbor_positions(
+     corner_neighbors<3>{}, std::array<uint_t, 8>{{7, 6, 5, 4, 3, 2, 1, 0}});
+  }
+
+  /// No nodes at/until uniform level
+  {
+    static_assert(no_nodes_at_uniform_level(1, 0) == 1_u, "");
+    static_assert(no_nodes_until_uniform_level(1, 0) == 1_u, "");
+    static_assert(no_nodes_at_uniform_level(1, 1) == 2_u, "");
+    static_assert(no_nodes_until_uniform_level(1, 1) == 3_u, "");
+    static_assert(no_nodes_at_uniform_level(1, 2) == 4_u, "");
+    static_assert(no_nodes_until_uniform_level(1, 2) == 7_u, "");
+    static_assert(no_nodes_at_uniform_level(1, 3) == 8_u, "");
+    static_assert(no_nodes_until_uniform_level(1, 3) == 15_u, "");
+
+    static_assert(no_nodes_at_uniform_level(2, 0) == 1_u, "");
+    static_assert(no_nodes_until_uniform_level(2, 0) == 1_u, "");
+    static_assert(no_nodes_at_uniform_level(2, 1) == 4_u, "");
+    static_assert(no_nodes_until_uniform_level(2, 1) == 5_u, "");
+    static_assert(no_nodes_at_uniform_level(2, 2) == 16_u, "");
+    static_assert(no_nodes_until_uniform_level(2, 2) == 21_u, "");
+    static_assert(no_nodes_at_uniform_level(2, 3) == 64_u, "");
+    static_assert(no_nodes_until_uniform_level(2, 3) == 85_u, "");
+
+    static_assert(no_nodes_at_uniform_level(3, 0) == 1_u, "");
+    static_assert(no_nodes_until_uniform_level(3, 0) == 1_u, "");
+    static_assert(no_nodes_at_uniform_level(3, 1) == 8_u, "");
+    static_assert(no_nodes_until_uniform_level(3, 1) == 9_u, "");
+    static_assert(no_nodes_at_uniform_level(3, 2) == 64_u, "");
+    static_assert(no_nodes_until_uniform_level(3, 2) == 73_u, "");
   }
 
   return test::result();

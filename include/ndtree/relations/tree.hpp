@@ -81,6 +81,32 @@ static constexpr uint_t no_faces(uint_t nd, uint_t m) noexcept {
                  : 0_u;
 }
 
+/// Number of nodes at an uniformly refined level \p level
+///
+/// \param nd [in] spatial dimension of the nodes
+/// \param level [in] distance from nodes to the root node
+///
+/// Formula \f$\ (2^{n_d})^{\mathrm{level}} \f$
+///
+static constexpr uint_t no_nodes_at_uniform_level(uint_t nd, uint_t level) {
+  return math::ipow(math::ipow(2_u, nd), level);
+}
+
+/// Number of nodes in a tree with a uniformly refined level \p level
+///
+/// \param nd [in] spatial dimension of the nodes
+/// \param level [in] distance from nodes to the root node
+///
+/// Formula \f$\ \sum_{l = 0}^{level} (2^{n_d})^{\mathrm{l}} \f$
+///
+static constexpr uint_t no_nodes_until_uniform_level(uint_t nd, uint_t level) {
+  uint_t no_nodes = 0;
+  for (uint_t l = 0; l <= level; ++l) {
+    no_nodes += no_nodes_at_uniform_level(nd, l);
+  }
+  return no_nodes;
+}
+
 ///@} // Tree relations
 
 }  // namespace v1

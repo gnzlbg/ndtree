@@ -1,7 +1,6 @@
 #include <fstream>
 #include "test.hpp"
-//#define NDTREE_TEST_PRIVATE_AS_PUBLIC
-#include "test_tree.hpp"
+#include "tree.hpp"
 #include <ndtree/algorithm/dfs_sort.hpp>
 #include <ndtree/algorithm/node_location.hpp>
 

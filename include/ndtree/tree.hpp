@@ -20,7 +20,7 @@ inline namespace v1 {
 /// nd-octree data-structure
 template <int nd> struct tree {
  private:
-  /// \name Data
+  /// \name Data (all member variables of the tree)
   ///
   /// Memory layout: siblings (node with the same parent) are stored
   /// contiguously in memory in Morton Z-Curve order.
@@ -28,10 +28,9 @@ template <int nd> struct tree {
   /// The order of groups of children is arbitrary.
   ///
   /// Memory requirements: 1 word + 1 / no_children word per node
-  /// - each node stores the index of its first child
+  /// - each node stores the index of its first child (the other children are
+  ///   stored contiguously after the first in Z-Order)
   /// - each group of siblings stores the index of its parent
-  ///
-  /// All member variables of the tree are documented in this section.
   ///
   ///@{
 
@@ -494,8 +493,8 @@ template <int nd> struct tree {
 
   /// Creates a tree with capacity for at least \p cap nodes and initializes it
   /// with a root node
-  tree(uint_t cap)
-   : sg_capacity_(no_sibling_groups(cap))
+  tree(uint_t node_capacity)
+   : sg_capacity_(no_sibling_groups(node_capacity))
    , parents_(std::make_unique<node_idx[]>(*sibling_group_capacity()))
    , first_children_(std::make_unique<node_idx[]>(*capacity())) {
     NDTREE_ASSERT(capacity() > 0_n,
@@ -503,7 +502,50 @@ template <int nd> struct tree {
     NDTREE_ASSERT(is_reseted(), "tree is not reseted");
     initialize_root_node();
   }
+
+  tree(tree&& other) = default;
+  tree& operator=(tree&& other) = default;
+
+  tree(tree const& other) : tree(*other.capacity()) {
+    size_ = other.size_;
+    first_free_sibling_group_ = other.first_free_sibling_group_;
+    {  // copy parents_
+      auto b = other.parents_.get();
+      auto e = b + *other.sibling_group_capacity();
+      auto o = parents_.get();
+      copy(b, e, o);
+    }
+    {  // copy first_children_
+      auto b = other.first_children_.get();
+      auto e = b + *other.capacity();
+      auto o = first_children_.get();
+      copy(b, e, o);
+    }
+  }
+
 };
+
+/// Graph equality
+///
+/// Two trees are equal if their parent-child graph is the same.
+///
+template <int nd>
+bool operator==(tree<nd> const& a, tree<nd> const& b) noexcept {
+  if (size(a) != size(b)) { return false; }
+
+  for (auto&& np : view::zip(a.nodes(), b.nodes())) {
+    auto&& an = get<0>(np);
+    auto&& bn = get<1>(np);
+    if (a.parent(an) != b.parent(bn)) { return false; }
+    if (!equal(a.children(an), b.children(bn))) { return false; }
+  }
+  return true;
+}
+
+template <int nd>
+bool operator!=(tree<nd> const& a, tree<nd> const& b) noexcept {
+  return !(a == b);
+}
 
 /// Binary tree
 using binary_tree = tree<1>;

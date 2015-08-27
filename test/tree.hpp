@@ -229,4 +229,19 @@ void check_tree(Tree const& t, ReferenceTree const& tref) {
   for (auto&& n : tref.nodes) { check_node(t, n); }
 }
 
+template <int nd>
+auto uniformly_refined_tree(uint_t level, uint_t level_capacity) -> tree<nd> {
+  auto node_capacity = no_nodes_until_uniform_level(nd, level_capacity);
+
+  tree<nd> t(node_capacity);
+  for (auto n : t.leaf_nodes()) {
+    if (t.level(n) < level) { t.refine(n); }
+  }
+
+  CHECK(!t.empty());
+  CHECK(size(t) == no_nodes_until_uniform_level(nd, level));
+
+  return t;
+}
+
 }  // namespace test

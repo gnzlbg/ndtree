@@ -2,7 +2,7 @@
 #include <fstream>
 
 #define NDTREE_TEST_PRIVATE_AS_PUBLIC
-#include "test_tree.hpp"
+#include "tree.hpp"
 
 using namespace test;
 
