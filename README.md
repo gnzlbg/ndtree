@@ -14,98 +14,11 @@ Geohashes are implemented externally (but used by some algorithms). You can
 implement your own for different purposes (e.g. fast neighbor queries,
 low-memory foot-print, ...).
 
-  auto find_nn_time = time([&]() {
-    for (auto&& p : points.idx()) { auto c = points.nearest_neighbor(p); }
-  });
 
-
-<!---
 ### Quick start
 
-The data-structure itself is in `<ndtree/tree.hpp>`, the algorithms are in
-`<ndtree/algorithm/...>`. In the following minimal example it is shown how to
-create a custom quad-tree for 2D nearest-neighbor searches that uses a SOA
-layout for the points (very WIP).
-
-```c++
-#include <ndtree/tree.hpp>
-#include <ndtree/algorithm/...>
-
-using namespace ndtree;
-
-struct my_tree : tree<2> {
-  // data: for each point we store x, y, and a value, as a
-  // struct of arrays (simplified here with 3 different std::vector for exposition) 
-  std::vector<double> x;
-  std::vector<double> y;
-  std::vector<int> value;
-
-  // For each tree node we store here the index of the data at that node,
-  // which will be used bellow in data_location(node_idx) -> data_idx
-  // (for a different application we might want to store multiple data-sets
-  //  within the same tree structure, want to store the data-idx only for
-  // leaf nodes, or might not need this at all)
-  std::vector<data_idx> data_idx;
-  
-  my_tree(uint_t capacity)
-  : tree(capacity) // the capacity is fixed up-front
-  , data_idx(capacity) // 
-  {}
-
-  // computes the geohash of a node
-  location<2> location(data_idx i) {
-    return i? node_location(*this, std::array<num_t, 2>(x[*i], y[*i]))
-            : location<2>{};
-  }
-
-  // returns the index of the data at a given tree node
-  data_idx data_location(node_idx n) {
-    return data_idx[*n];
-  }
-
-  void push(double x, double y, int value) {
-    auto loc = node_location(*this, x, y); // compute a geohash
-    auto n_idx = insert(*this, loc, factor = 9); // insert geohash in the tree
-    x.push(x);
-    y.push(y);
-    value.push(value);
-    data_idx[node_idx] = x.size() - 1;
-  }
-
-  // this lets the tree reorder your data
-  void swap(node_idx a, node_idx b) {
-    using std::swap;
-    swap(x[*a], x[*b]);
-    swap(y[*a], y[*b]);
-    swap(value[*a], value[*b]);
-    tree::swap(a, b);
-  }
-};
-
-int main() {
-  int capacity = 10e6;
-  my_tree t(capacity);
-
-  // rng gen
-  for (auto i : view::iota(0, capacity)) {
-    auto value = gen();
-    auto x = gen();
-    auto z = gen();
-    insert(t, x, y, value);
-  }
-
-  node_idx closest_neighbor;
-  for (auto node : t) {
-    auto tmp = find_closest_neighbor_that(t, [&](node_idx a, node_idx b) {
-  
-    });
-    closest_neighbor = min(tmp, closest_neighbor);
-  }
-
-  return closest_neighbor;
-}
-```
--->
+For a quick start there is an n-dimensional nearest neighbor implementation in
+the example directory. That shows the main features of the library.
 
 ### Nomenclature
 
@@ -165,12 +78,7 @@ int main() {
 
 - Algorithms:
 
-  - computing location hashes
-  - DFS sorting
-  - find node neighbors
-  - TODO: find nodes in a region
-  - TODO: point insertion/removal
-  - TODO: closest point
+  - See the algorithm subdirectory.
 
 <!-- Links -->
 [badge.Travis]: https://travis-ci.org/gnzlbg/ndtree.svg?branch=master
