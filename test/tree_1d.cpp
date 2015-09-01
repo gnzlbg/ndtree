@@ -17,13 +17,17 @@ NDTREE_STATIC_ASSERT_RANDOM_ACCESS_SIZED_RANGE(tree<1>::child_positions());
 
 struct uniform_tree {
   std::vector<node> nodes{
-   {idx{0}, lvl{0}, pn{i}, cs{1, 2}, pip{}, fn{i, i}, en{}, cn{}, an{}},  //
-   {idx{1}, lvl{1}, pn{0}, cs{3, 4}, pip{0}, fn{i, 2}, an{5}},            //
-   {idx{2}, lvl{1}, pn{0}, cs{5, 6}, pip{1}, fn{1, i}, an{4}},            //
-   {idx{3}, lvl{2}, pn{1}, cs{7, 8}, pip{0, 0}, fn{i, 4}, an{9}},         //
-   {idx{4}, lvl{2}, pn{1}, cs{9, 10}, pip{0, 1}, fn{3, 5}, an{8, 11}},    //
-   {idx{5}, lvl{2}, pn{2}, cs{11, 12}, pip{1, 0}, fn{4, 6}, an{10, 13}},  //
-   {idx{6}, lvl{2}, pn{2}, cs{13, 14}, pip{1, 1}, fn{5, i}, an{12}},      //
+   {idx{0}, lvl{0}, pn{i}, cs{1, 2}, pip{}, fn{i, i}, en{}, cn{}, an{},
+    nc{0.5}},                                                                //
+   {idx{1}, lvl{1}, pn{0}, cs{3, 4}, pip{0}, fn{i, 2}, an{5}, nc{0.25}},     //
+   {idx{2}, lvl{1}, pn{0}, cs{5, 6}, pip{1}, fn{1, i}, an{4}, nc{0.75}},     //
+   {idx{3}, lvl{2}, pn{1}, cs{7, 8}, pip{0, 0}, fn{i, 4}, an{9}, nc{.125}},  //
+   {idx{4}, lvl{2}, pn{1}, cs{9, 10}, pip{0, 1}, fn{3, 5}, an{8, 11},
+    nc{.375}},  //
+   {idx{5}, lvl{2}, pn{2}, cs{11, 12}, pip{1, 0}, fn{4, 6}, an{10, 13},
+    nc{0.625}},  //
+   {idx{6}, lvl{2}, pn{2}, cs{13, 14}, pip{1, 1}, fn{5, i}, an{12},
+    nc{0.875}},                                                           //
    {idx{7}, lvl{3}, pn{3}, cs{}, pip{0, 0, 0}, fn{i, 8}, an{8}},          //
    {idx{8}, lvl{3}, pn{3}, cs{}, pip{0, 0, 1}, fn{7, 9}, an{7, 9}},       //
    {idx{9}, lvl{3}, pn{4}, cs{}, pip{0, 1, 0}, fn{8, 10}, an{8, 10}},     //
@@ -198,7 +202,6 @@ int main() {
     CHECK(!(t == t2));
     CHECK(t.is_compact());
     check_tree(t, tree_after_coarsen_sorted{});
-
   }
 
   return test::result();

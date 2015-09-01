@@ -87,6 +87,55 @@ int main() {
     CHECK(a.to_int(2) == 3_u);
   }
 
+  // test float from location
+  {
+    {  // loc (0.25, 0.75)
+      std::array<num_t, 2> x{{0.25, 0.75}};
+      {
+        auto fl = location<2>(x, 1);
+        CHECK(fl.level == 1_u);
+        CHECK(size(fl()) == 1_u);
+        CHECK(fl[1] == 2_u);
+        CHECK(fl()[0] == 2_u);
+      }
+      {
+        auto fl = location<2>(x, 0);
+        CHECK(fl.level == 0_u);
+        CHECK(size(fl()) == 0_u);
+      }
+    }
+    {  // loc (0.6, 0.8)
+      std::array<num_t, 2> x{{0.6, 0.8}};
+      {
+        auto fl = location<2>(x, 1);
+        CHECK(fl.level == 1_u);
+        CHECK(size(fl()) == 1_u);
+        CHECK(fl[1] == 3_u);
+        CHECK(fl()[0] == 3_u);
+      }
+      {
+        auto fl = location<2>(x, 2);
+        CHECK(fl.level == 2_u);
+        CHECK(size(fl()) == 2_u);
+        CHECK(fl[1] == 3_u);
+        CHECK(fl()[0] == 3_u);
+        CHECK(fl[2] == 2_u);
+        CHECK(fl()[1] == 2_u);
+      }
+      {
+        auto fl = location<2>(x, 3);
+        CHECK(fl.level == 3_u);
+        CHECK(size(fl()) == 3_u);
+        CHECK(fl[1] == 3_u);
+        CHECK(fl()[0] == 3_u);
+        CHECK(fl[2] == 2_u);
+        CHECK(fl()[1] == 2_u);
+        CHECK(fl[3] == 0_u);
+        CHECK(fl()[2] == 0_u);
+      }
+    }
+  }
+
   // test to_int whole
 
   // test shift

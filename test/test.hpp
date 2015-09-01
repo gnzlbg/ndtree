@@ -14,6 +14,10 @@ namespace test {
 
 namespace detail {
 
+template <typename T, typename U> bool approx(T t, U u, T eps = 1e-6) {
+  return fabs(t - u) < eps;
+}
+
 inline int& failures() {
   static int no_failures = 0;
   return no_failures;
@@ -81,6 +85,19 @@ template <class T> struct R {
    -> std::enable_if_t<!std::is_floating_point<U>::value> {
     return dismiss();
     if (!(t_ != u)) { this->oops(u); }
+  }
+  template <class U>
+  auto operator==(U const& u)
+   -> std::enable_if_t<std::is_floating_point<U>::value
+                       && std::is_floating_point<T>::value> {
+    dismiss();
+    if (!(approx(t_, u))) { this->oops(u); }
+  }
+  template <class U>
+  auto operator!=(U const& u)
+   -> std::enable_if_t<std::is_floating_point<U>::value> {
+    return dismiss();
+    if (approx(t_, u)) { this->oops(u); }
   }
   template <class U> void operator<(U const& u) {
     dismiss();

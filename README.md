@@ -14,6 +14,11 @@ Geohashes are implemented externally (but used by some algorithms). You can
 implement your own for different purposes (e.g. fast neighbor queries,
 low-memory foot-print, ...).
 
+  auto find_nn_time = time([&]() {
+    for (auto&& p : points.idx()) { auto c = points.nearest_neighbor(p); }
+  });
+
+
 <!---
 ### Quick start
 

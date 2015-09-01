@@ -52,8 +52,9 @@ template <int nd, typename T = uint_t> struct location {
 
   location() = default;
 
-  location(std::array<float, nd> x_, int l) : level(l) {
-    reset_bits();
+  template <typename U, CONCEPT_REQUIRES_(std::is_floating_point<U>{})>
+  location(std::array<U, nd> x_, uint_t l = (max_level() - 1))
+   : level(l) {
     NDTREE_ASSERT(l < max_level(), "");
 
     for (auto&& d : dimensions()) {
@@ -63,8 +64,8 @@ template <int nd, typename T = uint_t> struct location {
                     d, x_[d]);
     }
 
-    constexpr uint_t scale = math::ipow(2, l);
-    for (auto&& d : dimensions()) { x[d] = x_[d] * scale; }
+    num_t scale = math::ipow(2_u, l);
+    for (auto&& d : dimensions()) { from_int_r(d, x_[d] * scale); }
   }
 
   location(std::initializer_list<uint_t> ps) {
@@ -119,7 +120,6 @@ template <int nd, typename T = uint_t> struct location {
   void from_int_r(uint_t d, uint_t v) noexcept {
     uint_t i = 1;
     for (auto l : levels() | view::reverse) {
-      std::cout << "l = " << l << std::endl;
       bit::set(x[d], i, bit::get(v, l - 1));
       ++i;
     }

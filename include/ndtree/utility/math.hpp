@@ -18,7 +18,7 @@ constexpr Int ipow(const Int b, const Int e) {
 
 /// Constexpr version of cmath floor
 ///
-/// TODO: improve this
+/// TODO: there has to be a better way
 template <class Float, CONCEPT_REQUIRES_(std::is_floating_point<Float>{})>
 constexpr Float floor(Float x) {
   return x >= 0.0 ? int(x) : int(x) - 1;
@@ -34,6 +34,8 @@ constexpr Int factorial(const Int n) noexcept {
   return (n == Int{0}) ? Int{1} : n * factorial(n - Int{1});
 }
 
+/// Computes the binomial coefficient (n m)
+///
 /// TODO: assert n - m >= 0 for unsigned types
 template <class Int, CONCEPT_REQUIRES_(Integral<Int>{})>
 constexpr Int binomial_coefficient(const Int n, const Int m) noexcept {

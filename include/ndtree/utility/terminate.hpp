@@ -9,11 +9,13 @@
 #pragma clang diagnostic ignored "-Wgnu-zero-variadic-macro-arguments"
 
 /// Terminates the program
-#define NDTREE_TERMINATE(message, ...)                                        \
+///
+/// TODO: offer a way to throw an exception with the message instead
+#define NDTREE_TERMINATE(message, ...)                                       \
   [[ cold, noinline ]] do {                                                  \
-    ::ndtree::fmt::print(                                                     \
+    ::ndtree::fmt::print(                                                    \
      stderr, "\nFATAL ERROR:\n\n  message: " message "\n\n", ##__VA_ARGS__); \
-    NDTREE_PRINT_AT(NDTREE_AT_);                                               \
+    NDTREE_PRINT_AT(NDTREE_AT_);                                             \
     std::terminate();                                                        \
   }                                                                          \
   while (false)

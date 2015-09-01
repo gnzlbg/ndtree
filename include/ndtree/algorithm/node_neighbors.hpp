@@ -79,6 +79,17 @@ struct node_neighbors_fn {
     neighbors.erase(ranges::unique(neighbors), end(neighbors));
     return neighbors;
   }
+
+  /// Finds set of unique neighbors of node \p n across all manifolds
+  ///
+  /// \param t [in] tree.
+  /// \param n [in] node index.
+  /// \returns stack allocated vector containing the unique set of neighbors
+  ///
+  template <typename Tree>
+  auto operator()(Tree const& t, node_idx n) const noexcept {
+    return (*this)(t, node_location(t, n));
+  }
 };
 
 namespace {

@@ -106,6 +106,9 @@ template <int nd> using neighbor_offset = std::array<int_t, nd>;
 template <int nd, int m> struct manifold_neighbors;
 
 /// Neighbor of an nd-dimensional node across a (nd - m)-dimensional face
+///
+/// TODO: simplify this and provide a way of constructing custom neighbor search
+/// tables
 template <int nd, int m> struct manifold_neighbors {
   static_assert(nd >= 0 and nd <= 3, "");
 

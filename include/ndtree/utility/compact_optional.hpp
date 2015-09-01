@@ -191,3 +191,18 @@ class compact_optional : public detail::compact_optional_base<N> {
 
 }  // namespace v1
 }  // namespace ndtree
+
+namespace std {
+
+template <typename N, typename Tag>
+struct hash<ndtree::compact_optional<N, Tag>> {
+  using Key = ndtree::compact_optional<N, Tag>;
+  using result_type = size_t;
+  using value_type = typename N::value_type;
+  size_t operator()(Key const& k) const noexcept {
+    return k ? std::hash<value_type>{}(*k)
+             : std::hash<value_type>{}(N::empty_value());
+  }
+};
+
+}  // namespace std

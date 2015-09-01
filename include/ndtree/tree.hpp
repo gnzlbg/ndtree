@@ -278,19 +278,6 @@ template <int nd> struct tree {
     return is_leaf(n) ? 0 : no_children();
   }
 
-  /// Execute function \p f on every parent of node \p n until the root node
-  template <class F> void traverse_parents(node_idx n, F&& f) const noexcept {
-    while ((n = parent(n))) { f(n); };
-  }
-
-  /// Level of node \p n (distance from the root node)
-  uint_t level(node_idx n) const noexcept {
-    NDTREE_ASSERT(!is_free(n), "node {} is free and doesn't have a level", *n);
-    uint_t l = 0;
-    traverse_parents(n, [&](node_idx) { ++l; });
-    return l;
-  }
-
   /// Does the tree have a compact representation?
   ///
   /// That is, no free sibling groups before the last sibling group in use.
@@ -334,10 +321,12 @@ template <int nd> struct tree {
   }
 
  private:
+  /// All parents as stored in memory
   constexpr auto all_parents() const noexcept {
     return view::counted(parents_.get(), *sibling_group_capacity());
   }
 
+  /// All children as stored in memory
   constexpr auto all_children() const noexcept {
     return view::counted(first_children_.get(), *capacity());
   }

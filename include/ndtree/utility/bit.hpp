@@ -16,6 +16,8 @@ namespace bit {
 template <class Int>
 constexpr auto width = static_cast<Int>(CHAR_BIT * sizeof(Int{}));
 
+/// Does the type Int have the bit \p b?
+/// note: used to assert if bit is within bounds.
 template <class Int, CONCEPT_REQUIRES_(Integral<Int>{})>
 constexpr bool has_bit(uint_t b) noexcept {
   return b >= 0 and b < width<Int>;
@@ -34,7 +36,6 @@ template <class Int, CONCEPT_REQUIRES_(Integral<Int>{})>
 constexpr void set(Int& x, uint_t b, bool value) {
   NDTREE_ASSERT(has_bit<Int>(b), "bit index {} out-of-bounds [0, {})", b,
                 width<Int>);
-
   if (value) {
     x |= (Int{1} << b);
   } else {

@@ -13,6 +13,10 @@ inline namespace v1 {
 
 /// Shift node location
 struct shift_location_fn {
+  /// Shifts the location \p loc by normalized \p offset at \p level
+  ///
+  /// TODO: if offset is out of bounds -> undefined behavior (right now
+  /// an assertion triggers in location's constructor)
   template <int nd>
   auto operator()(location<nd> loc, std::array<num_t, nd> offset,
                   uint_t level = location<nd>::max_level()) const noexcept
@@ -22,6 +26,10 @@ struct shift_location_fn {
     return location<nd>{offset, level};
   }
 
+  /// Shifts the location \p loc by \p offset
+  ///
+  /// If the resulting location is out-of-bounds the optional_location won't
+  /// contain a valid value.
   template <int nd>
   auto operator()(location<nd> loc, std::array<int_t, nd> offset) const noexcept
    -> optional_location<nd> {

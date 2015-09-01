@@ -107,6 +107,46 @@ static constexpr uint_t no_nodes_until_uniform_level(uint_t nd, uint_t level) {
   return no_nodes;
 }
 
+/// Relative position of the children w.r.t. their parent's center:
+///
+/// \param [in] p position of the children
+/// \param [in] d axis along which to compute the relative position
+///
+/// \returns relative position (+1/-1) of child \p w.r.t. his parent
+/// center
+/// along the \p d axis
+///
+/// That is:
+///              __________________________
+///            /|   pos: 6   |   pos: 7  /|
+///           / | (-1,+1,+1) | (+1,+1,+1) |
+///          /  |____________|____________|
+///         /   |   pos: 4   |   pos: 5   |
+///        /    | (-1,-1,+1) | (+1,-1,+1) |
+///       /     |____________|____________|
+///      /     /                   /     /
+///     /_____/___________________/     /
+///    |   pos: 2   |   pos: 3   |     /    d (1) ^
+///    | (-1,+1,-1) | (+1,+1,-1) |    /           |     ^ z (2)
+///    |____________|____________|   /            |    /
+///    |   pos: 0   |   pos: 1   |  /             |  /
+///    | (-1,-1,-1) | (+1,-1,-1) | /              |/
+///    |____________|____________|/               o-------> x (0)
+///
+///
+///
+///
+///
+static constexpr auto relative_child_position(const uint_t p, const uint_t d)
+ -> int_t {
+  return (p / math::ipow(2_u, d)) % 2 ? 1 : -1;
+}
+
+/// Normalized length of a node at level \p l (for a root node of length = 1)
+static constexpr num_t node_length_at_level(const uint_t l) {
+  return num_t{1} / math::ipow(2_u, l);
+}
+
 ///@} // Tree relations
 
 }  // namespace v1

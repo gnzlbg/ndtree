@@ -7,6 +7,11 @@
 // The idea and interface is based on Boost.Optional library
 // authored by Fernando Luis Cacciola Carballal
 
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wshadow"
+#pragma clang diagnostic ignored "-Wdeprecated"
+
+
 # include <ndtree/utility/optional.hpp>
 # include <vector>
 # include <iostream>
@@ -1456,3 +1461,5 @@ int main() {
   else
     std::cout << "Optional doesn't have constexpr move accessors" << std::endl;	
 }
+
+#pragma clang diagnostic pop
