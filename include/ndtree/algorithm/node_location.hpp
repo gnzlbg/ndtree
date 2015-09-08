@@ -1,7 +1,7 @@
 #pragma once
 /// \file node_location.hpp
 #include <ndtree/algorithm/root_traversal.hpp>
-#include <ndtree/location.hpp>
+#include <ndtree/concepts.hpp>
 #include <ndtree/types.hpp>
 #include <ndtree/utility/assert.hpp>
 #include <ndtree/utility/static_const.hpp>
@@ -12,11 +12,10 @@ inline namespace v1 {
 
 struct node_location_fn {
   /// Location code of the node with index \p n within the tree \p t
-  template <typename Tree>
-  auto operator()(Tree const& t, node_idx n) const noexcept
-   -> location<Tree::dimension()> {
+  template <typename Tree, typename Loc, CONCEPT_REQUIRES_(Location<Loc>{})>
+  auto operator()(Tree const& t, node_idx n, Loc loc) const noexcept
+   -> Loc {
     NDTREE_ASSERT(n, "cannot compute the location of an invalid node");
-    location<Tree::dimension()> loc;
 
     root_traversal(t, n, [&](node_idx i) {
       if (t.is_root(i)) { return false; }

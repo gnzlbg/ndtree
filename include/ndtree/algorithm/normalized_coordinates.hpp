@@ -1,8 +1,8 @@
 #pragma once
 /// \file normalized_coordinates.hpp
 #include <array>
+#include <ndtree/concepts.hpp>
 #include <ndtree/types.hpp>
-#include <ndtree/location.hpp>
 #include <ndtree/relations/tree.hpp>
 #include <ndtree/utility/static_const.hpp>
 
@@ -15,8 +15,9 @@ struct normalized_coordinates_fn {
   ///
   /// \note normalized coordinates means normalized by the length of the root
   /// node, that is, the coordinates are in range (0., 1.).
-  template <int nd>
-  auto operator()(location<nd> loc) const noexcept -> std::array<num_t, nd> {
+  template <typename Loc, int nd = Loc::dimension(),
+            CONCEPT_REQUIRES_(Location<Loc>{})>
+  auto operator()(Loc loc) const noexcept -> std::array<num_t, nd> {
     std::array<num_t, nd> result;
     for (auto&& i : result) { i = 0.5; }
 
@@ -36,9 +37,9 @@ struct normalized_coordinates_fn {
   ///
   /// \note normalized coordinates means normalized by the length of the root
   /// node, that is, the coordinates are in range (0., 1.).
-  template <typename Tree>
-  auto operator()(Tree const& t, node_idx n) const noexcept {
-    return (*this)(node_location(t, n));
+  template <typename Tree, typename Loc, CONCEPT_REQUIRES_(Location<Loc>{})>
+  auto operator()(Tree const& t, node_idx n, Loc l) const noexcept {
+    return (*this)(node_location(t, n, l));
   }
 };
 

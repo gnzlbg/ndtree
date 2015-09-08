@@ -1,5 +1,6 @@
 #pragma once
 /// \file algorithm.hpp
+#include <ndtree/algorithm/balanced_refine.hpp>
 #include <ndtree/algorithm/dfs_sort.hpp>
 #include <ndtree/algorithm/node_at.hpp>
 #include <ndtree/algorithm/node_length.hpp>

@@ -2,10 +2,14 @@
 /// \file relations.hpp Tree relationships.
 #include <array>
 #include <ndtree/types.hpp>
+#include <ndtree/relations/dimension.hpp>
 #include <ndtree/utility/assert.hpp>
 #include <ndtree/utility/math.hpp>
 #include <ndtree/utility/bounded.hpp>
 #include <ndtree/utility/terminate.hpp>
+/// Use look-up table for the relative children position instead of arithmetic
+/// operations
+#define NDTREE_USE_CHILDREN_LOOKUP_TABLE
 
 namespace ndtree {
 inline namespace v1 {
@@ -13,14 +17,6 @@ inline namespace v1 {
 
 /// \name Tree relations
 ///@{
-
-/// Range of spatial dimensions: [0, nd)
-///
-/// TODO: make constexpr when view::iota is constexpr
-auto dimensions(uint_t nd) noexcept { return view::iota(0_u, nd); }
-NDTREE_STATIC_ASSERT_RANDOM_ACCESS_SIZED_RANGE(dimensions(1));
-NDTREE_STATIC_ASSERT_RANDOM_ACCESS_SIZED_RANGE(dimensions(2));
-NDTREE_STATIC_ASSERT_RANDOM_ACCESS_SIZED_RANGE(dimensions(3));
 
 /// Number of children of a node
 ///
@@ -107,13 +103,17 @@ static constexpr uint_t no_nodes_until_uniform_level(uint_t nd, uint_t level) {
   return no_nodes;
 }
 
+/// Normalized length of a node at level \p l (for a root node of length = 1)
+static constexpr num_t node_length_at_level(const uint_t l) {
+  return num_t{1} / math::ipow(2_u, l);
+}
+
 /// Relative position of the children w.r.t. their parent's center:
 ///
 /// \param [in] p position of the children
 /// \param [in] d axis along which to compute the relative position
 ///
-/// \returns relative position (+1/-1) of child \p w.r.t. his parent
-/// center
+/// \returns relative position (+1/-1) of child \p w.r.t. his parent center
 /// along the \p d axis
 ///
 /// That is:
@@ -139,12 +139,21 @@ static constexpr uint_t no_nodes_until_uniform_level(uint_t nd, uint_t level) {
 ///
 static constexpr auto relative_child_position(const uint_t p, const uint_t d)
  -> int_t {
+#ifdef NDTREE_USE_CHILDREN_LOOKUP_TABLE
+  constexpr int_t stencil[8][3] = {
+   {-1, -1, -1},  // 0
+   {1, -1, -1},   // 1
+   {-1, 1, -1},   // 2
+   {1, 1, -1},    // 3
+   {-1, -1, 1},   // 4
+   {1, -1, 1},    // 5
+   {-1, 1, 1},    // 6
+   {1, 1, 1}      // 7
+  };
+  return stencil[p][d];
+#else
   return (p / math::ipow(2_u, d)) % 2 ? 1 : -1;
-}
-
-/// Normalized length of a node at level \p l (for a root node of length = 1)
-static constexpr num_t node_length_at_level(const uint_t l) {
-  return num_t{1} / math::ipow(2_u, l);
+#endif
 }
 
 ///@} // Tree relations

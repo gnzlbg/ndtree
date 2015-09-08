@@ -12,6 +12,7 @@
 #include <ndtree/tree.hpp>
 #endif
 #include <ndtree/algorithm.hpp>
+#include <ndtree/location/fast.hpp>
 #include <ndtree/relations/tree.hpp>
 #include <ndtree/utility/optional.hpp>
 
@@ -24,8 +25,8 @@ using ndtree::optional;
 static const constexpr auto i = std::numeric_limits<int>::max();
 
 /// Testing utility for constructing a node with named argument lists
-template <class Tag, class T = uint_t> struct tagged_initializer_list {
-  template <class... Args>
+template <typename Tag, typename T = uint_t> struct tagged_initializer_list {
+  template <typename... Args>
   tagged_initializer_list(Args&&... args)
    : data{static_cast<T>(args)...} {}
   std::vector<T> data;
@@ -64,7 +65,7 @@ using cn = tagged_initializer_list<class corner_neighbors_tag_>;
 /// All neighbors
 using an = tagged_initializer_list<class all_neighbors_tag_>;
 /// Normalized coordinates
-  using nc = tagged_initializer_list<class normalized_coordinates_tag_, num_t>;
+using nc = tagged_initializer_list<class normalized_coordinates_tag_, num_t>;
 
 /// Test data for a single node
 struct node {
@@ -130,7 +131,7 @@ struct node {
   }
 };
 
-template <class Tree> void test_parent(Tree const& t, node const& n) {
+template <typename Tree> void test_parent(Tree const& t, node const& n) {
   // consistency:
   if (t.parent(*n.idx)) {
     CHECK(any_of(t.children(t.parent(*n.idx)),
@@ -143,7 +144,7 @@ template <class Tree> void test_parent(Tree const& t, node const& n) {
   if (n.parent) { CHECK(t.parent(*n.idx) == *n.parent); }
 }
 
-template <class Tree> void test_level(Tree const& t, node const& n) {
+template <typename Tree> void test_level(Tree const& t, node const& n) {
   // consistency:
   if (node_level(t, *n.idx) == 0) {
     CHECK(t.is_root(*n.idx));
@@ -153,7 +154,7 @@ template <class Tree> void test_level(Tree const& t, node const& n) {
   // check node level:
   if (n.level) { CHECK(node_level(t, *n.idx) == *n.level); }
 }
-template <class Tree> void test_children(Tree const& t, node const& n) {
+template <typename Tree> void test_children(Tree const& t, node const& n) {
   // consistency
   if (t.no_children(*n.idx) == 0_u) {
     CHECK(t.is_leaf(*n.idx));
@@ -179,69 +180,78 @@ template <class Tree> void test_children(Tree const& t, node const& n) {
   }
 }
 
-template <class Tree> void test_node_location(Tree const& t, node const& n) {
+template <typename Tree, typename Location>
+void test_node_location(Tree const& t, node const& n, Location l) {
+  static_assert(Tree::dimension() == Location::dimension(), "");
   // consistency:
-  CHECK(node_at(t, node_location(t, *n.idx)) == *n.idx);
+  CHECK(node_at(t, node_location(t, *n.idx, l)) == *n.idx);
 }
 
-template <class Tree> void test_pos_in_parent(Tree const& t, node const& n) {
+template <typename Tree, typename Location>
+void test_pos_in_parent(Tree const& t, node const& n, Location l) {
+  static_assert(Tree::dimension() == Location::dimension(), "");
   if (!n.pos_in_parent) { return; }
-  test::check_equal(node_location(t, *n.idx)(), *n.pos_in_parent);
-  CHECK(node_at(t, location<Tree::dimension()>(*n.pos_in_parent)) == *n.idx);
+  test::check_equal(node_location(t, *n.idx, l)(), *n.pos_in_parent);
+  CHECK(node_at(t, Location(*n.pos_in_parent)) == *n.idx);
 }
 
-template <class Tree, class Neighbors, class NeighborType>
+template <typename Tree, typename Neighbors, typename NeighborType,
+          typename Location>
 void test_node_neighbor(Tree const& t, node const& n, Neighbors const& ns,
-                        NeighborType) {
+                        NeighborType, Location l) {
   if (!ns) { return; }
   using neighbor_idx = neighbor_idx_t<NeighborType>;
   CHECK(size(neighbor_idx::rng()) == size(*ns));
   for (auto&& p : neighbor_idx::rng()) {
-    auto neighbor = node_neighbor(t, node_location(t, *n.idx), p);
+    auto neighbor = node_neighbor(t, node_location(t, *n.idx, l), p);
     CHECK(neighbor == (*ns)[*p]);
     if (neighbor) {
-      CHECK(node_neighbor(t, node_location(t, neighbor), opposite(p))
+      CHECK(node_neighbor(t, node_location(t, neighbor, l), opposite(p))
             == *n.idx);
     }
   }
 }
 
-template <class Tree, class Neighbors>
-void test_node_neighbors(Tree const& t, node const& n, Neighbors const& ns) {
+template <typename Tree, typename Neighbors, typename Location>
+void test_node_neighbors(Tree const& t, node const& n, Neighbors const& ns,
+                         Location l) {
   if (!ns) { return; }
-  auto neighbors = node_neighbors(t, node_location(t, *n.idx));
+  auto neighbors = node_neighbors(t, node_location(t, *n.idx, l));
   CHECK(size(neighbors) == size(*ns));
   test::check_equal(neighbors, *ns);
 }
 
-template <class Tree>
-void test_normalized_coordinates(Tree const& t, node const& n) {
-  auto nc = normalized_coordinates(t, *n.idx);
+template <typename Tree, typename Location>
+void test_normalized_coordinates(Tree const& t, node const& n, Location l) {
+  auto nc = normalized_coordinates(t, *n.idx, l);
   if (n.normalized_coordinates) {
     auto reference = *n.normalized_coordinates;
     test::check_equal(nc, reference);
   }
 }
 
-template <class Tree> void check_node(Tree const& t, node n) {
+template <typename Tree, typename Location>
+void check_node(Tree const& t, node n, Location l) {
   test_parent(t, n);
   test_level(t, n);
   test_children(t, n);
-  test_node_location(t, n);
-  test_pos_in_parent(t, n);
+  test_node_location(t, n, l);
+  test_pos_in_parent(t, n, l);
   test_node_neighbor(t, n, n.face_neighbors,
-                     face_neighbors<Tree::dimension()>{});
+                     face_neighbors<Tree::dimension()>{}, l);
   test_node_neighbor(t, n, n.edge_neighbors,
-                     edge_neighbors<Tree::dimension()>{});
+                     edge_neighbors<Tree::dimension()>{}, l);
   test_node_neighbor(t, n, n.corner_neighbors,
-                     corner_neighbors<Tree::dimension()>{});
-  test_node_neighbors(t, n, n.all_neighbors);
-  test_normalized_coordinates(t, n);
+                     corner_neighbors<Tree::dimension()>{}, l);
+  test_node_neighbors(t, n, n.all_neighbors, l);
+  test_normalized_coordinates(t, n, l);
 }
 
-template <class Tree, class ReferenceTree>
-void check_tree(Tree const& t, ReferenceTree const& tref) {
-  for (auto&& n : tref.nodes) { check_node(t, n); }
+template <typename Tree, typename ReferenceTree,
+          typename Location = location::default_location<Tree::dimension()>>
+void check_tree(Tree const& t, ReferenceTree const& tref,
+                Location l = Location{}) {
+  for (auto&& n : tref.nodes) { check_node(t, n, l); }
 }
 
 template <int nd>

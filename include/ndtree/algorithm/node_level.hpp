@@ -1,8 +1,8 @@
 #pragma once
 /// \file node_level.hpp
-#include <ndtree/types.hpp>
-#include <ndtree/location.hpp>
 #include <ndtree/algorithm/root_traversal.hpp>
+#include <ndtree/concepts.hpp>
+#include <ndtree/types.hpp>
 #include <ndtree/utility/static_const.hpp>
 
 namespace ndtree {
@@ -32,9 +32,9 @@ struct node_level_fn {
   ///
   /// Time complexity: O(1)
   /// Space complexity: O(1)
-  template <int nd>
-  auto operator()(location<nd> const& loc) const noexcept -> uint_t {
-    return loc.level;
+  template <typename Loc, CONCEPT_REQUIRES_(Location<Loc>{})>
+  auto operator()(Loc&& loc) const noexcept -> uint_t {
+    return loc.level();
   }
 };
 

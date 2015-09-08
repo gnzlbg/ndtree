@@ -8,6 +8,9 @@
 #include <ndtree/utility/math.hpp>
 #include <ndtree/utility/bounded.hpp>
 #include <ndtree/utility/terminate.hpp>
+/// Use look-up table for the same level neighbors instead of
+/// arithmetic operations
+#define NDTREE_USE_NEIGHBOR_LOOKUP_TABLE
 
 namespace ndtree {
 inline namespace v1 {
@@ -99,14 +102,138 @@ template <> struct neighbor_children_sharing_face<3, 0> {
 
 ///@}  // Neighbor children sharing face stencils
 
+/// Normalized displacement from node center to node neighbor. The unit length
+/// is the length of the node.
 template <int nd> using neighbor_offset = std::array<int_t, nd>;
 
-/// TODO: benchmark the following vs look-up table based versions
+/// \name Neighbor lookup tables
+///
+/// Neighbor positions at same level:
+///
+/// In 1D:        across nd-1: 2 faces
+///
+///         |--- 0 ---|--- * ---|--- 1 ---|   ----> d_0
+///
+/// In 2D:   across nd-1: 4 faces   across nd-2: 4 corners
+///                ______           ______      ______
+///               |     |          |     |     |     |
+///               |  3  |          |  2  |     |  3  |    d_1 ^
+///          _____|_____|______    |_____|_____|_____|        |
+///         |     |     |     |          |     |              |
+///         |  0  |  *  |  1  |          |  *  |              *----> d_0
+///         |_____|_____|_____|    ______|_____|______
+///               |     |          |     |     |     |
+///               |  2  |          |  0  |     |  1  |
+///               |_____|          |_____|     |_____|
+///
+/// In 3D: across nd-1: 6 faces  across nd-2: 12 edges  across nd-3: 8
+/// corners
+///
+///         3    5          ___11___         6______7   d_1 ^   ^ d_3
+///         |  /        2  /|   3 /|        /|     /|       |  /
+///         |/           /__7___/  |      2______3  |       |/
+///  0 -----*----- 1    |  8|  |   |9    |   |  |   |       *--->d_0
+///       / |           |   |__|10_|     |   4__|___5
+///     /   |          4|  /0  |5 /1     |  /   |  /
+///   4     2           |/_____|/        |0_____1/
+///                         6
+///
+/// In the following stencils, for a given neighbor position an offset vector is
+/// returned. The offset is is a normalized displacement from the node center to
+/// the node neighbor. The length 1 represents one cell length at the nodes
+/// level.
+///
+///@{
+
+template <int nd, int m> struct neighbor_lookup_table {
+  std::array<neighbor_offset<nd>, 0> stencil;
+};
+
+/// 1D: across faces
+template <> struct neighbor_lookup_table<1, 0> {
+  std::array<neighbor_offset<1>, 2> stencil{{
+   //
+   {{-1}},
+   {{1}}  //
+  }};
+};
+
+/// 2D: across faces
+template <> struct neighbor_lookup_table<2, 1> {
+  std::array<neighbor_offset<2>, 4> stencil{{
+   //
+   {{-1, 0}},
+   {{1, 0}},
+   {{0, -1}},
+   {{0, 1}}  //
+  }};
+};
+
+/// 2D: across edges
+template <> struct neighbor_lookup_table<2, 0> {
+  std::array<neighbor_offset<2>, 4> stencil{{
+   //
+   {{-1, -1}},
+   {{1, -1}},
+   {{-1, 1}},
+   {{1, 1}}  //
+  }};
+};
+
+/// 3D: across faces
+template <> struct neighbor_lookup_table<3, 2> {
+  std::array<neighbor_offset<3>, 6> stencil{{
+   //
+   {{-1, 0, 0}},
+   {{1, 0, 0}},
+   {{0, -1, 0}},
+   {{0, 1, 0}},
+   {{0, 0, -1}},
+   {{0, 0, 1}}  //
+  }};
+};
+
+/// 3D: across edges
+template <> struct neighbor_lookup_table<3, 1> {
+  std::array<neighbor_offset<3>, 12> stencil{{
+   //
+   {{-1, -1, 0}},
+   {{1, -1, 0}},
+   {{-1, 1, 0}},
+   {{1, 1, 0}},
+   {{-1, 0, -1}},
+   {{1, 0, -1}},
+   {{0, -1, -1}},
+   {{0, 1, -1}},
+   {{-1, 0, 1}},
+   {{1, 0, 1}},
+   {{0, -1, 1}},
+   {{0, 1, 1}}
+   //
+  }};
+};
+
+/// 3D: across corners
+template <> struct neighbor_lookup_table<3, 0> {
+  std::array<neighbor_offset<3>, 8> stencil{{
+   //
+   {{-1, -1, -1}},
+   {{1, -1, -1}},
+   {{-1, 1, -1}},
+   {{1, 1, -1}},
+   {{-1, -1, 1}},
+   {{1, -1, 1}},
+   {{-1, 1, 1}},
+   {{1, 1, 1}}  //
+  }};
+};
+
+///@}  // Neighbor lookup tables
 
 template <int nd, int m> struct manifold_neighbors;
 
 /// Neighbor of an nd-dimensional node across a (nd - m)-dimensional face
-///
+// ///
 /// TODO: simplify this and provide a way of constructing custom neighbor search
 /// tables
 template <int nd, int m> struct manifold_neighbors {
@@ -124,6 +251,15 @@ template <int nd, int m> struct manifold_neighbors {
 
   using neighbor_idx = bounded<uint_t, 0_u, size(), manifold_neighbors<nd, m>>;
 
+#ifdef NDTREE_USE_NEIGHBOR_LOOKUP_TABLE
+  static constexpr auto same_level_stencil() noexcept {
+    return neighbor_lookup_table<nd, nd - m>{}.stencil;
+  }
+#endif
+  static constexpr auto child_level_stencil() noexcept {
+    return neighbor_children_sharing_face<nd, nd - m>{}.stencil;
+  }
+
   /// Range of neighbor positions
   auto operator()() const noexcept { return neighbor_idx::rng(); }
 
@@ -131,6 +267,9 @@ template <int nd, int m> struct manifold_neighbors {
   constexpr neighbor_offset<nd> operator[](neighbor_idx i) const noexcept {
     NDTREE_ASSERT(i, "");
     const auto n = *i;
+#ifdef NDTREE_USE_NEIGHBOR_LOOKUP_TABLE
+    return same_level_stencil()[n];
+#else
     neighbor_offset<nd> o;
     switch (m) {
       case 1: {  // nd - 1
@@ -162,14 +301,18 @@ template <int nd, int m> struct manifold_neighbors {
       }
       default: { NDTREE_TERMINATE("unimplemented"); }
     }
+#endif
+  }
+
+  auto offsets() const noexcept {
+    return (*this)()
+           | ranges::view::transform([&](auto&& idx) { return (*this)[idx]; });
   }
 
   static constexpr auto children_sharing_face(neighbor_idx i) noexcept {
-    using ncsf = neighbor_children_sharing_face<nd, nd - m>;
-    auto stencil = ncsf{}.stencil;
-    NDTREE_ASSERT(ranges::size(stencil) != 0_u,
+    NDTREE_ASSERT(ranges::size(child_level_stencil()) != 0_u,
                   "error: neighbor_idx {} | nd {} | m {}", *i, nd, m);
-    return stencil[*i];
+    return child_level_stencil()[*i];
   }
 
   static constexpr auto no_same_level_neighbors() noexcept {

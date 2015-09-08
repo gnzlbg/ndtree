@@ -115,6 +115,7 @@ int main() {
     CHECK(size(fn()) == 2_u);
     test::check_equal(fn[0], neighbor_offset<1>{{-1}});
     test::check_equal(fn[1], neighbor_offset<1>{{1}});
+    test::check_equal(fn.offsets(), neighbor_lookup_table<1, 0>{}.stencil);
   }
 
   /// Check face neighbors: 2D
@@ -126,6 +127,7 @@ int main() {
     test::check_equal(fn[1], neighbor_offset<2>{{1, 0}});
     test::check_equal(fn[2], neighbor_offset<2>{{0, -1}});
     test::check_equal(fn[3], neighbor_offset<2>{{0, 1}});
+    test::check_equal(fn.offsets(), neighbor_lookup_table<2, 1>{}.stencil);
   }
 
   /// Check face neighbors: 3D
@@ -139,6 +141,7 @@ int main() {
     test::check_equal(fn[3], neighbor_offset<3>{{0, 1, 0}});
     test::check_equal(fn[4], neighbor_offset<3>{{0, 0, -1}});
     test::check_equal(fn[5], neighbor_offset<3>{{0, 0, 1}});
+    test::check_equal(fn.offsets(), neighbor_lookup_table<3, 2>{}.stencil);
   }
 
   /// Check edge neighbors: 1D
@@ -146,6 +149,7 @@ int main() {
     constexpr auto fn = edge_neighbors<1>{};
     CHECK(size(fn()) == 0_u);
     static_assert(fn.size() == 0, "");
+    test::check_equal(fn.offsets(), neighbor_lookup_table<1, -1>{}.stencil);
   }
 
   /// Check edge neighbors: 2D
@@ -157,6 +161,7 @@ int main() {
     test::check_equal(fn[1], neighbor_offset<2>{{1, -1}});
     test::check_equal(fn[2], neighbor_offset<2>{{-1, 1}});
     test::check_equal(fn[3], neighbor_offset<2>{{1, 1}});
+    test::check_equal(fn.offsets(), neighbor_lookup_table<2, 0>{}.stencil);
   }
 
   /// Check edge neighbors: 3D
@@ -178,6 +183,7 @@ int main() {
     test::check_equal(fn[9], neighbor_offset<3>{{1, 0, 1}});
     test::check_equal(fn[10], neighbor_offset<3>{{0, -1, 1}});
     test::check_equal(fn[11], neighbor_offset<3>{{0, 1, 1}});
+    test::check_equal(fn.offsets(), neighbor_lookup_table<3, 1>{}.stencil);
   }
 
   /// Check corner neighbors: 1D
@@ -185,6 +191,7 @@ int main() {
     constexpr auto fn = corner_neighbors<1>{};
     static_assert(fn.size() == 0, "");
     CHECK(size(fn()) == 0_u);
+    test::check_equal(fn.offsets(), neighbor_lookup_table<1, -2>{}.stencil);
   }
 
   /// Check corner neighbors: 2D
@@ -192,6 +199,7 @@ int main() {
     constexpr auto fn = corner_neighbors<2>{};
     static_assert(fn.size() == 0, "");
     CHECK(size(fn()) == 0_u);
+    test::check_equal(fn.offsets(), neighbor_lookup_table<2, -1>{}.stencil);
   }
 
   /// Check corner neighbors: 3D
@@ -207,6 +215,7 @@ int main() {
     test::check_equal(fn[5], neighbor_offset<3>{{1, -1, 1}});
     test::check_equal(fn[6], neighbor_offset<3>{{-1, 1, 1}});
     test::check_equal(fn[7], neighbor_offset<3>{{1, 1, 1}});
+    test::check_equal(fn.offsets(), neighbor_lookup_table<3, 0>{}.stencil);
   }
 
   /// Test max no neighbors
@@ -275,6 +284,49 @@ int main() {
     static_assert(no_nodes_until_uniform_level(3, 1) == 9_u, "");
     static_assert(no_nodes_at_uniform_level(3, 2) == 64_u, "");
     static_assert(no_nodes_until_uniform_level(3, 2) == 73_u, "");
+  }
+
+  {  // Node length at level
+    static_assert(node_length_at_level(0) == 1., "");
+    static_assert(node_length_at_level(1) == 0.5, "");
+    static_assert(node_length_at_level(2) == 0.25, "");
+    static_assert(node_length_at_level(3) == 0.125, "");
+  }
+
+  /// Relative child positions
+  {
+    // child 0
+    static_assert(relative_child_position(0, 0) == -1, "");
+    static_assert(relative_child_position(0, 1) == -1, "");
+    static_assert(relative_child_position(0, 2) == -1, "");
+    // child 1
+    static_assert(relative_child_position(1, 0) == 1, "");
+    static_assert(relative_child_position(1, 1) == -1, "");
+    static_assert(relative_child_position(1, 2) == -1, "");
+    // child 2
+    static_assert(relative_child_position(2, 0) == -1, "");
+    static_assert(relative_child_position(2, 1) == 1, "");
+    static_assert(relative_child_position(2, 2) == -1, "");
+    // child 3
+    static_assert(relative_child_position(3, 0) == 1, "");
+    static_assert(relative_child_position(3, 1) == 1, "");
+    static_assert(relative_child_position(3, 2) == -1, "");
+    // child 4
+    static_assert(relative_child_position(4, 0) == -1, "");
+    static_assert(relative_child_position(4, 1) == -1, "");
+    static_assert(relative_child_position(4, 2) == 1, "");
+    // child 5
+    static_assert(relative_child_position(5, 0) == 1, "");
+    static_assert(relative_child_position(5, 1) == -1, "");
+    static_assert(relative_child_position(5, 2) == 1, "");
+    // child 6
+    static_assert(relative_child_position(6, 0) == -1, "");
+    static_assert(relative_child_position(6, 1) == 1, "");
+    static_assert(relative_child_position(6, 2) == 1, "");
+    // child 7
+    static_assert(relative_child_position(7, 0) == 1, "");
+    static_assert(relative_child_position(7, 1) == 1, "");
+    static_assert(relative_child_position(7, 2) == 1, "");
   }
 
   return test::result();

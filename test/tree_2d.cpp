@@ -3,6 +3,7 @@
 #include "tree.hpp"
 #include <ndtree/algorithm/dfs_sort.hpp>
 #include <ndtree/algorithm/node_location.hpp>
+#include <ndtree/location/slim.hpp>
 
 using namespace test;
 
@@ -130,7 +131,7 @@ struct tree_after_refine {
   };
 };
 
-int main() {
+template <template <ndtree::uint_t, class...> class Loc> void test_tree() {
   {  // check construction
     tree<2> t(1);
     CHECK(t.capacity() == 1_u);
@@ -169,27 +170,32 @@ int main() {
     t.refine(4_n);
 
     CHECK(t.size() == 21_u);
-    check_tree(t, uniform_tree{});
+    check_tree(t, uniform_tree{}, Loc<2>{});
     CHECK(t == uniformly_refined_tree<2>(2, 3));
 
     t.refine(8_n);
     t.refine(17_n);
 
     CHECK(t.size() == 29_u);
-    check_tree(t, tree_after_refine{});
+    check_tree(t, tree_after_refine{}, Loc<2>{});
     CHECK(t != uniformly_refined_tree<2>(2, 3));
   }
 
   {
     auto t = uniformly_refined_tree<2>(2, 3);
-    check_tree(t, uniform_tree{});
+    check_tree(t, uniform_tree{}, Loc<2>{});
 
     t.refine(8_n);
     t.refine(17_n);
 
     CHECK(t.size() == 29_u);
-    check_tree(t, tree_after_refine{});
+    check_tree(t, tree_after_refine{}, Loc<2>{});
   }
+}
+
+int main() {
+  test_tree<location::fast>();
+  test_tree<location::slim>();
 
   return test::result();
 }

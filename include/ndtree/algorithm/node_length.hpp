@@ -1,10 +1,10 @@
 #pragma once
 /// \file node_length.hpp
-#include <ndtree/location.hpp>
+#include <ndtree/algorithm/node_location.hpp>
+#include <ndtree/concepts.hpp>
 #include <ndtree/types.hpp>
 #include <ndtree/relations/tree.hpp>
 #include <ndtree/utility/static_const.hpp>
-#include <ndtree/algorithm/node_location.hpp>
 
 namespace ndtree {
 inline namespace v1 {
@@ -17,8 +17,10 @@ struct node_length_fn {
   /// \param loc [in] Node location
   ///
   /// Time complexity: O(1)
-  template <int nd> auto operator()(location<nd> loc) const noexcept -> num_t {
-    return node_length_at_level(loc.level);
+
+  template <typename Loc, CONCEPT_REQUIRES_(Location<Loc>{})>
+  auto operator()(Loc&& loc) const noexcept -> num_t {
+    return node_length_at_level(loc.level());
   }
 
   /// Normalized length of the node \p n within the tree \p t

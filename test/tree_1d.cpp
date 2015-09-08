@@ -3,6 +3,7 @@
 #include "tree.hpp"
 #include <ndtree/algorithm/dfs_sort.hpp>
 #include <ndtree/algorithm/node_location.hpp>
+#include <ndtree/location/slim.hpp>
 
 using namespace test;
 
@@ -109,7 +110,7 @@ struct tree_after_coarsen_sorted {
   };
 };
 
-int main() {
+template <template <ndtree::uint_t, class...> class Loc> void test_tree() {
   {  // check construction
     tree<1> t(1);
     CHECK(t.capacity() == 1_u);
@@ -136,11 +137,11 @@ int main() {
     CHECK(t.size() == 3_u);
 
     {  // node locs
-      auto l1 = node_location(t, 1_n);
-      CHECK(l1.level == 1_u);
+      auto l1 = node_location(t, 1_n, Loc<1>{});
+      CHECK(l1.level() == 1_u);
       CHECK(l1[1] == 0u);
-      auto l2 = node_location(t, 2_n);
-      CHECK(l2.level == 1_u);
+      auto l2 = node_location(t, 2_n, Loc<1>{});
+      CHECK(l2.level() == 1_u);
       CHECK(l2[1] == 1u);
     }
 
@@ -148,12 +149,12 @@ int main() {
     CHECK(t.size() == 5_u);
 
     {  // node locs
-      auto l3 = node_location(t, 3_n);
-      CHECK(l3.level == 2_u);
+      auto l3 = node_location(t, 3_n, Loc<1>{});
+      CHECK(l3.level() == 2_u);
       CHECK(l3[1] == 0_u);
       CHECK(l3[2] == 0_u);
-      auto l4 = node_location(t, 4_n);
-      CHECK(l4.level == 2_u);
+      auto l4 = node_location(t, 4_n, Loc<1>{});
+      CHECK(l4.level() == 2_u);
       CHECK(l4[1] == 0_u);
       CHECK(l4[2] == 1_u);
     }
@@ -170,7 +171,7 @@ int main() {
     t.refine(6_n);
     CHECK(t.size() == 15_u);
 
-    check_tree(t, uniform_tree{});
+    check_tree(t, uniform_tree{}, Loc<1>{});
     CHECK(t.is_compact());
 
     t.refine(11_n);
@@ -180,7 +181,7 @@ int main() {
     t.refine(9_n);
     CHECK(t.size() == 21_u);
 
-    check_tree(t, tree_after_refine{});
+    check_tree(t, tree_after_refine{}, Loc<1>{});
     CHECK(t.is_compact());
 
     t.coarsen(11_n);
@@ -191,7 +192,7 @@ int main() {
     CHECK(t.size() == 17_u);
 
     CHECK(!t.is_compact());
-    check_tree(t, tree_after_coarsen{});
+    check_tree(t, tree_after_coarsen{}, Loc<1>{});
 
     auto t2 = t;
     CHECK(t == t2);
@@ -201,8 +202,12 @@ int main() {
     CHECK(t != t2);
     CHECK(!(t == t2));
     CHECK(t.is_compact());
-    check_tree(t, tree_after_coarsen_sorted{});
+    check_tree(t, tree_after_coarsen_sorted{}, Loc<1>{});
   }
+}
 
+int main() {
+  test_tree<location::fast>();
+  test_tree<location::slim>();
   return test::result();
 }

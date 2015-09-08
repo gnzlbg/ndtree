@@ -1,5 +1,6 @@
 #pragma once
 /// \file dfs_sort.hpp
+#include <ndtree/concepts.hpp>
 #include <ndtree/types.hpp>
 #include <ndtree/utility/static_const.hpp>
 
@@ -16,7 +17,8 @@ struct dfs_sort_fn {
   /// \param b         [in] Sibling groups to swap with \p a
   /// \param data_swap [in] Function (node, node) -> ignored that swaps data
   ///                       between two nodes.
-  template <typename Tree, typename DataSwap>
+  template <typename Tree, typename DataSwap,
+            CONCEPT_REQUIRES_(Function<DataSwap, node_idx, node_idx>{})>
   static void swap_data(Tree& t, siblings_idx a, siblings_idx b,
                         DataSwap&& data_swap) noexcept {
     RANGES_FOR(auto&& s, ranges::view::zip(t.nodes(a), t.nodes(b))) {
@@ -44,7 +46,8 @@ struct dfs_sort_fn {
   /// position.
   ///
   /// \post is_compact() && is_sorted()
-  template <typename Tree, typename DataSwap>
+  template <typename Tree, typename DataSwap,
+            CONCEPT_REQUIRES_(Function<DataSwap, node_idx, node_idx>{})>
   static siblings_idx sort_impl(Tree& t, siblings_idx s,
                                 DataSwap&& data_swap) noexcept {
     siblings_idx should = s;
@@ -82,9 +85,9 @@ struct dfs_sort_fn {
   /// Space complexity: O(log(N)) stack frames.
   ///
   /// \post is_compact() && is_sorted()
-  template <typename Tree, typename DataSwap = binary_fn_t>
-  void operator()(Tree& t, DataSwap&& data_swap = binary_fn_t{}) const
-   noexcept {
+  template <typename Tree, typename DataSwap = binary_fn_t,
+            CONCEPT_REQUIRES_(Function<DataSwap, node_idx, node_idx>{})>
+  void operator()(Tree& t, DataSwap&& data_swap = DataSwap{}) const noexcept {
     sort_impl(t, 0_sg, std::forward<DataSwap>(data_swap));
     t.set_first_free_sibling_group(t.sibling_group(t.size()));
     NDTREE_ASSERT(t.is_compact(), "the tree must be compact after sorting");
