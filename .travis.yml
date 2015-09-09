@@ -48,7 +48,7 @@ matrix:
 
     # clang 3.7, release build, ASan
     # - env: COMPILER=clang++-3.7 BUILD_TYPE=Release ASan=true
-    #  addons: *clang37
+    #  addons: *clang36
 
     # clang 3.7, release build, valgrind
     - env: COMPILER=clang++-3.6 BUILD_TYPE=Release Valgrind=true
@@ -56,10 +56,6 @@ matrix:
 
     # clang 3.7, release build
     - env: COMPILER=clang++-3.6 BUILD_TYPE=Release
-      addons: *clang36
-
-    # clang 3.7, debug, site
-    - env: COMPILER=clang++-3.6 BUILD_TYPE=Debug Coverage=true
       addons: *clang36
 
 # Site generation job
@@ -72,7 +68,11 @@ env:
     # Travis command line utility and so on. The token is stored in the
     # ${GITHUB_TOKEN} environment variable.
     - secure: "Qlsp65HRdMW5UWfta/ZoynOnWQFMeVwxE7XU9yF1VnQXxpTEJFfgPY93ikPWX2NV9Hs53RwIwXD60cKXw6rMlqKIPMCrfG0zvJSmSjbP61IRat3jNmpXb6d4R855nk1AOlU6qJdEYtC0uuFYVe1p7XUEaUsEX+r1NKoiO2vg4Tc+zIIQdMEo5lWpH+XxkLipCq+9J9w4YY9phffkL3hPI9CM3tQtjv2l0XMcpKDRLdFXuBEh48yoyD6vf8b4XCVpn3rWw2PGSNLrUm2lCuYJwB5nlNhBSoTu/abNwpt7k69fcRmpGfVZsAyC0xp17ER1Qh5d79uzRZZvC+/H4TblI/djgfpFbGA+aRPe3uNJeOMJatbz3FoGrOkAvQ1thTB+hw+oNI7Z/Y/tS9OuOhVOEoJ3pysx7h2YdRGRprcOkRa39LBeABCsdgLd9IucsbxmJg76yeHWssldK6Tag7mVifOmnegaS0K8JcEXnhjiua98By1+4gtI8GFBynsd90tD5Miv/e9Q0FFM86B+Zf7FMauUQAeoXipqqsG/68+WynyKsbdxQPBHoZlMrmu+Bsma1k2rgg+D4TARC9cNCIkRuDg7nc4dyGS3r1IdeomzWpwU4C4kKudBo4tKRoUB9zaAn47iYqBWk2Q8y+dOlxR/l2mYM5yEkRqyPGxG+v2O/NI="
-
+  matrix:
+    - COMPILER=clang++-3.6 BUILD_TYPE=Debug Coverage=true
+    
+addons: *clang36
+ 
 install:
   ############################################################################
   # All the dependencies are installed to the deps/ subdirectory.
