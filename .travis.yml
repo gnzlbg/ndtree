@@ -34,33 +34,33 @@ matrix:
     # For each build we also define all the global variables specified above
     # TODO: use defaults and define only some of them
     # clang 3.7, debug build
-    - env: COMPILER=clang++-3.7 BUILD_TYPE=Debug
-      addons: &clang37
+    - env: COMPILER=clang++-3.6 BUILD_TYPE=Debug
+      addons: &clang36
         apt:
           packages:
-            - clang-3.7
+            - clang-3.6
             - valgrind
             - python-yaml
             - lcov
           sources:
             - ubuntu-toolchain-r-test
-            - llvm-toolchain-precise-3.7 
+            - llvm-toolchain-precise-3.6 
 
     # clang 3.7, release build, ASan
     # - env: COMPILER=clang++-3.7 BUILD_TYPE=Release ASan=true
     #  addons: *clang37
 
     # clang 3.7, release build, valgrind
-    - env: COMPILER=clang++-3.7 BUILD_TYPE=Release Valgrind=true
-      addons: *clang37
+    - env: COMPILER=clang++-3.6 BUILD_TYPE=Release Valgrind=true
+      addons: *clang36
 
     # clang 3.7, release build
-    - env: COMPILER=clang++-3.7 BUILD_TYPE=Release
-      addons: *clang37
+    - env: COMPILER=clang++-3.6 BUILD_TYPE=Release
+      addons: *clang36
 
     # clang 3.7, debug, site
-    - env: COMPILER=clang++-3.7 BUILD_TYPE=Debug Coverage=true
-      addons: *clang37
+    - env: COMPILER=clang++-3.6 BUILD_TYPE=Debug Coverage=true
+      addons: *clang36
 
 # Site generation job
 #
