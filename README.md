@@ -85,4 +85,4 @@ the example directory. That shows the main features of the library.
 
 <!-- Links -->
 [badge.Travis]: https://travis-ci.org/gnzlbg/ndtree.svg?branch=master
-[badge.Coveralls]: https://coveralls.io/repos/gnzlbg/ndtree/badge.svg
+[badge.Coveralls]: https://coveralls.io/repos/gnzlbg/ndtree/badge.svg?branch=master&service=github
