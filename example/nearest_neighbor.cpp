@@ -31,9 +31,9 @@ int main() {
   auto time = [](auto&& f) {
     using namespace std::chrono;
     time_point<high_resolution_clock> b, e;
-    b = system_clock::now();
+    b = high_resolution_clock::now();
     f();
-    e = system_clock::now();
+    e = high_resolution_clock::now();
     return duration_cast<seconds>(e - b);
   };
 
