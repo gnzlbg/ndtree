@@ -11,7 +11,7 @@ using namespace nearest_neighbor;
 /// This shows how to compute nearest neighbors using the ndtree library
 
 static constexpr int nd = 2;                   ///< Number of spatial dimensions
-static constexpr std::size_t no_points = 1e6;  ///< Number of points
+static constexpr std::size_t no_points = 1e5;  ///< Number of points
 
 int main() {
   /// First generate random points once and use them for every benchmark
