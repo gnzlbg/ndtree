@@ -9,7 +9,8 @@ Usage:
   format.py -h | --help
   format.py --version
 
-  <project_src_path> Path to the project's source directory
+  <clang_format_path>  Path to clang-format's binary.
+  <project_src_path>   Path to the project's source directory.
 
 Options:
   -h --help  Show this screen.
