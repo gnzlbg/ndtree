@@ -1,3 +1,7 @@
+# Copyright Gonzalo Brito Gadeschi 2015
+# Distributed under the Boost Software License, Version 1.0.
+# (See accompanying file LICENSE.md or copy at http://boost.org/LICENSE_1_0.txt)
+#
 # Find the range-v3 include directory
 # The following variables are set if range-v3 is found.
 #  range-v3_FOUND        - True when the range-v3 include directory is found.

@@ -52,8 +52,7 @@ void test_string_traits() {
   typedef compact_optional<string_empty_value, class tag_X> opt_str;
   static_assert(sizeof(opt_str) == sizeof(std::string), "size waste");
 
-  opt_str os_, os0(std::string("\0")),
-   osA(std::string("A"));
+  opt_str os_, os0(std::string("\0")), osA(std::string("A"));
   CHECK(!os_.has_value());
   CHECK(os0.has_value());
   CHECK(osA.has_value());

@@ -1,4 +1,5 @@
 # Copyright Louis Dionne 2015
+# Copyright Gonzalo Brito Gadeschi 2015
 # Distributed under the Boost Software License, Version 1.0.
 # (See accompanying file LICENSE.md or copy at http://boost.org/LICENSE_1_0.txt)
 
@@ -17,7 +18,8 @@ add_custom_target(tests
 # Equivalent to `ndtree_add_test`, except the test is also added as a
 # dependency of the `tests` target.
 function(ndtree_add_unit_test name)
-  ndtree_add_test(${ARGV})
+  add_test(${name} ${ARGN})
+  ndtree_add_packages_to_target(${name})
   add_dependencies(tests ${name})
 endfunction()
 
@@ -41,8 +43,7 @@ function(ndtree_add_header_test header)
   endif()
   add_executable(test.header.${_target} EXCLUDE_FROM_ALL
     "${CMAKE_CURRENT_BINARY_DIR}/header/${header}.cpp")
-  ndtree_add_test(test.header.${_target}
-    ${CMAKE_CURRENT_BINARY_DIR}/test.header.${_target})
+  ndtree_add_packages_to_target(test.header.${_target})
   add_dependencies(test.headers test.header.${_target})
 endfunction()
 
@@ -51,7 +52,6 @@ file(GLOB_RECURSE NDTREE_TEST_SOURCES "${ndtree_SOURCE_DIR}/test/*.cpp")
 
 # A list of all the public headers
 file(GLOB_RECURSE NDTREE_PUBLIC_HEADERS "${ndtree_SOURCE_DIR}/include/*.hpp")
-
 
 ##############################################################################
 # Include directories

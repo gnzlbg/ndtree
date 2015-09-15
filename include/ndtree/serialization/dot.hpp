@@ -5,11 +5,15 @@
 
 namespace ndtree {
 inline namespace v1 {
-//
+/// Serialization functions
+namespace serialization {
+
+/// Serialization to dot format (graphviz)
+namespace dot {
 
 /// Serializes the tree \p t to dot format
-template <class Ostream, class Tree>  //
-void to_dot(Ostream&& os, Tree const& t) {
+template <class OStream, class Tree>  //
+OStream& operator<<(OStream&& os, Tree const& t) {
   using namespace ndtree;
   using std::to_string;
   os << "digraph graphname {\n";
@@ -61,8 +65,12 @@ void to_dot(Ostream&& os, Tree const& t) {
        << node_label(p_sg, p) << ";\n";
   }
 
-  os << "}" << std::endl;
+  os << "}\n";
+
+  return os;
 }
 
+}  // namespace dot
+}  // namespace serialization
 }  // namespace v1
 }  // namespace ndtree

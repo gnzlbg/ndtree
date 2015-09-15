@@ -1,7 +1,5 @@
-# ND-Tree <a href="https://travis-ci.org/gnzlbg/ndtree" target="_blank">![Build Status][badge.Travis]</a> <a href="https://coveralls.io/r/gnzlbg/ndtree" target="_blank">![Coverage Status][badge.Coveralls]</a>
+# ND-Tree [![Travis build status][travis-shield]][travis] [![Coveralls.io code coverage][coveralls-shield]][coveralls]
 
-**NOTE**: all tests/coverage are down until travis supports either llvm-37
-  (again) or llvm-38.
 
 > Data-oriented pointer-free edge based n-dimensional region octree and algorithms
 
@@ -84,5 +82,7 @@ the example directory. That shows the main features of the library.
   - See the algorithm subdirectory.
 
 <!-- Links -->
-[badge.Travis]: https://travis-ci.org/gnzlbg/ndtree.svg?branch=master
-[badge.Coveralls]: https://coveralls.io/repos/gnzlbg/ndtree/badge.svg?branch=master&service=github
+[travis-shield]: https://img.shields.io/travis/gnzlbg/ndtree.svg?style=flat-square
+[travis]: https://travis-ci.org/gnzlbg/ndtree
+[coveralls-shield]: https://img.shields.io/coveralls/gnzlbg/ndtree.svg?style=flat-square
+[coveralls]: https://coveralls.io/github/gnzlbg/ndtree

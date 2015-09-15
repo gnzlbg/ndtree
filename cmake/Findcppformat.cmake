@@ -1,3 +1,7 @@
+# Copyright Gonzalo Brito Gadeschi 2015
+# Distributed under the Boost Software License, Version 1.0.
+# (See accompanying file LICENSE.md or copy at http://boost.org/LICENSE_1_0.txt)
+#
 # Find the cppformat include directory
 # The following variables are set if cppformat is found.
 #  cppformat_FOUND        - True when the cppformat include directory is found.

@@ -12,5 +12,3 @@
 #include <ndtree/algorithm/normalized_coordinates.hpp>
 #include <ndtree/algorithm/root_traversal.hpp>
 #include <ndtree/algorithm/shift_location.hpp>
-
-

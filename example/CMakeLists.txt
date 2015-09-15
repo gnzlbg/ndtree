@@ -1,4 +1,5 @@
 # Copyright Louis Dionne 2015
+# Copyright Gonzalo Brito Gadeschi 2015
 # Distributed under the Boost Software License, Version 1.0.
 # (See accompanying file LICENSE.md or copy at http://boost.org/LICENSE_1_0.txt)
 
@@ -6,7 +7,7 @@
 # Setup custom functions, master targets and file lists for the examples
 ##############################################################################
 add_custom_target(examples
-    COMMENT "Build all the examples.")
+    COMMENT "Build all the examples and adds them as tests.")
 
 # Several examples have unused parameters because the name of the parameters
 # are useful for illustration, even if the implementation is not actually
@@ -19,8 +20,8 @@ ndtree_append_flag(NDTREE_HAS_WNO_UNUSED_PARAMETER -Wno-unused-parameter)
 # Equivalent to `ndtree_add_test`, except the created test is also added
 # as a dependency of the `examples` target.
 function(ndtree_add_example name)
-    ndtree_add_test(${name} ${ARGN})
-    add_dependencies(examples ${name})
+  ndtree_add_unit_test(${name} ${ARGN})
+  add_dependencies(examples ${name})
 endfunction()
 
 # A list of all the example files

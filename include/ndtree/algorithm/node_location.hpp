@@ -13,8 +13,7 @@ inline namespace v1 {
 struct node_location_fn {
   /// Location code of the node with index \p n within the tree \p t
   template <typename Tree, typename Loc, CONCEPT_REQUIRES_(Location<Loc>{})>
-  auto operator()(Tree const& t, node_idx n, Loc loc) const noexcept
-   -> Loc {
+  auto operator()(Tree const& t, node_idx n, Loc loc) const noexcept -> Loc {
     NDTREE_ASSERT(n, "cannot compute the location of an invalid node");
 
     root_traversal(t, n, [&](node_idx i) {
