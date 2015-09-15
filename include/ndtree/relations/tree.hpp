@@ -1,5 +1,5 @@
 #pragma once
-/// \file relations.hpp Tree relationships.
+
 #include <array>
 #include <ndtree/types.hpp>
 #include <ndtree/relations/dimension.hpp>

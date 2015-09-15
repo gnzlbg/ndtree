@@ -1,5 +1,5 @@
 #pragma once
-/// \file vector.hpp Stack allocated vector
+/// \file stack_vector.hpp Stack allocated vector
 #include <type_traits>
 #include <ndtree/utility/ranges.hpp>
 

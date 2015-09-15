@@ -1,5 +1,4 @@
 #pragma once
-/// \file tree.hpp
 ///
 /// TODO:
 /// - replace int static casts with something better

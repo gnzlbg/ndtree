@@ -1,5 +1,5 @@
 #pragma once
-/// \file tagged_ranged.hpp
+/// \file bounded.hpp
 #include <ndtree/utility/assert.hpp>
 #include <ndtree/utility/ranges.hpp>
 

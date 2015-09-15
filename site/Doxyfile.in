@@ -1,23 +1,23 @@
-PROJECT_NAME            = "project_name"
-PROJECT_BRIEF           = "Brief description of your project"
+PROJECT_NAME            = "ndtree"
+PROJECT_BRIEF           = "nd-octree data-structure and algorithms"
 PROJECT_LOGO            = 
 PROJECT_NUMBER          =
 
-STRIP_FROM_PATH         = @project_name_SOURCE_DIR@/include
+STRIP_FROM_PATH         = @ndtree_SOURCE_DIR@/include
 BUILTIN_STL_SUPPORT     = YES
-STRIP_FROM_INC_PATH     = @project_name_SOURCE_DIR@/include
+STRIP_FROM_INC_PATH     = @ndtree_SOURCE_DIR@/include
 ALIASES                 =
 ENABLED_SECTIONS        =
 
 # Resources
 OUTPUT_DIRECTORY        =
-INPUT                   = @project_name_SOURCE_DIR@/include
+INPUT                   = @ndtree_SOURCE_DIR@/include
 FILE_PATTERNS           = *.hpp
 RECURSIVE               = YES
 EXCLUDE                 =
 EXCLUDE_PATTERNS        = *.erb*
-EXAMPLE_PATH            = @project_name_SOURCE_DIR@/example \
-                          @project_name_SOURCE_DIR@/test
+EXAMPLE_PATH            = @ndtree_SOURCE_DIR@/example \
+                          @ndtree_SOURCE_DIR@/test
 EXAMPLE_RECURSIVE       = YES
 IMAGE_PATH              = 
 WARN_IF_UNDOCUMENTED    = NO
@@ -49,7 +49,7 @@ GENERATE_DEPRECATEDLIST = YES
 SHOW_USED_FILES         = NO
 SHOW_FILES              = YES
 SHOW_NAMESPACES         = YES
-LAYOUT_FILE             = @project_name_SOURCE_DIR@/site/layout.xml
+LAYOUT_FILE             = @ndtree_SOURCE_DIR@/site/layout.xml
 
 
 CLASS_DIAGRAMS          = YES
@@ -80,9 +80,9 @@ ENABLE_PREPROCESSING    = YES
 MACRO_EXPANSION         = YES
 EXPAND_ONLY_PREDEF      = NO
 SEARCH_INCLUDES         = YES
-INCLUDE_PATH            = @project_name_SOURCE_DIR@/include
+INCLUDE_PATH            = @ndtree_SOURCE_DIR@/include
 INCLUDE_FILE_PATTERNS   =
-PREDEFINED              = project_name_DOXYGEN_INVOKED
+PREDEFINED              = ndtree_DOXYGEN_INVOKED
 SKIP_FUNCTION_MACROS    = NO
 
 # Source browsing
@@ -100,13 +100,13 @@ VERBATIM_HEADERS        = NO
 # HTML output
 HTML_OUTPUT             = html
 HTML_FILE_EXTENSION     = .html
-HTML_HEADER             = @project_name_SOURCE_DIR@/site/header.html
-HTML_FOOTER             = @project_name_SOURCE_DIR@/site/footer.html
+HTML_HEADER             = @ndtree_SOURCE_DIR@/site/header.html
+HTML_FOOTER             = @ndtree_SOURCE_DIR@/site/footer.html
 HTML_EXTRA_STYLESHEET   =
 HTML_EXTRA_FILES        = 
 HTML_COLORSTYLE_HUE     = 212  # 0 - 359
 HTML_COLORSTYLE_SAT     = 100 # 0 - 255
-HTML_COLORSTYLE_GAMMA   = 1
+HTML_COLORSTYLE_GAMMA   = 80
 HTML_TIMESTAMP          = NO
 HTML_DYNAMIC_SECTIONS   = YES
 HTML_INDEX_NUM_ENTRIES  = 0 # Fully expand trees in the Indexes by default

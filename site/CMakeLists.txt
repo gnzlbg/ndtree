@@ -13,7 +13,7 @@ endif()
 
 configure_file(Doxyfile.in Doxyfile @ONLY)
 add_custom_target(doc
-    COMMAND ! ${DOXYGEN_EXECUTABLE} Doxyfile 2>&1 | grep "warning" | grep -v -e "recursive"
+    COMMAND ! ${DOXYGEN_EXECUTABLE} Doxyfile 2>&1 | grep "warning"
     COMMENT "Generating API documentation with Doxygen"
     VERBATIM
 )
@@ -24,7 +24,7 @@ if (NOT GIT_FOUND)
 endif()
 
 add_custom_target(gh-pages.clone
-    COMMAND [ -e ${CMAKE_SOURCE_DIR}/site/gh-pages ] || ${GIT_EXECUTABLE} clone ${PROJECT_NAME_ORIGIN_URL} --depth 1 --branch=gh-pages site/gh-pages
+    COMMAND [ -e ${CMAKE_SOURCE_DIR}/site/gh-pages ] || ${GIT_EXECUTABLE} clone ${ndtree_ORIGIN_URL} --depth 1 --branch=gh-pages site/gh-pages
     WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
     COMMENT "Cloning the gh-pages branch into the site/gh-pages directory"
     VERBATIM
@@ -49,7 +49,7 @@ add_custom_target(gh-pages.copy
 
 add_custom_target(gh-pages.update
     COMMAND ${GIT_EXECUTABLE} add --all .
-    COMMAND ${GIT_EXECUTABLE} commit --allow-empty -m "Update to ${PROJECT_NAME_CURRENT_COMMIT}"
+    COMMAND ${GIT_EXECUTABLE} commit --allow-empty -m "Update to ${ndtree_CURRENT_COMMIT}"
     WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}/gh-pages
     COMMENT "Updating the gh-pages clone with freshly built documentation"
     DEPENDS gh-pages.copy

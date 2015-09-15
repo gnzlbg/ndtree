@@ -6,59 +6,20 @@ language: c++
 os: linux
 sudo: false
 
-# This describes the test matrix
-#
-# env is used to set global variables:
-# - COMPILER: selects the compiler
-#   - Note: clang uses libc++ and gcc uses libstdc++
-# - BUILD_TYPE: selects the build type: Debug/Release
-# - ASan: use AddressSanitizer: true/false
-# - Valgrind: use valgrind: true/false
-# - Site: build code to generate the site: true/false
-#   - Generates code coverage output
-#   - Runs the benchmarks
-#   - Generates documentation
-#   - Generates website
 matrix:
   include:
-    # The first case in the matrix for a given compiler defines how to install
-    # the compiler under addons, that is, we specify the ubuntu packages required
-    # and their sources (repositories).
-    #
-    # For example, for clang 3.7 trunk we need to get the nightly packages from
-    # the llvm repository for ubuntu precise.
-    #
-    # We store them in the variable clang37 using &clang37 which we can reference
-    # in the different builds using *clang37. This is done for each compiler.
-    #
-    # For each build we also define all the global variables specified above
-    # TODO: use defaults and define only some of them
-    # clang 3.7, debug build
-    - env: COMPILER=clang++-3.6 BUILD_TYPE=Debug
-      addons: &clang36
+    # debug build
+    - env: COMPILER=clang++-3.7 BUILD_TYPE=Debug
+      addons: &clang
         apt:
-          packages:
-            - clang-3.6
-            - valgrind
-            - python-yaml
-            - lcov
-          sources:
-            - ubuntu-toolchain-r-test
-            - llvm-toolchain-precise-3.6 
+          packages: ["clang-3.7", "clang-format-3.7", "valgrind", "python-yaml", "lcov"]
+          sources: &sources ["ubuntu-toolchain-r-test", "llvm-toolchain-precise-3.7"]
 
-    # clang 3.7, release build, ASan
-    # - env: COMPILER=clang++-3.7 BUILD_TYPE=Release ASan=true
-    #  addons: *clang36
+    # release build + valgrind
+    - env: COMPILER=clang++-3.7 BUILD_TYPE=Release Valgrind=true
+      addons: *clang
 
-    # clang 3.7, release build, valgrind
-    - env: COMPILER=clang++-3.6 BUILD_TYPE=Release Valgrind=true
-      addons: *clang36
-
-    # clang 3.7, release build
-    - env: COMPILER=clang++-3.6 BUILD_TYPE=Release
-      addons: *clang36
-
-# Site generation job
+# Coverage and site generation job
 #
 # We define it here instead of in matrix.include because otherwise we end up
 # with a job without environment variables within the matrix.
@@ -69,9 +30,9 @@ env:
     # ${GITHUB_TOKEN} environment variable.
     - secure: "Qlsp65HRdMW5UWfta/ZoynOnWQFMeVwxE7XU9yF1VnQXxpTEJFfgPY93ikPWX2NV9Hs53RwIwXD60cKXw6rMlqKIPMCrfG0zvJSmSjbP61IRat3jNmpXb6d4R855nk1AOlU6qJdEYtC0uuFYVe1p7XUEaUsEX+r1NKoiO2vg4Tc+zIIQdMEo5lWpH+XxkLipCq+9J9w4YY9phffkL3hPI9CM3tQtjv2l0XMcpKDRLdFXuBEh48yoyD6vf8b4XCVpn3rWw2PGSNLrUm2lCuYJwB5nlNhBSoTu/abNwpt7k69fcRmpGfVZsAyC0xp17ER1Qh5d79uzRZZvC+/H4TblI/djgfpFbGA+aRPe3uNJeOMJatbz3FoGrOkAvQ1thTB+hw+oNI7Z/Y/tS9OuOhVOEoJ3pysx7h2YdRGRprcOkRa39LBeABCsdgLd9IucsbxmJg76yeHWssldK6Tag7mVifOmnegaS0K8JcEXnhjiua98By1+4gtI8GFBynsd90tD5Miv/e9Q0FFM86B+Zf7FMauUQAeoXipqqsG/68+WynyKsbdxQPBHoZlMrmu+Bsma1k2rgg+D4TARC9cNCIkRuDg7nc4dyGS3r1IdeomzWpwU4C4kKudBo4tKRoUB9zaAn47iYqBWk2Q8y+dOlxR/l2mYM5yEkRqyPGxG+v2O/NI="
   matrix:
-    - COMPILER=clang++-3.6 BUILD_TYPE=Debug Coverage=true
+    - COMPILER=clang++-3.7 BUILD_TYPE=Debug Coverage=true Site=true
     
-addons: *clang36
+addons: *clang
  
 install:
   ############################################################################
@@ -110,10 +71,9 @@ install:
   - if [[ "${Site}" == "true" ]]; then export PATH=${PWD}/doxygen/bin:${PATH}; fi
 
   ############################################################################
-  # Install and use a more recent Ruby and install the gems for the benchmarks
+  # Install docopt 
   ############################################################################
-  #- rvm use 2.1 --install --binary --fuzzy
-  #- gem install ruby-progressbar tilt
+  - pip install --user docopt
 
 before_script:
   ############################################################################
@@ -136,7 +96,7 @@ before_script:
   ############################################################################
   # Travis VMs do not support anything higher than SSE 4.2
   ############################################################################
-  - sed -i 's/march=native/msse4.2/' CMakeLists.txt
+  - sed -i 's/march=native/msse4.2/' cmake/ndtree_compiler_flags.cmake
 
   ############################################################################
   # Setup the build directory

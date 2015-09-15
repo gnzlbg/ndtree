@@ -6,7 +6,6 @@
 # Setup CMake options
 ##############################################################################
 include(CMakeDependentOption)
-option(NDTREE_ENABLE_VALGRIND "Run the unit tests and examples under Valgrind if it is found." OFF)
 option(NDTREE_ENABLE_ASAN "Run the unit tests and examples using AddressSanitizer." OFF)
 option(NDTREE_ENABLE_COVERAGE "Run the unit tests and examples with code coverage instrumentation." OFF)
 option(NDTREE_ENABLE_WERROR "Fail and stop if a warning is triggered." OFF)

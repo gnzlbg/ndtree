@@ -1,5 +1,5 @@
 #pragma once
-/// \file LIKELY/UNLIKELY Macros (hints for branch prediction)
+/// \file likely.hpp LIKELY/UNLIKELY Macros (hints for branch prediction)
 ///
 /// Use like this:
 ///

@@ -24,7 +24,6 @@ import subprocess
 file_extensions = ['.c', '.h', '.cpp', '.cc', '.cxx', 
                    '.hpp', '.hh', '.hxx', '.c++', '.h++']
 
-
 def run_clang_format(clang_format, path, apply_format, verbose):
     if apply_format:
         cmd = clang_format + ' -style=file -i ' + path
@@ -42,7 +41,12 @@ def run_clang_format(clang_format, path, apply_format, verbose):
     if len(err) > 0:
         print err
 
-    return p.returncode == 0
+    if not p.returncode == 0 or len(err) > 0 or len(out) > 0:
+        if verbose: print("failed!")
+        return False
+    else:
+        if verbose: print("success!")
+        return True
 
 def run(clang_format_path, file_paths, apply_format, verbose):
     result = True
@@ -51,7 +55,8 @@ def run(clang_format_path, file_paths, apply_format, verbose):
         if ext in file_extensions:
             r = run_clang_format(clang_format_path, p, apply_format, verbose)
             if not r:
-                result = False 
+                result = False
+    return result
    
 if __name__ == '__main__':
     args = docopt(__doc__)
@@ -69,5 +74,13 @@ if __name__ == '__main__':
 
     if apply_format: # If format was applied: check format and use that as result
         result = run(clang_format_path, file_paths, False, verbose)
-        
-    exit(result)
+
+    if verbose:
+        if result:
+            print("finished with success!") 
+        else:
+            print("finished with failed!")
+    if result:
+        exit(0)
+    else:
+        exit(1)

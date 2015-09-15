@@ -1,5 +1,5 @@
 #pragma once
-/// \file location.hpp
+/// \file fast.hpp
 #include <array>
 #include <ndtree/types.hpp>
 #include <ndtree/relations/tree.hpp>
