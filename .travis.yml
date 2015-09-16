@@ -1,4 +1,5 @@
 # Copyright Louis Dionne 2015
+# Copyright Gonzalo Brito Gadeschi 2015
 # Distributed under the Boost Software License, Version 1.0.
 # (See accompanying file LICENSE.md or copy at http://boost.org/LICENSE_1_0.txt)
 
@@ -35,23 +36,17 @@ env:
 addons: *clang
  
 install:
-  ############################################################################
   # All the dependencies are installed to the deps/ subdirectory.
-  ############################################################################
   - DEPS_DIR="${PWD}/deps"
   - mkdir ${DEPS_DIR} && cd ${DEPS_DIR}
 
-  ############################################################################
   # Install a recent CMake
-  ############################################################################
   - CMAKE_URL=http://www.cmake.org/files/v3.2/cmake-3.2.1-Linux-x86_64.tar.gz
   - mkdir cmake
   - travis_retry wget --quiet -O - ${CMAKE_URL} | tar --strip-components=1 -xz -C cmake
   - export PATH=${PWD}/cmake/bin:${PATH}
 
-  ############################################################################
   # Install libc++ and libc++abi
-  ############################################################################
   - if [[ "${COMPILER}" =~ clang.+ ]]; then LLVM_URL="https://github.com/llvm-mirror/llvm/archive/master.tar.gz"; fi
   - if [[ "${COMPILER}" =~ clang.+ ]]; then LIBCXX_URL="https://github.com/llvm-mirror/libcxx/archive/master.tar.gz"; fi
   - if [[ "${COMPILER}" =~ clang.+ ]]; then LIBCXXABI_URL="https://github.com/llvm-mirror/libcxxabi/archive/master.tar.gz"; fi
@@ -63,44 +58,31 @@ install:
   - if [[ "${COMPILER}" =~ clang.+ ]]; then travis_retry wget --quiet -O - ${LIBCXXABI_URL} | tar --strip-components=1 ${TAR_FMT} -C llvm/projects/libcxxabi; fi
   - if [[ "${COMPILER}" =~ clang.+ ]]; then (cd llvm/build && cmake .. -DCMAKE_CXX_COMPILER=${COMPILER} -DCMAKE_BUILD_TYPE=${BUILD_TYPE} && make cxx -j2); fi
 
-  ############################################################################
   # Install a recent Doxygen
-  ############################################################################
   - if [[ "${Site}" == "true" ]]; then DOXYGEN_URL="http://ftp.stack.nl/pub/users/dimitri/doxygen-1.8.9.1.linux.bin.tar.gz"; fi
   - if [[ "${Site}" == "true" ]]; then mkdir doxygen && travis_retry wget --quiet -O - ${DOXYGEN_URL} | tar --strip-components=1 -xz -C doxygen; fi
   - if [[ "${Site}" == "true" ]]; then export PATH=${PWD}/doxygen/bin:${PATH}; fi
 
-  ############################################################################
   # Install docopt 
-  ############################################################################
   - pip install --user docopt
 
 before_script:
-  ############################################################################
   # Go back to the root of the project.
-  ############################################################################
   - cd ${TRAVIS_BUILD_DIR}
 
-  ############################################################################
   # Set the git identity (for pushing the documentation and the benchmarks)
-  ############################################################################
   - git config --global user.name "Travis bot"
 
-  ############################################################################
   # Check baseline memory usage; useful to know when OOMs occur
-  ############################################################################
   - free
   - vmstat
   - ps aux --sort=-rss | head -n 10
 
-  ############################################################################
-  # Travis VMs do not support anything higher than SSE 4.2
-  ############################################################################
+  # Valgrind in Travis VMs does not support anything higher than SSE 4.2 
+  # This disables -march=native which is typically higher and forces SSE 4.2 instead
   - sed -i 's/march=native/msse4.2/' cmake/ndtree_compiler_flags.cmake
 
-  ############################################################################
   # Setup the build directory
-  ############################################################################
   - mkdir build
   - cd build
   # Export the path to libc++
@@ -108,41 +90,26 @@ before_script:
   - if [[ "${COMPILER}" =~ clang.+ ]]; then export LDFLAGS="-L ${DEPS_DIR}/llvm/build/lib -l c++ -l c++abi"; fi
   - if [[ "${COMPILER}" =~ clang.+ ]]; then export LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:${DEPS_DIR}/llvm/build/lib"; fi
 
-  # We only use the memory checker for some builds, because otherwise it takes
-  # too long for very little benefit. Concretely, if we have a memory leak or
-  # something like that, it's either a compiler bug or an error that will show
-  # up regardless of the Boost version. Hence, we use the memory checker only
-  # once for each compiler.
+  # Configure the build
   - cmake .. -DCMAKE_CXX_COMPILER=${COMPILER} -DCMAKE_BUILD_TYPE=${BUILD_TYPE} -DNDTREE_ENABLE_WERROR=On
   - if [[ "${BUILD_TYPE}" == "Debug" ]]; then cmake .. -DNDTREE_ENABLE_ASSERTIONS=ON; fi
   - if [[ "${Valgrind}" == "true" ]]; then cmake .. -DNDTREE_ENABLE_VALGRIND=ON; fi
   - if [[ "${ASan}" == "true" ]]; then cmake .. -DNDTREE_ENABLE_ASAN=ON; fi
-
-script:
-  ############################################################################
-  # Build the documentation
-  ############################################################################
-  - if [[ "${Site}" == "true" ]]; then make doc; fi
-
-  ############################################################################
-  # - Compile with code coverage
-  ############################################################################
   - if [[ "${Coverage}" == "true" ]]; then cmake .. -DNDTREE_ENABLE_COVERAGE=ON -DNDTREE_ENABLE_DEBUG_INFORMATION=ON; fi
 
-  ############################################################################
-  # Build and run the unit tests and examples.
-  ############################################################################
+script:
+  # Build the documentation:
+  - make doc
+  # Build and run the unit tests and examples:
   - make check -k -j 2
   - if [[ "${Valgrind}" == "true" ]]; then ctest -VV -D ExperimentalMemCheck; fi
 
 after_success:
-  ############################################################################
   # Update coveralls:
   # - download and install lcov, and coveralls-lcov.
   # - run lcov to generate coverage report
   # - strip test/ and example/ subdirectories from coverage report
   # - upload report to coveralls
-  ############################################################################
   - |
     if [[ "${Coverage}" == "true" ]]; then
       gem install coveralls-lcov
@@ -151,9 +118,7 @@ after_success:
       coveralls-lcov coverage.info
     fi
 
-  ############################################################################
   # Update the documentation
-  ############################################################################
   - |
     if [[ "${Site}" == "true" && "${TRAVIS_PULL_REQUEST}" == "false" && "${TRAVIS_BRANCH}" == "master" ]]; then
       make gh-pages.push &>/dev/null
