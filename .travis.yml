@@ -92,14 +92,13 @@ before_script:
 
   # Configure the build
   - cmake .. -DCMAKE_CXX_COMPILER=${COMPILER} -DCMAKE_BUILD_TYPE=${BUILD_TYPE} -DNDTREE_ENABLE_WERROR=On
-  - if [[ "${BUILD_TYPE}" == "Debug" ]]; then cmake .. -DNDTREE_ENABLE_ASSERTIONS=ON; fi
-  - if [[ "${Valgrind}" == "true" ]]; then cmake .. -DNDTREE_ENABLE_VALGRIND=ON; fi
+  - if [[ "${BUILD_TYPE}" == "Debug" ]]; then cmake .. -DNDTREE_ENABLE_ASSERTIONS=ON -DNDTREE_ENABLE_DEBUG_INFORMATION=ON; fi
   - if [[ "${ASan}" == "true" ]]; then cmake .. -DNDTREE_ENABLE_ASAN=ON; fi
-  - if [[ "${Coverage}" == "true" ]]; then cmake .. -DNDTREE_ENABLE_COVERAGE=ON -DNDTREE_ENABLE_DEBUG_INFORMATION=ON; fi
+  - if [[ "${Coverage}" == "true" ]]; then cmake .. -DNDTREE_ENABLE_COVERAGE=ON; fi
 
 script:
   # Build the documentation:
-  - make doc
+  - if [[ "${Site}" == "true" ]]; then make doc; fi
   # Build and run the unit tests and examples:
   - make check -k -j 2
   - if [[ "${Valgrind}" == "true" ]]; then ctest -VV -D ExperimentalMemCheck; fi

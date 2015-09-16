@@ -1,8 +1,8 @@
 #pragma once
 /// \file test.hpp Location testing functions
-
 #include "../test.hpp"
 #include <ndtree/concepts.hpp>
+//#define NDTREE_TEST_DEBUG_OUTPUT
 
 template <ndtree::uint_t nd, ndtree::uint_t no_levels, typename Loc>
 void test_location(Loc) {
@@ -46,28 +46,44 @@ void test_location(Loc) {
     c.reverse();
     CHECK(c == a);
     CHECK(a.level() == a.max_level());
-    CHECK(static_cast<uint_t>(a) == math::ipow(2_u, nd * a.max_level()));
+    {
+      auto a_uint = static_cast<uint_t>(a);
+      auto a_uint_should = math::ipow(2_u, nd * a.max_level());
+#ifdef NDTREE_TEST_DEBUG_OUTPUT
+      std::cout << "sizeof(uint_t): " << sizeof(uint_t)
+                << " max_level: " << a.max_level() << std::endl;
+#endif
+      CHECK(a_uint == a_uint_should);
+    }
 
     {
       auto b = a;
+#ifdef NDTREE_TEST_DEBUG_OUTPUT
       std::cout << "[min start] nd: " << nd << " max_lvl: " << a.max_level()
                 << std::endl;
+#endif
       for (auto d : dimensions(nd)) {
         std::array<int_t, nd> offset{};
         fill(offset, int_t{0});
 
         auto bs = shift(b, offset);
+#ifdef NDTREE_TEST_DEBUG_OUTPUT
         std::cout << "  before shift (" << d << "): " << bs << std::endl;
+#endif
         CHECK(bs);
 
         offset[d] = -1;
 
         auto as = shift(b, offset);
+#ifdef NDTREE_TEST_DEBUG_OUTPUT
         std::cout << "  after shift (" << d << "): " << as << std::endl;
+#endif
         CHECK(!as);
       }
+#ifdef NDTREE_TEST_DEBUG_OUTPUT
       std::cout << "[min end] nd: " << nd << " max_lvl: " << a.max_level()
                 << std::endl;
+#endif
     }
   }
   {  // test push up to max level (max pip index: no_children(nd) - 1)
@@ -84,24 +100,32 @@ void test_location(Loc) {
 
     {
       auto b = a;
+#ifdef NDTREE_TEST_DEBUG_OUTPUT
       std::cout << "[max start] nd: " << nd << " max_lvl: " << a.max_level()
                 << std::endl;
+#endif
       for (auto d : dimensions(nd)) {
         std::array<int_t, nd> offset{};
         fill(offset, int_t{0});
 
         auto bs = shift(b, offset);
+#ifdef NDTREE_TEST_DEBUG_OUTPUT
         std::cout << "  before shift (" << d << "): " << bs << std::endl;
+#endif
         CHECK(bs);
 
         offset[d] = 1;
 
         auto as = shift(b, offset);
+#ifdef NDTREE_TEST_DEBUG_OUTPUT
         std::cout << "  after shift (" << d << "): " << as << std::endl;
+#endif
         CHECK(!as);
       }
+#ifdef NDTREE_TEST_DEBUG_OUTPUT
       std::cout << "[max end] nd: " << nd << " max_lvl: " << a.max_level()
                 << std::endl;
+#endif
     }
   }
 }

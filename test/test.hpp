@@ -8,6 +8,7 @@
 #include <iostream>
 #include <ndtree/utility/fmt.hpp>
 #include <ndtree/utility/ranges.hpp>
+#include <ndtree/types.hpp>
 
 /// Unit-testing utilities
 namespace test {
@@ -138,8 +139,7 @@ inline int result() { return detail::failures() ? EXIT_FAILURE : EXIT_SUCCESS; }
 
 /// CHECK(ACTUAL op EXPECTED)
 #define CHECK(...) \
-  (void)(          \
-   test::detail::loc{__FILE__, __LINE__, #__VA_ARGS__}->*(__VA_ARGS__)) /**/
+  (void)(test::detail::loc{__FILE__, __LINE__, #__VA_ARGS__}->*__VA_ARGS__) /**/
 
 #define THROWS(expr, ExceptionType)                                         \
   do {                                                                      \
@@ -175,6 +175,20 @@ void check_equal(Rng&& actual, Rng2&& expected) {
   auto end1 = ranges::end(expected);
   for (; begin0 != end0 && begin1 != end1; ++begin0, ++begin1) {
     CHECK(*begin0 == *begin1);
+  }
+  CHECK(begin0 == end0);
+  CHECK(begin1 == end1);
+}
+
+template <typename Rng, typename Rng2>
+void check_approx_equal(Rng&& actual, Rng2&& expected) {
+  auto begin0 = ranges::begin(actual);
+  auto end0 = ranges::end(actual);
+  auto begin1 = ranges::begin(expected);
+  auto end1 = ranges::end(expected);
+  for (; begin0 != end0 && begin1 != end1; ++begin0, ++begin1) {
+    CHECK(std::fabs(*begin0 - *begin1)
+          < std::numeric_limits<ndtree::num_t>::epsilon());
   }
   CHECK(begin0 == end0);
   CHECK(begin1 == end1);

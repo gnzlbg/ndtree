@@ -225,7 +225,7 @@ void test_normalized_coordinates(Tree const& t, node const& n, Location l) {
   auto nc = normalized_coordinates(t, *n.idx, l);
   if (n.normalized_coordinates) {
     auto reference = *n.normalized_coordinates;
-    test::check_equal(nc, reference);
+    test::check_approx_equal(nc, reference);
   }
 }
 
