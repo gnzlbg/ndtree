@@ -9,14 +9,14 @@ sudo: false
 matrix:
   include:
     # debug build
-    - env: COMPILER=clang++-3.7 BUILD_TYPE=Debug
+    - env: COMPILER=clang++-3.8 BUILD_TYPE=Debug
       addons: &clang
         apt:
-          packages: ["clang-3.7", "clang-format-3.7", "valgrind", "python-yaml", "lcov"]
-          sources: &sources ["ubuntu-toolchain-r-test", "llvm-toolchain-precise-3.7"]
+          packages: ["clang-3.8", "clang-format-3.8", "valgrind", "python-yaml", "lcov"]
+          sources: &sources ["ubuntu-toolchain-r-test", "llvm-toolchain-precise"]
 
     # release build + valgrind
-    - env: COMPILER=clang++-3.7 BUILD_TYPE=Release Valgrind=true
+    - env: COMPILER=clang++-3.8 BUILD_TYPE=Release Valgrind=true
       addons: *clang
 
 # Coverage and site generation job
@@ -30,7 +30,7 @@ env:
     # ${GITHUB_TOKEN} environment variable.
     - secure: "ThhqMXkD4FhdXN+XOR2YtlTJ3P/zLNsKGlF0YzOHmN0I7ECu8KE291uvsEswBENBISazkoneQeNYlIKc7V6XOlZi7t/zi6j1BUyaufJLjt9ElWK7+IsVISOdjeI4tM7dy7cKVhIrwOrM4j92kRGFBKVC91vAI0a0UCWx0bFxi7As2aihPIDOW2Yi+jf1A2otiTRjRtzGzJEBKO7uMdWTCLLGnoJcVmjSKNGK1xHJKJuGQoUl+wt27MBB8hKTC70obc0nUXNlpeFkEKWG5sjufMT8OM01RN2qQtG0YMDYpSlBAy5uTDhlUl1YKIMVb9rMStqWtHlRhO1VXFFWXmdim6FwUYv8BjRY9+NgtHzEiABgcfUHIBehLDXYNg4BTW72lOSJ+kB3f0ZdE1BnF3TRJyM3HbZaZoQMgpYSfL+p2cHqEQdrqnCnrs3S5MW2qTl3Tk2S7R9Y51EuwnhE3QAvCS2Cal5YhgnUihfJdSVF4HL1vLTjWhtaEHJbZUM7E1TNGzL8Tkd1nsIwjhkvh/4nNH/iYPlpqpTWJgRZJL9cJaPsP/+7ZsLlHODOhkAK4wmIYAfaWlCGAW/WAgUuwn5EtkLjXc6C3PNJBYNdAaZp+NRYwFw0bBq9wRVrenYGXvRu0juNME9SmgeQ/UAY4C70oNV0xHqYZiin9hYa6Ztx6Ws="
   matrix:
-    - COMPILER=clang++-3.7 BUILD_TYPE=Debug Coverage=true Site=true
+    - COMPILER=clang++-3.8 BUILD_TYPE=Debug Coverage=true Site=true
     
 addons: *clang
  
