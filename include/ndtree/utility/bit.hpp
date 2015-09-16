@@ -120,9 +120,8 @@ constexpr bool overflows_on_add(uint_t value, Integer offset,
                                 uint_t no_bits = width<uint_t>) {
   if (offset >= int_t{0}) {
     return max_value(no_bits) - value < static_cast<uint_t>(offset);
-  } else {
-    return value < static_cast<uint_t>(-offset);
   }
+  return value < static_cast<uint_t>(-offset);
 }
 
 /// Does adding \p offset to the first \p no_bits of \p value overflows?

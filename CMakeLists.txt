@@ -17,6 +17,9 @@ include(ndtree_compiler_flags)
 include(ndtree_packages)
 include(ndtree_targets)
 include(ndtree_format)
+include(ndtree_tidy)
+
+include_directories(${ndtree_SOURCE_DIR}/include)
 
 ##############################################################################
 # Setup the URL to the official repository on GitHub.

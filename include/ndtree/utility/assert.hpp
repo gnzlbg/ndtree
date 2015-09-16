@@ -1,5 +1,6 @@
 #pragma once
 /// \file assert.hpp Assert macro
+#include <type_traits>
 #include <ndtree/utility/at.hpp>
 #include <ndtree/utility/likely.hpp>
 #include <ndtree/utility/fmt.hpp>

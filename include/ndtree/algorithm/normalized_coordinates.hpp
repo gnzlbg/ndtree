@@ -46,7 +46,7 @@ struct normalized_coordinates_fn {
 namespace {
 constexpr auto&& normalized_coordinates
  = static_const<normalized_coordinates_fn>::value;
-}
+}  // namespace
 
 }  // namespace v1
 }  // namespace ndtree

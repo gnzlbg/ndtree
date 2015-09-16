@@ -15,19 +15,20 @@ inline namespace v1 {
 /// (todo: strongly type this)
 ///
 struct node_neighbor_fn {
-  template <typename Tree, typename Loc, typename neighbor_idx,
-            typename manifold = get_tag_t<neighbor_idx>,
+  template <typename Tree, typename Loc, typename NeighborIdx,
+            typename Manifold = get_tag_t<NeighborIdx>,
             CONCEPT_REQUIRES_(Location<Loc>{})>
-  auto operator()(Tree const& t, Loc&& loc, neighbor_idx n) const noexcept
+  auto operator()(Tree const& t, Loc&& loc, NeighborIdx n) const noexcept
    -> node_idx {
     static_assert(Tree::dimension() == ranges::uncvref_t<Loc>::dimension(), "");
-    return node_at(t, shift_location(loc, manifold {}[n]));
+    static_assert(Tree::dimension() == Manifold::dimension(), "");
+    return node_at(t, shift_location(loc, Manifold {}[n]));
   }
 };
 
 namespace {
 constexpr auto&& node_neighbor = static_const<node_neighbor_fn>::value;
-}
+}  // namespace
 
 }  // namespace v1
 }  // namespace ndtree

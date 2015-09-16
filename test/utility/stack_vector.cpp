@@ -172,7 +172,8 @@ int main() {
     CHECK(a.capacity() == 10_u);
   }
 
-  {// erase
+  {
+   // erase
   }
 
   {  // resize copyable

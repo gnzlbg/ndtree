@@ -1,8 +1,9 @@
 #pragma once
 /// \file slim.hpp
-#include <ndtree/types.hpp>
 #include <ndtree/relations/dimension.hpp>
 #include <ndtree/relations/tree.hpp>
+#include <ndtree/types.hpp>
+#include <ndtree/utility/assert.hpp>
 #include <ndtree/utility/bit.hpp>
 
 namespace ndtree {
@@ -146,8 +147,7 @@ struct slim {
 
   // from root:
   template <class Rng, CONCEPT_REQUIRES_(Range<Rng>())>
-  slim(Rng&& ps)
-   : slim() {
+  slim(Rng&& ps) : slim() {
     for (auto&& p : ps) { push(p); }
   }
 
@@ -217,10 +217,8 @@ compact_optional<slim<nd, T>> shift(slim<nd, T> t,
     t.value = sl::encode(xs, lvl);
     NDTREE_ASSERT(t.value != 0_u, "logic error, encoding delivers zero");
     return compact_optional<sl>{t};
-
-  } else {
-    return compact_optional<sl>{};
   }
+  return compact_optional<sl>{};
 }
 
 template <uint_t nd, class T>
@@ -252,6 +250,23 @@ template <uint_t nd, class T>
 constexpr bool operator>=(slim<nd, T> const& a, slim<nd, T> const& b) noexcept {
   return !(a < b);
 }
+
+static_assert(std::is_standard_layout<slim<1_u>>{}, "");
+static_assert(std::is_literal_type<slim<1_u>>{}, "");
+static_assert(std::is_nothrow_constructible<slim<1_u>>{}, "");
+static_assert(std::is_nothrow_default_constructible<slim<1_u>>{}, "");
+static_assert(std::is_trivially_copy_constructible<slim<1_u>>{}, "");
+static_assert(std::is_nothrow_copy_constructible<slim<1_u>>{}, "");
+static_assert(std::is_trivially_move_constructible<slim<1_u>>{}, "");
+static_assert(std::is_nothrow_move_constructible<slim<1_u>>{}, "");
+static_assert(std::is_trivially_assignable<slim<1_u>, slim<1_u>>{}, "");
+static_assert(std::is_nothrow_assignable<slim<1_u>, slim<1_u>>{}, "");
+static_assert(std::is_trivially_copy_assignable<slim<1_u>>{}, "");
+static_assert(std::is_nothrow_copy_assignable<slim<1_u>>{}, "");
+static_assert(std::is_trivially_move_assignable<slim<1_u>>{}, "");
+static_assert(std::is_nothrow_move_assignable<slim<1_u>>{}, "");
+static_assert(std::is_trivially_destructible<slim<1_u>>{}, "");
+static_assert(std::is_nothrow_destructible<slim<1_u>>{}, "");
 
 }  // namespace location
 }  // namespace v1

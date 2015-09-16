@@ -40,7 +40,7 @@ struct shift_location_fn {
 
 namespace {
 constexpr auto&& shift_location = static_const<shift_location_fn>::value;
-}
+}  // namespace
 
 }  // namespace v1
 }  // namespace ndtree

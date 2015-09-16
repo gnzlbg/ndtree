@@ -34,10 +34,10 @@ struct compact_optional_type {
   }
 };
 
-template <typename T, T Val>
+template <typename T, T val>
 struct empty_scalar_value : compact_optional_type<T> {
-  static constexpr T empty_value() noexcept { return Val; }
-  static constexpr bool is_empty_value(T v) { return v == Val; }
+  static constexpr T empty_value() noexcept { return val; }
+  static constexpr bool is_empty_value(T v) { return v == val; }
 };
 
 template <typename OT>

@@ -102,7 +102,7 @@ struct node_neighbors_fn {
 
 namespace {
 constexpr auto&& node_neighbors = static_const<node_neighbors_fn>::value;
-}
+}  // namespace
 
 }  // namespace v1
 }  // namespace ndtree

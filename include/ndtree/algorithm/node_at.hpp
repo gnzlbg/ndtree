@@ -39,7 +39,7 @@ struct node_at_fn {
 
 namespace {
 constexpr auto&& node_at = static_const<node_at_fn>::value;
-}
+}  // namespace
 
 }  // namespace v1
 }  // namespace ndtree

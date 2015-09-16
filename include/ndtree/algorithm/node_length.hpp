@@ -37,7 +37,7 @@ struct node_length_fn {
 
 namespace {
 constexpr auto&& node_length = static_const<node_length_fn>::value;
-}
+}  // namespace
 
 }  // namespace v1
 }  // namespace ndtree

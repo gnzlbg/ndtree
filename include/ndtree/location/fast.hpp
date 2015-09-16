@@ -67,8 +67,7 @@ template <uint_t nd, typename T = uint_t> struct fast {
   fast& operator=(fast&&) = default;
 
   template <typename U, CONCEPT_REQUIRES_(std::is_floating_point<U>{})>
-  fast(std::array<U, nd> x_, uint_t l = max_level())
-   : level_(l) {
+  fast(std::array<U, nd> x_, uint_t l = max_level()) : level_(l) {
     NDTREE_ASSERT(l <= max_level(), "");
 
     for (auto&& d : dimensions()) {

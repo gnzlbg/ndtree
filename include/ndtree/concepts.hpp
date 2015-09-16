@@ -12,7 +12,7 @@ inline namespace v1 {
 namespace concepts {
 namespace rc = ranges::concepts;
 
-struct Dimensioned {
+struct dimensioned {
   template <typename T>
   auto requires_(T&& t) -> decltype(
    rc::valid_expr(rc::convertible_to<uint_t>(t.dimension()),           //
@@ -20,8 +20,10 @@ struct Dimensioned {
                   ));
 };
 
+using Dimensioned = dimensioned;
+
 /// Locational codes model the location concept
-struct Location : rc::refines<rc::Regular, Dimensioned, rc::TotallyOrdered> {
+struct location : rc::refines<rc::Regular, Dimensioned, rc::TotallyOrdered> {
   template <typename T>  //
   auto requires_(T&& t) -> decltype(
    rc::valid_expr((t.push(0_u), 42),  //
@@ -39,6 +41,8 @@ struct Location : rc::refines<rc::Regular, Dimensioned, rc::TotallyOrdered> {
                   rc::convertible_to<compact_optional<T>>(shift(
                    t, std::array<int_t, rc::uncvref_t<T>::dimension()>{}))));
 };
+
+using Location = location;
 
 }  // namespace concepts
 

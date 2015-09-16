@@ -29,7 +29,7 @@ struct node_location_fn {
 
 namespace {
 constexpr auto&& node_location = static_const<node_location_fn>::value;
-}
+}  // namespace
 
 }  // namespace v1
 }  // namespace ndtree

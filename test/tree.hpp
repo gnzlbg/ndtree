@@ -27,8 +27,7 @@ static const constexpr auto i = std::numeric_limits<int>::max();
 /// Testing utility for constructing a node with named argument lists
 template <typename Tag, typename T = uint_t> struct tagged_initializer_list {
   template <typename... Args>
-  tagged_initializer_list(Args&&... args)
-   : data{static_cast<T>(args)...} {}
+  tagged_initializer_list(Args&&... args) : data{static_cast<T>(args)...} {}
   std::vector<T> data;
   auto begin() noexcept { return ndtree::begin(data); }
   auto begin() const noexcept { return ndtree::begin(data); }

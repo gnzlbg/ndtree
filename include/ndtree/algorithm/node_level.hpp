@@ -40,7 +40,7 @@ struct node_level_fn {
 
 namespace {
 constexpr auto&& node_level = static_const<node_level_fn>::value;
-}
+}  // namespace
 
 }  // namespace v1
 }  // namespace ndtree

@@ -54,13 +54,6 @@ file(GLOB_RECURSE NDTREE_TEST_SOURCES "${ndtree_SOURCE_DIR}/test/*.cpp")
 file(GLOB_RECURSE NDTREE_PUBLIC_HEADERS "${ndtree_SOURCE_DIR}/include/*.hpp")
 
 ##############################################################################
-# Include directories
-##############################################################################
-include_directories(${ndtree_SOURCE_DIR}/include)
-include_directories(${CMAKE_CURRENT_LIST_DIR}/include)
-include_directories(${CMAKE_CURRENT_LIST_DIR})
-
-##############################################################################
 # Generate tests that include each public header
 ##############################################################################
 foreach(_header IN LISTS NDTREE_PUBLIC_HEADERS)

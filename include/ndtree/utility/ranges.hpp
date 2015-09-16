@@ -7,16 +7,16 @@ inline namespace v1 {
 using namespace ranges;
 
 template <typename Box, typename Int,
-          typename value_type = typename Box::value_type,
-          CONCEPT_REQUIRES_(Same<Int, value_type>{}
-                            and RandomAccessIncrementable<value_type>{})>
+          typename ValueType = typename Box::value_type,
+          CONCEPT_REQUIRES_(Same<Int, ValueType>{}
+                            and RandomAccessIncrementable<ValueType>{})>
 auto boxed_ints(Int const& from, Int const& to) {
   return view::iota(from, to)
-         | view::transform([](value_type const& v) -> Box { return v; });
+         | view::transform([](ValueType const& v) -> Box { return v; });
 }
 
-template <typename Box, typename value_type = typename Box::value_type,
-          CONCEPT_REQUIRES_(RandomAccessIncrementable<value_type>{})>
+template <typename Box, typename ValueType = typename Box::value_type,
+          CONCEPT_REQUIRES_(RandomAccessIncrementable<ValueType>{})>
 auto boxed_ints(Box const& from, Box const& to) {
   return boxed_ints<Box>(*from, *to);
 }

@@ -16,11 +16,11 @@ inline namespace v1 {
 /// - implement the rest of the std::vector interface
 /// - make it as exception safe as possible
 /// - document undefined behavior
-template <class T, std::size_t Capacity>  //
+template <class T, std::size_t capacity_>  //
 struct stack_vector {
  private:
   std::aligned_storage_t<sizeof(T), std::alignment_of<T>::value>
-   data_[Capacity != 0 ? Capacity : 1];  // TODO: hack!
+   data_[capacity_ != 0 ? capacity_ : 1];  // TODO: hack!
   std::size_t size_ = 0;
 
   static_assert(std::is_nothrow_destructible<T>{},
@@ -49,7 +49,7 @@ struct stack_vector {
   constexpr size_type max_size() const noexcept { return capacity(); }
 
   /// Maximum number of elements that can be allocated in the vector
-  constexpr size_type capacity() const noexcept { return Capacity; }
+  constexpr size_type capacity() const noexcept { return capacity_; }
 
   /// Pointer to the vector's data
   constexpr T* data() noexcept { return reinterpret_cast<T*>(data_); }

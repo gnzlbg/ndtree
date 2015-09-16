@@ -45,7 +45,7 @@ template <class T> struct streamable : streamable_base<T> {
 
 template <class T> streamable<T> stream(T const& t) { return streamable<T>{t}; }
 
-template <class T> struct R {
+template <class T> struct ret {
  private:
   char const* filename_;
   int lineno_;
@@ -56,9 +56,10 @@ template <class T> struct R {
   template <class U> void oops(U const& u) const {
     ::ndtree::fmt::print(stderr, "> ERROR: CHECK failed '{}'\n > \t {} ({})\n",
                          expr_, filename_, lineno_);
-    if (dismissed_)
+    if (dismissed_) {
       ::ndtree::fmt::print(stderr, "> \tEXPECTED: {}\n> \tACTUAL: {} \n",
                            stream(u), stream(t_));
+    }
     ++failures();
   }
   void dismiss() { dismissed_ = true; }
@@ -68,9 +69,9 @@ template <class T> struct R {
   bool eval_(long) { return true; }
 
  public:
-  R(char const* filename, int lineno, char const* expr, T t)
+  ret(char const* filename, int lineno, char const* expr, T t)
    : filename_(filename), lineno_(lineno), expr_(expr), t_(std::move(t)) {}
-  ~R() {
+  ~ret() {
     if (!dismissed_ && eval_(42)) { this->oops(42); }
   }
   template <class U>
@@ -117,16 +118,16 @@ template <class T> struct R {
   }
 };
 
-struct S {
+struct loc {
  private:
   char const* filename_;
   int lineno_;
   char const* expr_;
 
  public:
-  S(char const* filename, int lineno, char const* expr)
+  loc(char const* filename, int lineno, char const* expr)
    : filename_(filename), lineno_(lineno), expr_(expr) {}
-  template <class T> R<T> operator->*(T t) {
+  template <class T> ret<T> operator->*(T t) {
     return {filename_, lineno_, expr_, std::move(t)};
   }
 };
@@ -137,7 +138,8 @@ inline int result() { return detail::failures() ? EXIT_FAILURE : EXIT_SUCCESS; }
 
 /// CHECK(ACTUAL op EXPECTED)
 #define CHECK(...) \
-  (void)(test::detail::S{__FILE__, __LINE__, #__VA_ARGS__}->*__VA_ARGS__) /**/
+  (void)(          \
+   test::detail::loc{__FILE__, __LINE__, #__VA_ARGS__}->*(__VA_ARGS__)) /**/
 
 #define THROWS(expr, ExceptionType)                                         \
   do {                                                                      \
@@ -158,8 +160,9 @@ void check_equal(Rng&& actual, std::initializer_list<Val> expected) {
   auto begin0 = ranges::begin(actual);
   auto end0 = ranges::end(actual);
   auto begin1 = ranges::begin(expected), end1 = ranges::end(expected);
-  for (; begin0 != end0 && begin1 != end1; ++begin0, ++begin1)
+  for (; begin0 != end0 && begin1 != end1; ++begin0, ++begin1) {
     CHECK(*begin0 == *begin1);
+  }
   CHECK(begin0 == end0);
   CHECK(begin1 == end1);
 }
@@ -170,8 +173,9 @@ void check_equal(Rng&& actual, Rng2&& expected) {
   auto end0 = ranges::end(actual);
   auto begin1 = ranges::begin(expected);
   auto end1 = ranges::end(expected);
-  for (; begin0 != end0 && begin1 != end1; ++begin0, ++begin1)
+  for (; begin0 != end0 && begin1 != end1; ++begin0, ++begin1) {
     CHECK(*begin0 == *begin1);
+  }
   CHECK(begin0 == end0);
   CHECK(begin1 == end1);
 }

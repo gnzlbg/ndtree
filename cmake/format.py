@@ -58,8 +58,8 @@ def run(clang_format_path, file_paths, apply_format, verbose):
             if not r:
                 result = False
     return result
-   
-if __name__ == '__main__':
+
+def main():
     args = docopt(__doc__)
 
     clang_format_path = args['<clang_format_path>']
@@ -85,3 +85,7 @@ if __name__ == '__main__':
         exit(0)
     else:
         exit(1)
+        
+
+if __name__ == '__main__':
+    main()

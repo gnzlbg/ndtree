@@ -25,7 +25,7 @@ struct source_location {
 /// Formats a source code location
 #define NDTREE_FMT_AT(AT)                                                      \
   ::ndtree::fmt::format("  at function: {}\n  at file: {}\n  at line: {}\n\n", \
-                        AT.function_name, AT.file_name, AT.line_number)
+                        (AT).function_name, (AT).file_name, (AT).line_number)
 
 /// Formats a source code location
 #define NDTREE_PRINT_AT(AT) ::ndtree::fmt::print(NDTREE_FMT_AT(AT))

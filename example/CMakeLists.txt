@@ -13,7 +13,7 @@ add_custom_target(examples
 # are useful for illustration, even if the implementation is not actually
 # presented. We don't want to generate warnings for that or need to comment
 # out all unused parameter names.
-ndtree_append_flag(NDTREE_HAS_WNO_UNUSED_PARAMETER -Wno-unused-parameter)
+check_cxx_compiler_flag(-Wno-unused-parameter NDTREE_HAS_WNO_UNUSED_PARAMETER)
 
 #   ndtree_add_example(<name> ...)
 #
@@ -31,15 +31,13 @@ endfunction()
 file(GLOB_RECURSE NDTREE_EXAMPLE_SOURCES "${ndtree_SOURCE_DIR}/example/*.cpp")
 
 ##############################################################################
-# Include directories
-##############################################################################
-include_directories(${ndtree_SOURCE_DIR}/include)
-
-##############################################################################
 # Add all the examples
 ##############################################################################
 foreach(_file IN LISTS NDTREE_EXAMPLE_SOURCES)
     ndtree_target_name_for(_target "${_file}")
     add_executable(${_target} EXCLUDE_FROM_ALL "${_file}")
     ndtree_add_example(${_target} ${CMAKE_CURRENT_BINARY_DIR}/${_target})
+    if(NDTREE_HAS_WNO_UNUSED_PARAMETER)
+      set_target_properties(${_target} PROPERTIES COMPILE_FLAGS "-Wno-unused-parameter")
+    endif()
 endforeach()

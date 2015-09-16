@@ -40,7 +40,7 @@ constexpr siblings_idx operator"" _sg(unsigned long long int i) {
 template <int nd> struct tree;
 
 /// Child position range
-template <typename tree> using child_pos = typename tree::child_pos;
+template <typename Tree> using child_pos = typename Tree::child_pos;
 
 template <class T> using get_tag_t = typename T::tag;
 

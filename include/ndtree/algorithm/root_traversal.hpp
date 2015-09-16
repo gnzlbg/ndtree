@@ -31,7 +31,7 @@ struct root_traversal_fn {
 
 namespace {
 constexpr auto&& root_traversal = static_const<root_traversal_fn>::value;
-}
+}  // namespace
 
 }  // namespace v1
 }  // namespace ndtree

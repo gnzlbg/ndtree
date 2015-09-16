@@ -42,7 +42,7 @@ struct node_or_parent_at_fn {
 
 namespace {
 constexpr auto&& node_or_parent_at = static_const<node_or_parent_at_fn>::value;
-}
+}  // namespace
 
 }  // namespace v1
 }  // namespace ndtree

@@ -359,9 +359,9 @@ constexpr auto max_no_neighbors(int nd) {
 /// The neighbor with position \p p of a given node, has that node as neighbor
 /// in the "opposite neighbor position" within the same neighbor set / manifold.
 ///
-template <typename neighbor_idx>
-constexpr auto opposite(neighbor_idx p) -> neighbor_idx {
-  using manifold = get_tag_t<neighbor_idx>;
+template <typename NeighborIdx>
+constexpr auto opposite(NeighborIdx p) -> NeighborIdx {
+  using manifold = get_tag_t<NeighborIdx>;
   switch (manifold::rank()) {
     case 1: {
       const bool f = *p % 2;

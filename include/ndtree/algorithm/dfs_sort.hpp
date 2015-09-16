@@ -96,7 +96,7 @@ struct dfs_sort_fn {
 
 namespace {
 constexpr auto&& dfs_sort = static_const<dfs_sort_fn>::value;
-}
+}  // namespace
 
 }  // namespace v1
 }  // namespace ndtree

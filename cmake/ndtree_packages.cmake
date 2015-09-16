@@ -14,10 +14,9 @@ add_custom_target(fetch_packages)
 
 macro(ndtree_pkg name cflags lflags)
   find_package(${name} REQUIRED)
-  include_directories(${${name}_INCLUDE_DIR})
+  include_directories(SYSTEM ${${name}_INCLUDE_DIR})
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${${name}_COMPILE_FLAGS} ${cflags}")
   set(CMAKE_CXX_LINK_FLAGS "${CMAKE_CXX_LINK_FLAGS} ${${name}_LINK_FLAGS} ${lflags}")
-  include_directories(SYSTEM ${${name}_INCLUDE_DIR})
   add_dependencies(fetch_packages ${name})
 endmacro()
 

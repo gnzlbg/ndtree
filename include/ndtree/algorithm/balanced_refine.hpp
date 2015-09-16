@@ -39,8 +39,7 @@ struct balanced_refine_fn {
 
 namespace {
 auto&& balanced_refine = static_const<balanced_refine_fn>::value;
-}
+}  // namespace
 
 }  // namespace v1
-
 }  // namespace ndtree
