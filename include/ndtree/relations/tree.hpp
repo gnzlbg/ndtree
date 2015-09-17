@@ -108,13 +108,51 @@ static constexpr num_t node_length_at_level(const uint_t l) {
   return num_t{1} / math::ipow(2_u, l);
 }
 
+template <int nd> struct relative_child_positions_ {
+  static constexpr std::array<std::array<int_t, 0>, 0> stencil{{}};
+};
+
+template <> struct relative_child_positions_<1> {
+  static constexpr std::array<std::array<int_t, 1>, 2> stencil{{
+   {{-1}}, {{1}}
+   //
+  }};
+};
+
+template <> struct relative_child_positions_<2> {
+  static constexpr std::array<std::array<int_t, 2>, 4> stencil{{
+   {{-1, -1}}, {{1, -1}}, {{-1, 1}}, {{1, 1}}
+   //
+  }};
+};
+
+template <> struct relative_child_positions_<3> {
+  static constexpr std::array<std::array<int_t, 3>, 8> stencil{{
+   {{-1, -1, -1}},
+   {{1, -1, -1}},
+   {{-1, 1, -1}},
+   {{1, 1, -1}},
+   {{-1, -1, 1}},
+   {{1, -1, 1}},
+   {{-1, 1, 1}},
+   {{1, 1, 1}}
+   //
+  }};
+};
+
+namespace {
+template <int nd>
+static constexpr auto relative_child_position_stencil
+ = relative_child_positions_<nd>::stencil;
+}
+
 /// Relative position of the children w.r.t. their parent's center:
 ///
+/// \tparam nd number of spatial dimensions of the node
 /// \param [in] p position of the children
-/// \param [in] d axis along which to compute the relative position
 ///
-/// \returns relative position (+1/-1) of child \p w.r.t. his parent center
-/// along the \p d axis
+/// \returns relative position (+1/-1, ...) of child \p w.r.t. his parent node
+/// center (an array of size nd)
 ///
 /// That is:
 ///              __________________________
@@ -137,22 +175,17 @@ static constexpr num_t node_length_at_level(const uint_t l) {
 ///
 ///
 ///
-static constexpr auto relative_child_position(const uint_t p, const uint_t d)
- -> int_t {
+template <int nd>
+static constexpr auto relative_child_position(const uint_t p)
+ -> const std::array<int_t, nd> {
 #ifdef NDTREE_USE_CHILDREN_LOOKUP_TABLE
-  constexpr int_t stencil[8][3] = {
-   {-1, -1, -1},  // 0
-   {1, -1, -1},   // 1
-   {-1, 1, -1},   // 2
-   {1, 1, -1},    // 3
-   {-1, -1, 1},   // 4
-   {1, -1, 1},    // 5
-   {-1, 1, 1},    // 6
-   {1, 1, 1}      // 7
-  };
-  return stencil[p][d];
+  return relative_child_position_stencil<nd>[p];
 #else
-  return (p / math::ipow(2_u, d)) % 2 ? 1 : -1;
+  std::array<int_t, nd> r;
+  for (auto&& d : dimensions(nd)) {
+    r[d] = (p / math::ipow(2_u, d)) % 2 ? 1 : -1;
+  }
+  return r;
 #endif
 }
 

@@ -22,11 +22,10 @@ struct normalized_coordinates_fn {
     for (auto&& i : result) { i = 0.5; }
 
     uint_t l = 0;
-    for (auto p : loc()) {
+    for (auto&& p : loc()) {
       const auto length = node_length_at_level(l) * num_t{0.25};
-      for (auto d : dimensions(nd)) {
-        result[d] += relative_child_position(p, d) * length;
-      }
+      const auto&& rcp = relative_child_position<nd>(p);
+      for (auto&& d : dimensions(nd)) { result[d] += rcp[d] * length; }
       ++l;
     }
     return result;

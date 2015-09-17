@@ -46,8 +46,10 @@ static constexpr uint_t no_neighbors(uint_t nd, uint_t m, child_level_tag) {
 /// of dimension nd
 ///@{
 
-template <int nd, int m> struct neighbor_children_sharing_face {
-  std::array<std::array<child_pos<tree<nd>>, 0>, 0> stencil;
+template <int nd, int m> struct neighbor_children_sharing_face_ {
+  static constexpr std::array<std::array<child_pos<tree<nd>>, 0>, 0> stencil() {
+    return {{{{}}}};
+  }
 };
 
 /// One dimensional stencil across faces
@@ -55,50 +57,57 @@ template <int nd, int m> struct neighbor_children_sharing_face {
 ///  |-- Left neighbor --|-- Node --|-- Right neighbor --|
 ///  |         | child 1 |          | child 0  |         |
 ///
-template <> struct neighbor_children_sharing_face<1, 0> {
-  std::array<std::array<child_pos<tree<1>>, 1>, 2> stencil{{{{1}}, {{0}}}};
+template <> struct neighbor_children_sharing_face_<1, 0> {
+  static constexpr std::array<std::array<child_pos<tree<1>>, 1>, 2> stencil{
+   {{{1}}, {{0}}}};
 };
 
-template <> struct neighbor_children_sharing_face<2, 1> {
-  std::array<std::array<child_pos<tree<2>>, 2>, 4> stencil{
+template <> struct neighbor_children_sharing_face_<2, 1> {
+  static constexpr std::array<std::array<child_pos<tree<2>>, 2>, 4> stencil{
    {{{1, 3}}, {{0, 2}}, {{2, 3}}, {{0, 1}}}};
 };
 
-template <> struct neighbor_children_sharing_face<2, 0> {
-  std::array<std::array<child_pos<tree<2>>, 1>, 4> stencil{
-   {{{3}}, {{2}}, {{1}}, {{0}}
-
-   }};
+template <> struct neighbor_children_sharing_face_<2, 0> {
+  static constexpr std::array<std::array<child_pos<tree<2>>, 1>, 4> stencil{
+   {{{3}}, {{2}}, {{1}}, {{0}}}};
 };
 
-template <> struct neighbor_children_sharing_face<3, 2> {
-  std::array<std::array<child_pos<tree<3>>, 4>, 6> stencil{{{{1, 3, 5, 7}},
-                                                            {{0, 2, 4, 6}},
-                                                            {{2, 3, 6, 7}},
-                                                            {{0, 1, 4, 5}},
-                                                            {{4, 5, 6, 7}},
-                                                            {{0, 1, 2, 3}}}};
+template <> struct neighbor_children_sharing_face_<3, 2> {
+  static constexpr std::array<std::array<child_pos<tree<3>>, 4>, 6> stencil{
+   {{{1, 3, 5, 7}},
+    {{0, 2, 4, 6}},
+    {{2, 3, 6, 7}},
+    {{0, 1, 4, 5}},
+    {{4, 5, 6, 7}},
+    {{0, 1, 2, 3}}}};
 };
 
-template <> struct neighbor_children_sharing_face<3, 1> {
-  std::array<std::array<child_pos<tree<3>>, 2>, 12> stencil{{{{3, 7}},
-                                                             {{2, 6}},
-                                                             {{1, 5}},
-                                                             {{0, 4}},
-                                                             {{5, 7}},
-                                                             {{4, 6}},
-                                                             {{6, 7}},
-                                                             {{4, 5}},
-                                                             {{1, 3}},
-                                                             {{0, 2}},
-                                                             {{2, 3}},
-                                                             {{0, 1}}}};
+template <> struct neighbor_children_sharing_face_<3, 1> {
+  static constexpr std::array<std::array<child_pos<tree<3>>, 2>, 12> stencil{
+   {{{3, 7}},
+    {{2, 6}},
+    {{1, 5}},
+    {{0, 4}},
+    {{5, 7}},
+    {{4, 6}},
+    {{6, 7}},
+    {{4, 5}},
+    {{1, 3}},
+    {{0, 2}},
+    {{2, 3}},
+    {{0, 1}}}};
 };
 
-template <> struct neighbor_children_sharing_face<3, 0> {
-  std::array<std::array<child_pos<tree<3>>, 1>, 8> stencil{
+template <> struct neighbor_children_sharing_face_<3, 0> {
+  static constexpr std::array<std::array<child_pos<tree<3>>, 1>, 8> stencil{
    {{{7}}, {{6}}, {{5}}, {{4}}, {{3}}, {{2}}, {{1}}, {{0}}}};
 };
+
+namespace {
+template <int nd, int m>
+static constexpr auto neighbor_children_sharing_face
+ = neighbor_children_sharing_face_<nd, m>::stencil;
+}
 
 ///@}  // Neighbor children sharing face stencils
 
@@ -145,45 +154,34 @@ template <int nd> using neighbor_offset = std::array<int_t, nd>;
 ///
 ///@{
 
-template <int nd, int m> struct neighbor_lookup_table {
-  std::array<neighbor_offset<nd>, 0> stencil;
+template <int nd, int m> struct neighbor_lookup_table_ {
+  static constexpr std::array<neighbor_offset<nd>, 0> stencil{{}};
 };
 
 /// 1D: across faces
-template <> struct neighbor_lookup_table<1, 0> {
-  std::array<neighbor_offset<1>, 2> stencil{{
-   //
-   {{-1}},
-   {{1}}  //
+template <> struct neighbor_lookup_table_<1, 0> {
+  static constexpr std::array<neighbor_offset<1>, 2> stencil{{
+   {{-1}}, {{1}}  //
   }};
 };
 
 /// 2D: across faces
-template <> struct neighbor_lookup_table<2, 1> {
-  std::array<neighbor_offset<2>, 4> stencil{{
-   //
-   {{-1, 0}},
-   {{1, 0}},
-   {{0, -1}},
-   {{0, 1}}  //
+template <> struct neighbor_lookup_table_<2, 1> {
+  static constexpr std::array<neighbor_offset<2>, 4> stencil{{
+   {{-1, 0}}, {{1, 0}}, {{0, -1}}, {{0, 1}}  //
   }};
 };
 
 /// 2D: across edges
-template <> struct neighbor_lookup_table<2, 0> {
-  std::array<neighbor_offset<2>, 4> stencil{{
-   //
-   {{-1, -1}},
-   {{1, -1}},
-   {{-1, 1}},
-   {{1, 1}}  //
+template <> struct neighbor_lookup_table_<2, 0> {
+  static constexpr std::array<neighbor_offset<2>, 4> stencil{{
+   {{-1, -1}}, {{1, -1}}, {{-1, 1}}, {{1, 1}}  //
   }};
 };
 
 /// 3D: across faces
-template <> struct neighbor_lookup_table<3, 2> {
-  std::array<neighbor_offset<3>, 6> stencil{{
-   //
+template <> struct neighbor_lookup_table_<3, 2> {
+  static constexpr std::array<neighbor_offset<3>, 6> stencil{{
    {{-1, 0, 0}},
    {{1, 0, 0}},
    {{0, -1, 0}},
@@ -194,9 +192,8 @@ template <> struct neighbor_lookup_table<3, 2> {
 };
 
 /// 3D: across edges
-template <> struct neighbor_lookup_table<3, 1> {
-  std::array<neighbor_offset<3>, 12> stencil{{
-   //
+template <> struct neighbor_lookup_table_<3, 1> {
+  static constexpr std::array<neighbor_offset<3>, 12> stencil{{
    {{-1, -1, 0}},
    {{1, -1, 0}},
    {{-1, 1, 0}},
@@ -214,9 +211,8 @@ template <> struct neighbor_lookup_table<3, 1> {
 };
 
 /// 3D: across corners
-template <> struct neighbor_lookup_table<3, 0> {
-  std::array<neighbor_offset<3>, 8> stencil{{
-   //
+template <> struct neighbor_lookup_table_<3, 0> {
+  static constexpr std::array<neighbor_offset<3>, 8> stencil{{
    {{-1, -1, -1}},
    {{1, -1, -1}},
    {{-1, 1, -1}},
@@ -227,6 +223,11 @@ template <> struct neighbor_lookup_table<3, 0> {
    {{1, 1, 1}}  //
   }};
 };
+
+namespace {
+template <int nd, int m>
+constexpr auto neighbor_lookup_table = neighbor_lookup_table_<nd, m>::stencil;
+}
 
 ///@}  // Neighbor lookup tables
 
@@ -253,11 +254,11 @@ template <int nd, int m> struct manifold_neighbors {
 
 #ifdef NDTREE_USE_NEIGHBOR_LOOKUP_TABLE
   static constexpr auto same_level_stencil() noexcept {
-    return neighbor_lookup_table<nd, nd - m>{}.stencil;
+    return neighbor_lookup_table<nd, nd - m>;
   }
 #endif
   static constexpr auto child_level_stencil() noexcept {
-    return neighbor_children_sharing_face<nd, nd - m>{}.stencil;
+    return neighbor_children_sharing_face<nd, nd - m>;
   }
 
   /// Range of neighbor positions
