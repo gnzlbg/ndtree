@@ -1,3 +1,4 @@
+/// \file tree_2d.cpp
 #include <fstream>
 #include "test.hpp"
 #include "tree.hpp"
@@ -15,17 +16,6 @@ NDTREE_STATIC_ASSERT_RANDOM_ACCESS_SIZED_RANGE(
 NDTREE_STATIC_ASSERT_RANDOM_ACCESS_SIZED_RANGE(std::declval<tree<2>>()());
 
 NDTREE_STATIC_ASSERT_RANDOM_ACCESS_SIZED_RANGE(tree<2>::child_positions());
-
-// struct uniform_tree {
-//   std::vector<node> nodes{
-//    {idx{0}, lvl{0}, pn{i}, cs{1, 2, 3, 4}, pip{}, fn{i, i, i, i}},
-//    {idx{1}, lvl{1}, pn{0}, cs{5, 6, 7, 8}, pip{0}, fn{i, 2, i, 3}},      //
-//    {idx{2}, lvl{1}, pn{0}, cs{9, 10, 11, 12}, pip{1}, fn{1, i, i, 4}},   //
-//    {idx{3}, lvl{1}, pn{0}, cs{13, 14, 15, 16}, pip{2}, fn{i, 4, 1, i}},  //
-//    {idx{4}, lvl{1}, pn{0}, cs{17, 18, 19, 20}, pip{3}, fn{3, i, 2, i}}   //
-//                                                                          //
-//   };
-// };
 
 struct uniform_tree {
   std::vector<node> nodes{
@@ -78,6 +68,18 @@ struct uniform_tree {
 
 struct tree_after_refine {
   std::vector<node> nodes{
+   {idx{0}, lvl{0}, pn{i}, cs{1, 2, 3, 4}, pip{}, fn{i, i, i, i},
+    en{i, i, i, i}, cn{}, an{}},
+   {idx{1}, lvl{1}, pn{0}, cs{5, 6, 7, 8}, pip{0}, fn{i, 2, i, 3},
+    en{i, i, i, 4}, cn{}},
+   {idx{2}, lvl{1}, pn{0}, cs{9, 10, 11, 12}, pip{1}, fn{1, i, i, 4},
+    en{i, i, 3, i}, cn{}},
+   {idx{3}, lvl{1}, pn{0}, cs{13, 14, 15, 16}, pip{2}, fn{i, 4, 1, i},
+    en{i, 2, i, i}, cn{}},
+   {idx{4}, lvl{1}, pn{0}, cs{17, 18, 19, 20}, pip{3}, fn{3, i, 2, i},
+    en{1, i, i, i}, cn{}},
+   //
+
    {idx{5}, lvl{2}, pn{1}, cs{}, pip{0, 0}, fn{i, 6, i, 7}, en{i, i, i, 8},
     cn{}, an{6, 7, 21}},
    {idx{6}, lvl{2}, pn{1}, cs{}, pip{0, 1}, fn{5, 9, i, 8}, en{i, i, 7, 11},
@@ -131,6 +133,64 @@ struct tree_after_refine {
   };
 };
 
+struct tree_after_coarsen {
+  std::vector<node> nodes{
+   {idx{0}, lvl{0}, pn{i}, cs{1, 2, 3, 4}, pip{}, fn{i, i, i, i},
+    en{i, i, i, i}, cn{}, an{}},
+   {idx{1}, lvl{1}, pn{0}, cs{5, 6, 7, 8}, pip{0}, fn{i, 2, i, 3},
+    en{i, i, i, 4}, cn{}},
+   {idx{2}, lvl{1}, pn{0}, cs{}, pip{1}, fn{1, i, i, 4}, en{i, i, 3, i}, cn{},
+    an{3, 6, 8, 17, 18}},
+   {idx{3}, lvl{1}, pn{0}, cs{}, pip{2}, fn{i, 4, 1, i}, en{i, 2, i, i}, cn{},
+    an{2, 7, 8, 17, 19}},
+   {idx{4}, lvl{1}, pn{0}, cs{17, 18, 19, 20}, pip{3}, fn{3, i, 2, i},
+    en{1, i, i, i}, cn{}},
+   //
+   {idx{5}, lvl{2}, pn{1}, cs{}, pip{0, 0}, fn{i, 6, i, 7}, en{i, i, i, 8},
+    cn{}, an{6, 7, 21}},
+   {idx{6}, lvl{2}, pn{1}, cs{}, pip{0, 1}, fn{5, i, i, 8}, en{i, i, 7, i},
+    cn{}, an{2, 5, 7, 21, 22}},
+   {idx{7}, lvl{2}, pn{1}, cs{}, pip{0, 2}, fn{i, 8, 5, i}, en{i, 6, i, i},
+    cn{}, an{3, 5, 6, 21, 23}},
+   {idx{8}, lvl{2}, pn{1}, cs{21, 22, 23, 24}, pip{0, 3}, fn{7, i, 6, i},
+    en{5, i, i, 17}, cn{}, an{2, 3, 5, 6, 7, 25}},
+   {idx{17}, lvl{2}, pn{4}, cs{25, 26, 27, 28}, pip{3, 0}, fn{i, 18, i, 19},
+    en{8, i, i, 20}, cn{}, an{2, 3, 18, 19, 20, 24}},
+   {idx{18}, lvl{2}, pn{4}, cs{}, pip{3, 1}, fn{17, i, i, 20}, en{i, i, 19, i},
+    cn{}, an{2, 19, 20, 26, 28}},
+   {idx{19}, lvl{2}, pn{4}, cs{}, pip{3, 2}, fn{i, 20, 17, i}, en{i, 18, i, i},
+    cn{}, an{3, 18, 20, 27, 28}},
+   {idx{20}, lvl{2}, pn{4}, cs{}, pip{3, 3}, fn{19, i, 18, i}, en{17, i, i, i},
+    cn{}, an{18, 19, 28}},
+   {idx{21}, lvl{3}, pn{8}, cs{}, pip{0, 3, 0}, fn{i, 22, i, 23},
+    en{i, i, i, 24}, cn{}},  //
+   {idx{22}, lvl{3}, pn{8}, cs{}, pip{0, 3, 1}, fn{21, i, i, 24},
+    en{i, i, 23, i}, cn{}},  //
+   {idx{23}, lvl{3}, pn{8}, cs{}, pip{0, 3, 2}, fn{i, 24, 21, i},
+    en{i, 22, i, i}, cn{}},  //
+   {idx{24}, lvl{3}, pn{8}, cs{}, pip{0, 3, 3}, fn{23, i, 22, i},
+    en{21, i, i, 25}, cn{}},
+   {idx{25}, lvl{3}, pn{17}, cs{}, pip{3, 0, 0}, fn{i, 26, i, 27},
+    en{24, i, i, 28}, cn{}},  //
+   {idx{26}, lvl{3}, pn{17}, cs{}, pip{3, 0, 1}, fn{25, i, i, 28},
+    en{i, i, 27, i}, cn{}},  //
+   {idx{27}, lvl{3}, pn{17}, cs{}, pip{3, 0, 2}, fn{i, 28, 25, i},
+    en{i, 26, i, i}, cn{}},  //
+   {idx{28}, lvl{3}, pn{17}, cs{}, pip{3, 0, 3}, fn{27, i, 26, i},
+    en{25, i, i, i}, cn{}}  //
+                            //
+  };
+};
+
+auto tree_after_coarsen_sorted_map = [](node_idx n) -> node_idx {
+  if (!n) { return n; }
+  if (*n < 9) { return n; }
+  if (*n >= 17 and *n < 21) { return node_idx{*n - 17 + 13}; }
+  if (*n >= 21 and *n < 25) { return node_idx{*n - 21 + 9}; }
+  if (*n >= 25 and *n < 29) { return node_idx{*n - 25 + 17}; }
+  return node_idx{};
+};
+
 template <template <ndtree::uint_t, class...> class Loc> void test_tree() {
   {  // check construction
     tree<2> t(1);
@@ -179,6 +239,31 @@ template <template <ndtree::uint_t, class...> class Loc> void test_tree() {
     CHECK(t.size() == 29_u);
     check_tree(t, tree_after_refine{}, Loc<2>{});
     CHECK(t != uniformly_refined_tree<2>(2, 3));
+    CHECK(t.is_compact());
+
+    t.coarsen(2_n);
+    CHECK(t.size() == 25_u);
+    CHECK(!t.is_compact());
+
+    t.coarsen(3_n);
+    CHECK(t.size() == 21_u);
+    CHECK(!t.is_compact());
+
+    CHECK(!t.is_compact());
+    check_tree(t, tree_after_coarsen{}, Loc<2>{});
+
+    auto t2 = t;
+    CHECK(t == t2);
+    CHECK(!(t != t2));
+
+    dfs_sort(t);
+    CHECK(t != t2);
+    CHECK(!(t == t2));
+    CHECK(t.is_compact());
+
+    check_tree(
+     t, rewrite_nodes(tree_after_coarsen{}, tree_after_coarsen_sorted_map),
+     Loc<2>{});
   }
 
   {

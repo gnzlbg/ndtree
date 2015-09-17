@@ -24,9 +24,13 @@ using ndtree::optional;
 /// invalid value
 static const constexpr auto i = std::numeric_limits<int>::max();
 
+std::vector<uint_t> is(std::size_t n) { return std::vector<uint_t>(n, i); }
+
 /// Testing utility for constructing a node with named argument lists
 template <typename Tag, typename T = uint_t> struct tagged_initializer_list {
-  template <typename... Args>
+  tagged_initializer_list(std::vector<T>&& other) : data{std::move(other)} {}
+  template <typename... Args, class = decltype(std::vector<T>{
+                               static_cast<T>(std::declval<Args>())...})>
   tagged_initializer_list(Args&&... args) : data{static_cast<T>(args)...} {}
   std::vector<T> data;
   auto begin() noexcept { return ndtree::begin(data); }
@@ -80,6 +84,10 @@ struct node {
   optional<std::vector<num_t>> normalized_coordinates{};
 
   node() = default;
+  node(node const&) = default;
+  node(node&&) = default;
+  node& operator=(node const&) = default;
+  node& operator=(node&&) = default;
 
   template <typename Arg, typename... Args>
   void init(Arg&& arg, Args&&... args) {
@@ -87,8 +95,10 @@ struct node {
     init(std::forward<Args>(args)...);
   }
 
-  template <typename... Args> node(Args&&... args) {
-    init(std::forward<Args>(args)...);
+  template <typename Arg, typename... Args,
+            CONCEPT_REQUIRES_(!Same<std::decay_t<Arg>, node>{})>
+  node(Arg&& arg, Args&&... args) {
+    init(std::forward<Arg>(arg), std::forward<Args>(args)...);
   }
 
   void init(test::idx j) { idx = node_idx{*j}; }
@@ -129,6 +139,30 @@ struct node {
     ranges::copy(x, begin(*normalized_coordinates));
   }
 };
+
+template <typename Rule>  //
+node rewrite_node(node n, Rule&& r) {
+  if (n.idx) { *n.idx = r(*n.idx); }
+  if (n.parent) { *n.parent = r(*n.parent); }
+  auto rrange = [&](auto&& opt_rng) {
+    if (opt_rng) {
+      for (auto&& v : *opt_rng) { v = r(v); }
+    }
+  };
+  rrange(n.children);
+  rrange(n.face_neighbors);
+  rrange(n.edge_neighbors);
+  rrange(n.corner_neighbors);
+  rrange(n.all_neighbors);
+  if (n.all_neighbors) { ranges::sort(*n.all_neighbors); }
+  return n;
+}
+
+template <typename Nodes, typename Rule>
+Nodes rewrite_nodes(Nodes ns, Rule&& r) {
+  for (auto&& n : ns.nodes) { n = rewrite_node(n, r); }
+  return ns;
+}
 
 template <typename Tree> void test_parent(Tree const& t, node const& n) {
   // consistency:
@@ -231,6 +265,7 @@ void test_normalized_coordinates(Tree const& t, node const& n, Location l) {
 
 template <typename Tree, typename Location>
 void check_node(Tree const& t, node n, Location l) {
+  static_assert(Tree::dimension() == Location::dimension(), "");
   test_parent(t, n);
   test_level(t, n);
   test_children(t, n);
@@ -250,6 +285,7 @@ template <typename Tree, typename ReferenceTree,
           typename Location = location::default_location<Tree::dimension()>>
 void check_tree(Tree const& t, ReferenceTree const& tref,
                 Location l = Location{}) {
+  static_assert(Tree::dimension() == Location::dimension(), "");
   for (auto&& n : tref.nodes) { check_node(t, n, l); }
 }
 
