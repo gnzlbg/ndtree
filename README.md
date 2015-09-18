@@ -1,4 +1,4 @@
-# ND-Tree [![Travis build status][travis-shield]][travis] [![Coveralls.io code coverage][coveralls-shield]][coveralls]
+# ND-Tree [![Travis build status][travis-shield]][travis] [![Coveralls.io code coverage][coveralls-shield]][coveralls] [![Docs][docs-shield]][docs]
 
 
 > Data-oriented pointer-free edge based n-dimensional region octree and algorithms
@@ -86,3 +86,5 @@ the example directory. That shows the main features of the library.
 [travis]: https://travis-ci.org/gnzlbg/ndtree
 [coveralls-shield]: https://img.shields.io/coveralls/gnzlbg/ndtree.svg?style=flat-square
 [coveralls]: https://coveralls.io/github/gnzlbg/ndtree
+[docs-shield]: https://img.shields.io/badge/docs-online-blue.svg?style=flat-square
+[docs]: https://gnzlbg.github.io/ndtree

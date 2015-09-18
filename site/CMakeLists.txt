@@ -23,6 +23,23 @@ if (NOT GIT_FOUND)
     return()
 endif()
 
+##############################################################################
+# Setup the URL to the official repository on GitHub.
+#
+# If there is a GH_TOKEN environment variable, we assume this token allows
+# us to push to the GitHub repository and we use that in the URL. This token
+# will give us push access for updating the 'gh-pages' branch and doing other
+# useful things e.g. from Travis. Otherwise, if there's no such environment
+# variable, the URL just refers to the GitHub repository without authentication.
+# In this case, we'll be asked for our username and password when/if we try to
+# push to the repository.
+##############################################################################
+if (DEFINED ENV{GH_TOKEN})
+  set(NDTREE_ORIGIN_URL "https://gnzlbg:$ENV{GH_TOKEN}@github.com/gnzlbg/ndtree.git")
+else()
+  set(NDTREE_ORIGIN_URL "https://github.com/gnzlbg/ndtree")
+endif()
+
 add_custom_target(gh-pages.clone
     COMMAND [ -e ${CMAKE_SOURCE_DIR}/site/gh-pages ] || ${GIT_EXECUTABLE} clone ${NDTREE_ORIGIN_URL} --depth 1 --branch=gh-pages site/gh-pages
     WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}

@@ -22,23 +22,6 @@ include(ndtree_tidy)
 include_directories(${ndtree_SOURCE_DIR}/include)
 
 ##############################################################################
-# Setup the URL to the official repository on GitHub.
-#
-# If there is a GITHUB_TOKEN environment variable, we assume this token allows
-# us to push to the GitHub repository and we use that in the URL. This token
-# will give us push access for updating the 'gh-pages' branch and doing other
-# useful things e.g. from Travis. Otherwise, if there's no such environment
-# variable, the URL just refers to the GitHub repository without authentication.
-# In this case, we'll be asked for our username and password when/if we try to
-# push to the repository.
-##############################################################################
-if (DEFINED ENV{GITHUB_TOKEN})
-  set(NDTREE_ORIGIN_URL "https://gnzlbg:$ENV{GITHUB_TOKEN}@github.com/gnzlbg/ndtree")
-else()
-  set(NDTREE_ORIGIN_URL "https://github.com/gnzlbg/ndtree")
-endif()
-
-##############################################################################
 # Setup subdirectoriescmake
 ##############################################################################
 add_subdirectory(test)
