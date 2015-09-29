@@ -153,14 +153,19 @@ template&lt;typename Int , CONCEPT_REQUIRES_(Integral&lt; Int &gt;{}) &gt; </td>
 <tr class="memitem:a0c5a9bed1396225c231e60ed4a259ecf"><td class="memTemplItemLeft" align="right" valign="top">auto&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacendtree_1_1v1_1_1bit.html#a0c5a9bed1396225c231e60ed4a259ecf">ndtree::v1::bit::bits</a> () noexcept</td></tr>
 <tr class="memdesc:a0c5a9bed1396225c231e60ed4a259ecf"><td class="mdescLeft">&#160;</td><td class="mdescRight">Range of bit positions for type.  <a href="#a0c5a9bed1396225c231e60ed4a259ecf">More...</a><br /></td></tr>
 <tr class="separator:a0c5a9bed1396225c231e60ed4a259ecf"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a83fe0cd6dcbe65db053cd251ee8f1079"><td class="memItemLeft" align="right" valign="top">constexpr uint_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacendtree_1_1v1_1_1bit.html#a83fe0cd6dcbe65db053cd251ee8f1079">ndtree::v1::bit::max_value</a> (uint_t no_bits)</td></tr>
-<tr class="memdesc:a83fe0cd6dcbe65db053cd251ee8f1079"><td class="mdescLeft">&#160;</td><td class="mdescRight">Maximum representable unsigned integer value in <code>no_bits</code>.  <a href="#a83fe0cd6dcbe65db053cd251ee8f1079">More...</a><br /></td></tr>
-<tr class="separator:a83fe0cd6dcbe65db053cd251ee8f1079"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a457d1a1b21cdde938ab1e9f33a853041"><td class="memTemplParams" colspan="2"><a class="anchor" id="a457d1a1b21cdde938ab1e9f33a853041"></a>
-template&lt;typename Integer , CONCEPT_REQUIRES_(SignedIntegral&lt; Integer &gt;{}) &gt; </td></tr>
-<tr class="memitem:a457d1a1b21cdde938ab1e9f33a853041"><td class="memTemplItemLeft" align="right" valign="top">constexpr bool&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacendtree_1_1v1_1_1bit.html#a457d1a1b21cdde938ab1e9f33a853041">ndtree::v1::bit::overflows_on_add</a> (uint_t value, Integer offset, uint_t no_bits=width&lt; uint_t &gt;)</td></tr>
-<tr class="memdesc:a457d1a1b21cdde938ab1e9f33a853041"><td class="mdescLeft">&#160;</td><td class="mdescRight">Does adding <code>offset</code> to the first <code>no_bits</code> of <code>value</code> overflows? <br /></td></tr>
-<tr class="separator:a457d1a1b21cdde938ab1e9f33a853041"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a75098cc2f8b12045f38a6ca7a970e400"><td class="memItemLeft" align="right" valign="top">constexpr uint64_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacendtree_1_1v1_1_1bit.html#a75098cc2f8b12045f38a6ca7a970e400">ndtree::v1::bit::max_value</a> (uint64_t no_bits)</td></tr>
+<tr class="memdesc:a75098cc2f8b12045f38a6ca7a970e400"><td class="mdescLeft">&#160;</td><td class="mdescRight">Maximum representable unsigned integer value in <code>no_bits</code>.  <a href="#a75098cc2f8b12045f38a6ca7a970e400">More...</a><br /></td></tr>
+<tr class="separator:a75098cc2f8b12045f38a6ca7a970e400"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af5d828384cfe4a8ce4274dd0241f6bcf"><td class="memTemplParams" colspan="2"><a class="anchor" id="af5d828384cfe4a8ce4274dd0241f6bcf"></a>
+template&lt;typename UInt , typename SInt , CONCEPT_REQUIRES_(UnsignedIntegral&lt; UInt &gt;{}and SignedIntegral&lt; SInt &gt;{}) and bit::width&lt; UInt &gt;  = = bit::width&lt;SInt&gt;&gt; </td></tr>
+<tr class="memitem:af5d828384cfe4a8ce4274dd0241f6bcf"><td class="memTemplItemLeft" align="right" valign="top">constexpr bool&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacendtree_1_1v1_1_1bit.html#af5d828384cfe4a8ce4274dd0241f6bcf">ndtree::v1::bit::overflows_on_add</a> (UInt value, SInt offset, UInt no_bits=width&lt; UInt &gt;)</td></tr>
+<tr class="memdesc:af5d828384cfe4a8ce4274dd0241f6bcf"><td class="mdescLeft">&#160;</td><td class="mdescRight">Does adding <code>offset</code> to the first <code>no_bits</code> of <code>value</code> overflows? <br /></td></tr>
+<tr class="separator:af5d828384cfe4a8ce4274dd0241f6bcf"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a4cf9a3decbe2ecab71f70a574cdd3038"><td class="memTemplParams" colspan="2"><a class="anchor" id="a4cf9a3decbe2ecab71f70a574cdd3038"></a>
+template&lt;typename UInt , CONCEPT_REQUIRES_(UnsignedIntegral&lt; UInt &gt;{}) &gt; </td></tr>
+<tr class="memitem:a4cf9a3decbe2ecab71f70a574cdd3038"><td class="memTemplItemLeft" align="right" valign="top">constexpr bool&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacendtree_1_1v1_1_1bit.html#a4cf9a3decbe2ecab71f70a574cdd3038">ndtree::v1::bit::overflows_on_add</a> (UInt value, UInt offset, UInt no_bits=width&lt; UInt &gt;)</td></tr>
+<tr class="memdesc:a4cf9a3decbe2ecab71f70a574cdd3038"><td class="mdescLeft">&#160;</td><td class="mdescRight">Does adding <code>offset</code> to the first <code>no_bits</code> of <code>value</code> overflows? <br /></td></tr>
+<tr class="separator:a4cf9a3decbe2ecab71f70a574cdd3038"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a7efc145e71c189d7db6a1492edff9f1d"><td class="memTemplParams" colspan="2"><a class="anchor" id="a7efc145e71c189d7db6a1492edff9f1d"></a>
 template&lt;typename Integral &gt; </td></tr>
 <tr class="memitem:a7efc145e71c189d7db6a1492edff9f1d"><td class="memTemplItemLeft" align="right" valign="top">constexpr Integral&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacendtree_1_1v1_1_1bit.html#a7efc145e71c189d7db6a1492edff9f1d">ndtree::v1::bit::deposit_bits</a> (Integral x, Integral mask)</td></tr>
@@ -182,36 +187,36 @@ template&lt;typename Int &gt; </td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="member-group"></a>
 1D</h2></td></tr>
-<tr class="memitem:abfd59a6caf99762aca2e24ad0fb4f85a"><td class="memTemplParams" colspan="2"><a class="anchor" id="abfd59a6caf99762aca2e24ad0fb4f85a"></a>
-template&lt;class Integral , CONCEPT_REQUIRES_(UnsignedIntegral&lt; Integral &gt;{}) &gt; </td></tr>
-<tr class="memitem:abfd59a6caf99762aca2e24ad0fb4f85a"><td class="memTemplItemLeft" align="right" valign="top">constexpr Integral&#160;</td><td class="memTemplItemRight" valign="bottom"><b>ndtree::v1::bit::morton::encode</b> (std::array&lt; Integral, 1 &gt; xs) noexcept</td></tr>
-<tr class="separator:abfd59a6caf99762aca2e24ad0fb4f85a"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:add9e460d47f18f649008adbd4ad146ac"><td class="memTemplParams" colspan="2"><a class="anchor" id="add9e460d47f18f649008adbd4ad146ac"></a>
-template&lt;class Integral , CONCEPT_REQUIRES_(UnsignedIntegral&lt; Integral &gt;{}) &gt; </td></tr>
-<tr class="memitem:add9e460d47f18f649008adbd4ad146ac"><td class="memTemplItemLeft" align="right" valign="top">constexpr std::array&lt; Integral, 1 &gt;&#160;</td><td class="memTemplItemRight" valign="bottom"><b>ndtree::v1::bit::morton::decode</b> (Integral code, std::array&lt; Integral, 1 &gt;) noexcept</td></tr>
-<tr class="separator:add9e460d47f18f649008adbd4ad146ac"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae8e412b698eba71313594b322d8accd2"><td class="memTemplParams" colspan="2"><a class="anchor" id="ae8e412b698eba71313594b322d8accd2"></a>
+template&lt;class UInt , CONCEPT_REQUIRES_(UnsignedIntegral&lt; UInt &gt;{}) &gt; </td></tr>
+<tr class="memitem:ae8e412b698eba71313594b322d8accd2"><td class="memTemplItemLeft" align="right" valign="top">constexpr UInt&#160;</td><td class="memTemplItemRight" valign="bottom"><b>ndtree::v1::bit::morton::encode</b> (std::array&lt; UInt, 1 &gt; xs) noexcept</td></tr>
+<tr class="separator:ae8e412b698eba71313594b322d8accd2"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a899806e0cf101a37ff3da6fb5fd784e3"><td class="memTemplParams" colspan="2"><a class="anchor" id="a899806e0cf101a37ff3da6fb5fd784e3"></a>
+template&lt;class UInt , CONCEPT_REQUIRES_(UnsignedIntegral&lt; UInt &gt;{}) &gt; </td></tr>
+<tr class="memitem:a899806e0cf101a37ff3da6fb5fd784e3"><td class="memTemplItemLeft" align="right" valign="top">constexpr std::array&lt; UInt, 1 &gt;&#160;</td><td class="memTemplItemRight" valign="bottom"><b>ndtree::v1::bit::morton::decode</b> (UInt code, std::array&lt; UInt, 1 &gt;) noexcept</td></tr>
+<tr class="separator:a899806e0cf101a37ff3da6fb5fd784e3"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="member-group"></a>
 2D</h2></td></tr>
-<tr class="memitem:a37c096c720b7cda9e35d1d4ea912e869"><td class="memTemplParams" colspan="2"><a class="anchor" id="a37c096c720b7cda9e35d1d4ea912e869"></a>
-template&lt;class Integral , CONCEPT_REQUIRES_(UnsignedIntegral&lt; Integral &gt;{}) &gt; </td></tr>
-<tr class="memitem:a37c096c720b7cda9e35d1d4ea912e869"><td class="memTemplItemLeft" align="right" valign="top">Integral&#160;</td><td class="memTemplItemRight" valign="bottom"><b>ndtree::v1::bit::morton::encode</b> (std::array&lt; Integral, 2 &gt; xs) noexcept</td></tr>
-<tr class="separator:a37c096c720b7cda9e35d1d4ea912e869"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ae23fa858900b520f53fc21f5af716d4e"><td class="memTemplParams" colspan="2"><a class="anchor" id="ae23fa858900b520f53fc21f5af716d4e"></a>
-template&lt;class Integral , CONCEPT_REQUIRES_(UnsignedIntegral&lt; Integral &gt;{}) &gt; </td></tr>
-<tr class="memitem:ae23fa858900b520f53fc21f5af716d4e"><td class="memTemplItemLeft" align="right" valign="top">std::array&lt; Integral, 2 &gt;&#160;</td><td class="memTemplItemRight" valign="bottom"><b>ndtree::v1::bit::morton::decode</b> (Integral code, std::array&lt; Integral, 2 &gt;) noexcept</td></tr>
-<tr class="separator:ae23fa858900b520f53fc21f5af716d4e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a2a41b0fcb1796063a9f4affaa53abe2c"><td class="memTemplParams" colspan="2"><a class="anchor" id="a2a41b0fcb1796063a9f4affaa53abe2c"></a>
+template&lt;class UInt , CONCEPT_REQUIRES_(UnsignedIntegral&lt; UInt &gt;{}) &gt; </td></tr>
+<tr class="memitem:a2a41b0fcb1796063a9f4affaa53abe2c"><td class="memTemplItemLeft" align="right" valign="top">UInt&#160;</td><td class="memTemplItemRight" valign="bottom"><b>ndtree::v1::bit::morton::encode</b> (std::array&lt; UInt, 2 &gt; xs) noexcept</td></tr>
+<tr class="separator:a2a41b0fcb1796063a9f4affaa53abe2c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a13f80b542b701e5a88c329a95ef81dcd"><td class="memTemplParams" colspan="2"><a class="anchor" id="a13f80b542b701e5a88c329a95ef81dcd"></a>
+template&lt;class UInt , CONCEPT_REQUIRES_(UnsignedIntegral&lt; UInt &gt;{}) &gt; </td></tr>
+<tr class="memitem:a13f80b542b701e5a88c329a95ef81dcd"><td class="memTemplItemLeft" align="right" valign="top">std::array&lt; UInt, 2 &gt;&#160;</td><td class="memTemplItemRight" valign="bottom"><b>ndtree::v1::bit::morton::decode</b> (UInt code, std::array&lt; UInt, 2 &gt;) noexcept</td></tr>
+<tr class="separator:a13f80b542b701e5a88c329a95ef81dcd"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="member-group"></a>
 3D</h2></td></tr>
-<tr class="memitem:a2ef3d45b346703a9b3d23fa93691287f"><td class="memTemplParams" colspan="2"><a class="anchor" id="a2ef3d45b346703a9b3d23fa93691287f"></a>
-template&lt;class Integral , CONCEPT_REQUIRES_(UnsignedIntegral&lt; Integral &gt;{}) &gt; </td></tr>
-<tr class="memitem:a2ef3d45b346703a9b3d23fa93691287f"><td class="memTemplItemLeft" align="right" valign="top">Integral&#160;</td><td class="memTemplItemRight" valign="bottom"><b>ndtree::v1::bit::morton::encode</b> (std::array&lt; Integral, 3 &gt; xs) noexcept</td></tr>
-<tr class="separator:a2ef3d45b346703a9b3d23fa93691287f"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ab742f04925fa577ad08686788d72cbfc"><td class="memTemplParams" colspan="2"><a class="anchor" id="ab742f04925fa577ad08686788d72cbfc"></a>
-template&lt;class Integral , CONCEPT_REQUIRES_(UnsignedIntegral&lt; Integral &gt;{}) &gt; </td></tr>
-<tr class="memitem:ab742f04925fa577ad08686788d72cbfc"><td class="memTemplItemLeft" align="right" valign="top">std::array&lt; Integral, 3 &gt;&#160;</td><td class="memTemplItemRight" valign="bottom"><b>ndtree::v1::bit::morton::decode</b> (Integral code, std::array&lt; Integral, 3 &gt;) noexcept</td></tr>
-<tr class="separator:ab742f04925fa577ad08686788d72cbfc"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aab98dbf8811a3245a6a2a9f85239026e"><td class="memTemplParams" colspan="2"><a class="anchor" id="aab98dbf8811a3245a6a2a9f85239026e"></a>
+template&lt;class UInt , CONCEPT_REQUIRES_(UnsignedIntegral&lt; UInt &gt;{}) &gt; </td></tr>
+<tr class="memitem:aab98dbf8811a3245a6a2a9f85239026e"><td class="memTemplItemLeft" align="right" valign="top">UInt&#160;</td><td class="memTemplItemRight" valign="bottom"><b>ndtree::v1::bit::morton::encode</b> (std::array&lt; UInt, 3 &gt; xs) noexcept</td></tr>
+<tr class="separator:aab98dbf8811a3245a6a2a9f85239026e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af18b6371fd2455bac37d3732a90e52c8"><td class="memTemplParams" colspan="2"><a class="anchor" id="af18b6371fd2455bac37d3732a90e52c8"></a>
+template&lt;class UInt , CONCEPT_REQUIRES_(UnsignedIntegral&lt; UInt &gt;{}) &gt; </td></tr>
+<tr class="memitem:af18b6371fd2455bac37d3732a90e52c8"><td class="memTemplItemLeft" align="right" valign="top">std::array&lt; UInt, 3 &gt;&#160;</td><td class="memTemplItemRight" valign="bottom"><b>ndtree::v1::bit::morton::decode</b> (UInt code, std::array&lt; UInt, 3 &gt;) noexcept</td></tr>
+<tr class="separator:af18b6371fd2455bac37d3732a90e52c8"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Bit manipulation utilities. </p>

@@ -143,14 +143,19 @@ template&lt;typename Int , CONCEPT_REQUIRES_(Integral&lt; Int &gt;{}) &gt; </td>
 <tr class="memitem:a0c5a9bed1396225c231e60ed4a259ecf"><td class="memTemplItemLeft" align="right" valign="top">auto&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacendtree_1_1v1_1_1bit.html#a0c5a9bed1396225c231e60ed4a259ecf">bits</a> () noexcept</td></tr>
 <tr class="memdesc:a0c5a9bed1396225c231e60ed4a259ecf"><td class="mdescLeft">&#160;</td><td class="mdescRight">Range of bit positions for type.  <a href="#a0c5a9bed1396225c231e60ed4a259ecf">More...</a><br /></td></tr>
 <tr class="separator:a0c5a9bed1396225c231e60ed4a259ecf"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a83fe0cd6dcbe65db053cd251ee8f1079"><td class="memItemLeft" align="right" valign="top">constexpr uint_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacendtree_1_1v1_1_1bit.html#a83fe0cd6dcbe65db053cd251ee8f1079">max_value</a> (uint_t no_bits)</td></tr>
-<tr class="memdesc:a83fe0cd6dcbe65db053cd251ee8f1079"><td class="mdescLeft">&#160;</td><td class="mdescRight">Maximum representable unsigned integer value in <code>no_bits</code>.  <a href="#a83fe0cd6dcbe65db053cd251ee8f1079">More...</a><br /></td></tr>
-<tr class="separator:a83fe0cd6dcbe65db053cd251ee8f1079"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a457d1a1b21cdde938ab1e9f33a853041"><td class="memTemplParams" colspan="2"><a class="anchor" id="a457d1a1b21cdde938ab1e9f33a853041"></a>
-template&lt;typename Integer , CONCEPT_REQUIRES_(SignedIntegral&lt; Integer &gt;{}) &gt; </td></tr>
-<tr class="memitem:a457d1a1b21cdde938ab1e9f33a853041"><td class="memTemplItemLeft" align="right" valign="top">constexpr bool&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacendtree_1_1v1_1_1bit.html#a457d1a1b21cdde938ab1e9f33a853041">overflows_on_add</a> (uint_t value, Integer offset, uint_t no_bits=<a class="el" href="namespacendtree_1_1v1_1_1bit.html#ae286fb2c8d560d5efe887685cc419909">width</a>&lt; uint_t &gt;)</td></tr>
-<tr class="memdesc:a457d1a1b21cdde938ab1e9f33a853041"><td class="mdescLeft">&#160;</td><td class="mdescRight">Does adding <code>offset</code> to the first <code>no_bits</code> of <code>value</code> overflows? <br /></td></tr>
-<tr class="separator:a457d1a1b21cdde938ab1e9f33a853041"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a75098cc2f8b12045f38a6ca7a970e400"><td class="memItemLeft" align="right" valign="top">constexpr uint64_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacendtree_1_1v1_1_1bit.html#a75098cc2f8b12045f38a6ca7a970e400">max_value</a> (uint64_t no_bits)</td></tr>
+<tr class="memdesc:a75098cc2f8b12045f38a6ca7a970e400"><td class="mdescLeft">&#160;</td><td class="mdescRight">Maximum representable unsigned integer value in <code>no_bits</code>.  <a href="#a75098cc2f8b12045f38a6ca7a970e400">More...</a><br /></td></tr>
+<tr class="separator:a75098cc2f8b12045f38a6ca7a970e400"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af5d828384cfe4a8ce4274dd0241f6bcf"><td class="memTemplParams" colspan="2"><a class="anchor" id="af5d828384cfe4a8ce4274dd0241f6bcf"></a>
+template&lt;typename UInt , typename SInt , CONCEPT_REQUIRES_(UnsignedIntegral&lt; UInt &gt;{}and SignedIntegral&lt; SInt &gt;{}) and bit::width&lt; UInt &gt;  = = bit::width&lt;SInt&gt;&gt; </td></tr>
+<tr class="memitem:af5d828384cfe4a8ce4274dd0241f6bcf"><td class="memTemplItemLeft" align="right" valign="top">constexpr bool&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacendtree_1_1v1_1_1bit.html#af5d828384cfe4a8ce4274dd0241f6bcf">overflows_on_add</a> (UInt value, SInt offset, UInt no_bits=<a class="el" href="namespacendtree_1_1v1_1_1bit.html#ae286fb2c8d560d5efe887685cc419909">width</a>&lt; UInt &gt;)</td></tr>
+<tr class="memdesc:af5d828384cfe4a8ce4274dd0241f6bcf"><td class="mdescLeft">&#160;</td><td class="mdescRight">Does adding <code>offset</code> to the first <code>no_bits</code> of <code>value</code> overflows? <br /></td></tr>
+<tr class="separator:af5d828384cfe4a8ce4274dd0241f6bcf"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a4cf9a3decbe2ecab71f70a574cdd3038"><td class="memTemplParams" colspan="2"><a class="anchor" id="a4cf9a3decbe2ecab71f70a574cdd3038"></a>
+template&lt;typename UInt , CONCEPT_REQUIRES_(UnsignedIntegral&lt; UInt &gt;{}) &gt; </td></tr>
+<tr class="memitem:a4cf9a3decbe2ecab71f70a574cdd3038"><td class="memTemplItemLeft" align="right" valign="top">constexpr bool&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacendtree_1_1v1_1_1bit.html#a4cf9a3decbe2ecab71f70a574cdd3038">overflows_on_add</a> (UInt value, UInt offset, UInt no_bits=<a class="el" href="namespacendtree_1_1v1_1_1bit.html#ae286fb2c8d560d5efe887685cc419909">width</a>&lt; UInt &gt;)</td></tr>
+<tr class="memdesc:a4cf9a3decbe2ecab71f70a574cdd3038"><td class="mdescLeft">&#160;</td><td class="mdescRight">Does adding <code>offset</code> to the first <code>no_bits</code> of <code>value</code> overflows? <br /></td></tr>
+<tr class="separator:a4cf9a3decbe2ecab71f70a574cdd3038"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a7efc145e71c189d7db6a1492edff9f1d"><td class="memTemplParams" colspan="2"><a class="anchor" id="a7efc145e71c189d7db6a1492edff9f1d"></a>
 template&lt;typename Integral &gt; </td></tr>
 <tr class="memitem:a7efc145e71c189d7db6a1492edff9f1d"><td class="memTemplItemLeft" align="right" valign="top">constexpr Integral&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacendtree_1_1v1_1_1bit.html#a7efc145e71c189d7db6a1492edff9f1d">deposit_bits</a> (Integral x, Integral mask)</td></tr>
@@ -206,14 +211,14 @@ template&lt;typename Int , CONCEPT_REQUIRES_(Integral&lt; Int &gt;{}) &gt; </div
 
 </div>
 </div>
-<a class="anchor" id="a83fe0cd6dcbe65db053cd251ee8f1079"></a>
+<a class="anchor" id="a75098cc2f8b12045f38a6ca7a970e400"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">constexpr uint_t ndtree::v1::bit::max_value </td>
+          <td class="memname">constexpr uint64_t ndtree::v1::bit::max_value </td>
           <td>(</td>
-          <td class="paramtype">uint_t&#160;</td>
+          <td class="paramtype">uint64_t&#160;</td>
           <td class="paramname"><em>no_bits</em></td><td>)</td>
           <td></td>
         </tr>
@@ -226,7 +231,7 @@ template&lt;typename Int , CONCEPT_REQUIRES_(Integral&lt; Int &gt;{}) &gt; </div
 
 <p>References <a class="el" href="namespacendtree_1_1v1_1_1math.html#ac2236bfa4e1e264b7229576dda1c6f58">ndtree::v1::math::ipow()</a>.</p>
 
-<p>Referenced by <a class="el" href="namespacendtree_1_1v1_1_1bit.html#a457d1a1b21cdde938ab1e9f33a853041">overflows_on_add()</a>.</p>
+<p>Referenced by <a class="el" href="namespacendtree_1_1v1_1_1bit.html#af5d828384cfe4a8ce4274dd0241f6bcf">overflows_on_add()</a>.</p>
 
 </div>
 </div>

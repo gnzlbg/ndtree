@@ -112,7 +112,7 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:a71c07a8d1667aa545c6e7d90fe430f0a"><td class="memTemplItemLeft" align="right" valign="top">auto&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="structndtree_1_1v1_1_1shift__location__fn.html#a71c07a8d1667aa545c6e7d90fe430f0a">operator()</a> (Loc loc, std::array&lt; num_t, nd &gt; offset, uint_t level=Loc::max_level()) const noexcept-&gt; Loc</td></tr>
 <tr class="memdesc:a71c07a8d1667aa545c6e7d90fe430f0a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Shifts the location <code>loc</code> by normalized <code>offset</code> at <code>level</code>.  <a href="#a71c07a8d1667aa545c6e7d90fe430f0a">More...</a><br /></td></tr>
 <tr class="separator:a71c07a8d1667aa545c6e7d90fe430f0a"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aef0552bff3d404897e2ee83c6ec2d505"><td class="memTemplParams" colspan="2">template&lt;typename Loc , uint_t nd = Loc::dimension(), CONCEPT_REQUIRES_(Location&lt; Loc &gt;{}) &gt; </td></tr>
+<tr class="memitem:aef0552bff3d404897e2ee83c6ec2d505"><td class="memTemplParams" colspan="2">template&lt;typename Loc , std::size_t nd, CONCEPT_REQUIRES_(Location&lt; Loc &gt;{}) &gt; </td></tr>
 <tr class="memitem:aef0552bff3d404897e2ee83c6ec2d505"><td class="memTemplItemLeft" align="right" valign="top">auto&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="structndtree_1_1v1_1_1shift__location__fn.html#aef0552bff3d404897e2ee83c6ec2d505">operator()</a> (Loc loc, std::array&lt; int_t, nd &gt; offset) const noexcept-&gt; compact_optional&lt; Loc &gt;</td></tr>
 <tr class="memdesc:aef0552bff3d404897e2ee83c6ec2d505"><td class="mdescLeft">&#160;</td><td class="mdescRight">Shifts the location <code>loc</code> by <code>offset</code>.  <a href="#aef0552bff3d404897e2ee83c6ec2d505">More...</a><br /></td></tr>
 <tr class="separator:aef0552bff3d404897e2ee83c6ec2d505"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -169,7 +169,7 @@ template&lt;typename Loc , int nd = Loc::dimension(), CONCEPT_REQUIRES_(Location
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;typename Loc , uint_t nd = Loc::dimension(), CONCEPT_REQUIRES_(Location&lt; Loc &gt;{}) &gt; </div>
+template&lt;typename Loc , std::size_t nd, CONCEPT_REQUIRES_(Location&lt; Loc &gt;{}) &gt; </div>
 <table class="mlabels">
   <tr>
   <td class="mlabels-left">
