@@ -21,11 +21,11 @@ matrix:
       addons: *clang
 
     # 32 bit debug build
-    - env: COMPILER=clang++-3.8 BUILD_TYPE=Debug Valgrind=true Bits=32
+    - env: COMPILER=clang++-3.8 BUILD_TYPE=Release Valgrind=true Bits=32
       addons: *clang
 
     # 64 bit debug build
-    - env: COMPILER=clang++-3.8 BUILD_TYPE=Debug Valgrind=true Bits=64
+    - env: COMPILER=clang++-3.8 BUILD_TYPE=Release Valgrind=true Bits=64
       addons: *clang
 
 
