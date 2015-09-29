@@ -1,7 +1,6 @@
 #pragma once
 /// \file types.hpp
 #include <ndtree/utility/compact_optional.hpp>
-#define NDTREE_64_BIT_TYPES
 
 namespace ndtree {
 inline namespace v1 {

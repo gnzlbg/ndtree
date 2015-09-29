@@ -20,6 +20,15 @@ matrix:
     - env: COMPILER=clang++-3.8 BUILD_TYPE=Release Valgrind=true
       addons: *clang
 
+    # 32 bit debug build
+    - env: COMPILER=clang++-3.8 BUILD_TYPE=Debug Valgrind=true Bits=32
+      addons: *clang
+
+    # 64 bit debug build
+    - env: COMPILER=clang++-3.8 BUILD_TYPE=Debug Valgrind=true Bits=64
+      addons: *clang
+
+
 # Coverage and site generation job
 #
 # We define it here instead of in matrix.include because otherwise we end up
@@ -95,6 +104,8 @@ before_script:
   - if [[ "${BUILD_TYPE}" == "Debug" ]]; then cmake .. -DNDTREE_ENABLE_ASSERTIONS=ON -DNDTREE_ENABLE_DEBUG_INFORMATION=ON; fi
   - if [[ "${ASan}" == "true" ]]; then cmake .. -DNDTREE_ENABLE_ASAN=ON; fi
   - if [[ "${Coverage}" == "true" ]]; then cmake .. -DNDTREE_ENABLE_COVERAGE=ON; fi
+  - if [[ "${Bits}" == "32" ]]; then cmake .. -DCMAKE_CXX_FLAGS="-DNDTREE_32_BIT_TYPES"; fi
+  - if [[ "${Bits}" == "64" ]]; then cmake .. -DCMAKE_CXX_FLAGS="-DNDTREE_64_BIT_TYPES"; fi
 
 script:
   # Build the documentation:
