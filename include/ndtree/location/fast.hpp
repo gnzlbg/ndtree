@@ -1,6 +1,7 @@
 #pragma once
 /// \file fast.hpp
 #include <array>
+#include <ndtree/concepts.hpp>
 #include <ndtree/types.hpp>
 #include <ndtree/relations/tree.hpp>
 #include <ndtree/utility/bit.hpp>
@@ -34,6 +35,7 @@ template <uint_t nd, typename T = uint_t> struct fast {
   using value_type = this_t;
   using storage_type = this_t;
   using reference_type = this_t const&;
+  using integer_t = T;
 
   std::array<T, nd> x;
   uint_t level_ = 0;
@@ -46,8 +48,9 @@ template <uint_t nd, typename T = uint_t> struct fast {
   }
 
   static constexpr uint_t max_level() noexcept {
-    constexpr auto max = 8 * sizeof(T{});
-    return max * nd > 64 ? 64 / nd - 1 : max - 1;
+    constexpr auto max = 8 * sizeof(T) - nd;
+    return max / nd;
+    // return max * nd > 64 ? 64 / nd - 1 : max - 1;
   }
 
   static constexpr uint_t no_levels() noexcept { return max_level() + 1; }
@@ -131,16 +134,16 @@ template <uint_t nd, typename T = uint_t> struct fast {
     return bit::to_int_r(x[d], static_cast<T>(1), static_cast<T>(level() + 1));
   }
 
-  explicit operator std::array<uint_t, nd>() const noexcept {
-    std::array<uint_t, nd> result;
+  explicit operator std::array<integer_t, nd>() const noexcept {
+    std::array<integer_t, nd> result;
     for (auto&& d : dimensions()) { result[d] = to_int(d); }
     return result;
   }
 
-  explicit operator uint_t() const noexcept {
-    std::array<uint_t, nd> tmp(*this);
+  explicit operator integer_t() const noexcept {
+    std::array<integer_t, nd> tmp(*this);
     tmp[0] += math::ipow(2_u, level());
-    uint_t result = 0;
+    integer_t result = 0;
     std::size_t i = 0;
     for (auto l : view::iota(0_u, level() + 1_u)) {
       for (auto d : dimensions()) {
@@ -152,7 +155,7 @@ template <uint_t nd, typename T = uint_t> struct fast {
   }
 
   void from_int_r(uint_t d, uint_t v) noexcept {
-    uint_t i = 1;
+    integer_t i = 1;
     for (auto l : levels() | view::reverse) {
       bit::set(x[d], i, bit::get(v, l - 1));
       ++i;
@@ -161,7 +164,8 @@ template <uint_t nd, typename T = uint_t> struct fast {
 
   friend opt_this_t shift(this_t l, std::array<int_t, nd> offset) noexcept {
     for (auto&& d : dimensions()) {
-      if (bit::overflows_on_add(l.to_int(d), offset[d], l.level())) {
+      if (bit::overflows_on_add(l.to_int(d), offset[d],
+                                static_cast<integer_t>(l.level()))) {
         return opt_this_t{};
       }
     }
@@ -201,9 +205,10 @@ template <uint_t nd, typename T = uint_t> struct fast {
 
 template <typename OStream, uint_t nd, typename T>
 OStream& operator<<(OStream& os, fast<nd, T> const& lc) {
-  os << "[id: " << static_cast<uint_t>(lc) << ", lvl: " << lc.level()
+  using f_int_t = loc_int_t<fast<nd, T>>;
+  os << "[id: " << static_cast<f_int_t>(lc) << ", lvl: " << lc.level()
      << ", xs: {";
-  std::array<uint_t, nd> xs(lc);
+  std::array<f_int_t, nd> xs(lc);
   for (auto&& d : dimensions(nd)) {
     os << xs[d];
     if (d != nd - 1) { os << ", "; }
@@ -232,7 +237,8 @@ constexpr bool operator!=(fast<nd, T> const& a, fast<nd, T> const& b) {
 
 template <uint_t nd, typename T>
 constexpr bool operator<(fast<nd, T> const& a, fast<nd, T> const& b) {
-  return static_cast<uint_t>(a) < static_cast<uint_t>(b);
+  using f_int_t = loc_int_t<fast<nd, T>>;
+  return static_cast<f_int_t>(a) < static_cast<f_int_t>(b);
 }
 
 template <uint_t nd, typename T>

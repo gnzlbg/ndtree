@@ -2,13 +2,12 @@
 # Distributed under the Boost Software License, Version 1.0.
 # (See accompanying file LICENSE.md or copy at http://boost.org/LICENSE_1_0.txt)
 #
-##############################################################################
 # The `tidy` target tidy/checks all the c++ files in the git repo.
 #
 # Two targets are added:
 # - make tidy: tidy all files in the git repo.
 # - make check-tidy: check if all files in the git repo are tidy.
-##############################################################################
+
 find_program(CLANG_TIDY NAMES clang-tidy-3.8 clang-tidy-3.7 clang-tidy-3.6 clang-tidy)
 if(CLANG_TIDY)
 #  add_custom_command(OUTPUT tidy-cmd COMMAND

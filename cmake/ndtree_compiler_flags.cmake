@@ -2,10 +2,10 @@
 # Copyright Gonzalo Brito Gadeschi 2015
 # Distributed under the Boost Software License, Version 1.0.
 # (See accompanying file LICENSE.md or copy at http://boost.org/LICENSE_1_0.txt)
+#
+# Setup compiler flags (more can be set on a per-target basis or in
+# subdirectories)
 
-##############################################################################
-# Setup compiler flags (more can be set on a per-target basis or in subdirectories)
-##############################################################################
 # Compiler flags:
 include(CheckCXXCompilerFlag)
 macro(ndtree_append_flag testname flag)
@@ -87,9 +87,10 @@ endif()
 
 if (NDTREE_ENABLE_ASAN)
   #set(NDTREE_ASAN_FLAGS "-fsanitize=address,integer,undefined,leak -fno-omit-frame-pointer -fno-sanitize=unsigned-integer-overflow")
-  set(NDTREE_ASAN_FLAGS "-fsanitize=address,integer,undefined,leak -fno-omit-frame-pointer")
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${NDTREE_ASAN_FLANGS}")
+  set(NDTREE_ASAN_FLAGS "-fsanitize=address,integer,undefined,leak")
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${NDTREE_ASAN_FLAGS}")
   ndtree_append_flag(NDTREE_HAS_SANITIZE "${NDTREE_ASAN_FLAGS}")
+  ndtree_append_flag(NDTREE_HAS_NO_OMIT_FRAME_POINTER -fno-omit-frame-pointer)
 else()
   ndtree_append_flag(NDTREE_HAS_OMIT_FRAME_POINTER -fomit-frame-pointer)
 endif()

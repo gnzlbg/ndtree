@@ -15,7 +15,6 @@ int main() {
   {  // 1D (32 bit)
     test_location<1, 31>(location::slim<1, uint32_t>{});
   }
-
   {  // 2D (32 bit)
     test_location<2, 15>(location::slim<2, uint32_t>{});
   }
@@ -23,6 +22,7 @@ int main() {
   {  // 3D (32_bit)
     test_location<3, 9>(location::slim<3, uint32_t>{});
   }
+
   {  // 1D (64 bit)
     test_location<1, 63>(location::slim<1, uint64_t>{});
   }

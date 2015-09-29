@@ -47,15 +47,15 @@ void test_location(Loc) {
     CHECK(c == a);
     CHECK(a.level() == a.max_level());
     {
-      auto a_uint = static_cast<uint_t>(a);
-      auto a_uint_should = math::ipow(2_u, nd * a.max_level());
+      using loc_int = loc_int_t<Loc>;
+      auto a_uint = static_cast<loc_int>(a);
+      auto a_uint_should = math::ipow(loc_int{2}, loc_int{nd * a.max_level()});
 #ifdef NDTREE_TEST_DEBUG_OUTPUT
-      std::cout << "sizeof(uint_t): " << sizeof(uint_t)
+      std::cout << "sizeof(loc_int_t): " << sizeof(loc_int)
                 << " max_level: " << a.max_level() << std::endl;
 #endif
       CHECK(a_uint == a_uint_should);
     }
-
     {
       auto b = a;
 #ifdef NDTREE_TEST_DEBUG_OUTPUT
@@ -80,6 +80,7 @@ void test_location(Loc) {
 #endif
         CHECK(!as);
       }
+
 #ifdef NDTREE_TEST_DEBUG_OUTPUT
       std::cout << "[min end] nd: " << nd << " max_lvl: " << a.max_level()
                 << std::endl;
@@ -90,13 +91,13 @@ void test_location(Loc) {
     auto a = l;
     while (a.level() != a.max_level()) { a.push(no_children(nd) - 1_u); }
     CHECK(a.level() == a.max_level());
-    uint_t r = 0;
+    loc_int_t<Loc> r = 0;
     for (auto&& lvl : a.levels()) {
       for (auto&& d : dimensions(nd)) { bit::set(r, (lvl - 1) * nd + d, true); }
     }
     bit::set(r, a.level() * nd, true);
 
-    CHECK(static_cast<uint_t>(a) == r);
+    CHECK(static_cast<loc_int_t<Loc>>(a) == r);
 
     {
       auto b = a;
@@ -169,39 +170,39 @@ void test_location_2() {
 
   {
     auto a = Loc<2>({3, 2});
-    CHECK(static_cast<uint_t>(a) == 30_u);
-    std::array<uint_t, 2> ar(a);
+    CHECK(static_cast<loc_int_t<Loc<2>>>(a) == 30_u);
+    std::array<loc_int_t<Loc<2>>, 2> ar(a);
     CHECK(ar[0] == 2_u);
     CHECK(ar[1] == 3_u);
     CHECK(a.level() == 2_u);
     auto k = shift(a, std::array<int_t, 2>{{1, 0}});
     CHECK(!(!k));
     a = *k;
-    ar = static_cast<std::array<uint_t, 2>>(a);
+    ar = static_cast<std::array<loc_int_t<Loc<2>>, 2>>(a);
     CHECK(ar[0] == 3_u);
     CHECK(ar[1] == 3_u);
     CHECK(a == Loc<2>({3, 3}));
   }
   {  // test to_int coordinate-wise
     auto a = Loc<2>({2, 1});
-    std::array<uint_t, 2> ar(a);
+    std::array<loc_int_t<Loc<2>>, 2> ar(a);
     CHECK(ar[0] == 1_u);
     CHECK(ar[1] == 2_u);
 
     a = *shift(a, std::array<int_t, 2>{{-1, 0}});
-    ar = static_cast<std::array<uint_t, 2>>(a);
+    ar = static_cast<std::array<loc_int_t<Loc<2>>, 2>>(a);
     CHECK(ar[0] == 0_u);
     CHECK(ar[1] == 2_u);
     CHECK(a == Loc<2>({2, 0}));
   }
   {  // test to_int coordinate-wise
     auto a = Loc<2>({3, 0, 0});
-    std::array<uint_t, 2> ar(a);
+    std::array<loc_int_t<Loc<2>>, 2> ar(a);
     CHECK(ar[0] == 4_u);
     CHECK(ar[1] == 4_u);
 
     a = *shift(a, std::array<int_t, 2>{{-1, -1}});
-    ar = static_cast<std::array<uint_t, 2>>(a);
+    ar = static_cast<std::array<loc_int_t<Loc<2>>, 2>>(a);
     CHECK(ar[0] == 3_u);
     CHECK(ar[1] == 3_u);
 
@@ -215,14 +216,14 @@ void test_location_2() {
 
   {  // test to_int coordinate-wise
     auto a = Loc<2>({1, 1, 2});
-    std::array<uint_t, 2> ar(a);
+    std::array<loc_int_t<Loc<2>>, 2> ar(a);
     CHECK(ar[0] == 6_u);
     CHECK(ar[1] == 1_u);
   }
 
   {  // test to_int coordinate-wise
     auto a = Loc<3>({6, 5});
-    std::array<uint_t, 3> ar(a);
+    std::array<loc_int_t<Loc<3>>, 3> ar(a);
     CHECK(a.level() == 2_u);
     CHECK(ar[0] == 1_u);
     CHECK(ar[1] == 2_u);

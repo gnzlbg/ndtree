@@ -108,27 +108,34 @@ auto bits() noexcept {
 /// Since 2^{n} might not fit in the integer type it uses the following
 /// relation: 2^{n} - 1 = 2^{n - 1} * 2 - 1 = 2^{n - 1} + (2^{n - 1} - 1)
 ///
-constexpr uint_t max_value(uint_t no_bits) {
+constexpr uint64_t max_value(uint64_t no_bits) {
   if (no_bits == 0_u) { return 0_u; }
-  const auto tmp = math::ipow(2_u, no_bits - 1);
+  const auto tmp = math::ipow(uint64_t{2}, no_bits - 1);
+  // std::cerr << "tmp: " << tmp << " no_bits: " << no_bits << std::endl;
   return tmp + (tmp - 1);
 }
 
 /// Does adding \p offset to the first \p no_bits of \p value overflows?
-template <typename Integer, CONCEPT_REQUIRES_(SignedIntegral<Integer>{})>
-constexpr bool overflows_on_add(uint_t value, Integer offset,
-                                uint_t no_bits = width<uint_t>) {
-  if (offset >= int_t{0}) {
-    return max_value(no_bits) - value < static_cast<uint_t>(offset);
+template <typename UInt, typename SInt,
+          CONCEPT_REQUIRES_(UnsignedIntegral<UInt>{} and SignedIntegral<SInt>{})
+           and bit::width<UInt> == bit::width<SInt>>
+constexpr bool overflows_on_add(UInt value, SInt offset,
+                                UInt no_bits = width<UInt>) {
+  if (offset >= SInt{0}) {
+    return max_value(no_bits) - value < static_cast<UInt>(offset);
   }
-  return value < static_cast<uint_t>(-offset);
+  return value < static_cast<UInt>(-offset);
 }
 
 /// Does adding \p offset to the first \p no_bits of \p value overflows?
-template <typename Integer, CONCEPT_REQUIRES_(UnsignedIntegral<Integer>{})>
-constexpr bool overflows_on_add(uint_t value, Integer offset,
-                                uint_t no_bits = width<uint_t>) {
-  return max_value(no_bits) - value < static_cast<uint_t>(offset);
+template <typename UInt, CONCEPT_REQUIRES_(UnsignedIntegral<UInt>{})>
+constexpr bool overflows_on_add(UInt value, UInt offset,
+                                UInt no_bits = width<UInt>) {
+  // std::cout << "nb: " << no_bits << " mv: " << max_value(no_bits)
+  //           << " v: " << value << " nlm: " <<
+  //           std::numeric_limits<UInt>::max()
+  //           << " mv - v: " << max_value(no_bits) - value << std::endl;
+  return max_value(no_bits) - value < offset;
 }
 
 template <typename Integer,
@@ -222,13 +229,12 @@ namespace morton {
 
 /// \name 1D
 ///@{
-template <class Integral, CONCEPT_REQUIRES_(UnsignedIntegral<Integral>{})>
-constexpr Integral encode(std::array<Integral, 1> xs) noexcept {
+template <class UInt, CONCEPT_REQUIRES_(UnsignedIntegral<UInt>{})>
+constexpr UInt encode(std::array<UInt, 1> xs) noexcept {
   return xs[0];
 }
-template <class Integral, CONCEPT_REQUIRES_(UnsignedIntegral<Integral>{})>
-constexpr std::array<Integral, 1> decode(Integral code,
-                                         std::array<Integral, 1>) noexcept {
+template <class UInt, CONCEPT_REQUIRES_(UnsignedIntegral<UInt>{})>
+constexpr std::array<UInt, 1> decode(UInt code, std::array<UInt, 1>) noexcept {
   return {{code}};
 }
 
@@ -236,33 +242,31 @@ constexpr std::array<Integral, 1> decode(Integral code,
 
 /// \name 2D
 ///@{
-template <class Integral, CONCEPT_REQUIRES_(UnsignedIntegral<Integral>{})>
-Integral encode(std::array<Integral, 2> xs) noexcept {
-  return deposit_bits(xs[1], static_cast<Integral>(0xAAAAAAAAAAAAAAAA))
-         | deposit_bits(xs[0], static_cast<Integral>(0x5555555555555555));
+template <class UInt, CONCEPT_REQUIRES_(UnsignedIntegral<UInt>{})>
+UInt encode(std::array<UInt, 2> xs) noexcept {
+  return deposit_bits(xs[1], static_cast<UInt>(0xAAAAAAAAAAAAAAAA))
+         | deposit_bits(xs[0], static_cast<UInt>(0x5555555555555555));
 }
-template <class Integral, CONCEPT_REQUIRES_(UnsignedIntegral<Integral>{})>
-std::array<Integral, 2> decode(Integral code,
-                               std::array<Integral, 2>) noexcept {
-  return {{extract_bits(code, static_cast<Integral>(0x555555555555555)),
-           extract_bits(code, static_cast<Integral>(0xAAAAAAAAAAAAAAAA))}};
+template <class UInt, CONCEPT_REQUIRES_(UnsignedIntegral<UInt>{})>
+std::array<UInt, 2> decode(UInt code, std::array<UInt, 2>) noexcept {
+  return {{extract_bits(code, static_cast<UInt>(0x555555555555555)),
+           extract_bits(code, static_cast<UInt>(0xAAAAAAAAAAAAAAAA))}};
 }
 ///@}  // 2D
 
 /// \name 3D
 ///@{
-template <class Integral, CONCEPT_REQUIRES_(UnsignedIntegral<Integral>{})>
-Integral encode(std::array<Integral, 3> xs) noexcept {
-  return deposit_bits(xs[2], static_cast<Integral>(0x4924924924924924))
-         | deposit_bits(xs[1], static_cast<Integral>(0x2492492492492492))
-         | deposit_bits(xs[0], static_cast<Integral>(0x9249249249249249));
+template <class UInt, CONCEPT_REQUIRES_(UnsignedIntegral<UInt>{})>
+UInt encode(std::array<UInt, 3> xs) noexcept {
+  return deposit_bits(xs[2], static_cast<UInt>(0x4924924924924924))
+         | deposit_bits(xs[1], static_cast<UInt>(0x2492492492492492))
+         | deposit_bits(xs[0], static_cast<UInt>(0x9249249249249249));
 }
-template <class Integral, CONCEPT_REQUIRES_(UnsignedIntegral<Integral>{})>
-std::array<Integral, 3> decode(Integral code,
-                               std::array<Integral, 3>) noexcept {
-  return {{extract_bits(code, static_cast<Integral>(0x9249249249249249)),
-           extract_bits(code, static_cast<Integral>(0x2492492492492492)),
-           extract_bits(code, static_cast<Integral>(0x4924924924924924))}};
+template <class UInt, CONCEPT_REQUIRES_(UnsignedIntegral<UInt>{})>
+std::array<UInt, 3> decode(UInt code, std::array<UInt, 3>) noexcept {
+  return {{extract_bits(code, static_cast<UInt>(0x9249249249249249)),
+           extract_bits(code, static_cast<UInt>(0x2492492492492492)),
+           extract_bits(code, static_cast<UInt>(0x4924924924924924))}};
 }
 ///@}  // 3D
 

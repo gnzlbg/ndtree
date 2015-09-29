@@ -39,7 +39,8 @@ struct location : rc::refines<rc::Regular, Dimensioned, rc::TotallyOrdered> {
                   (T(std::vector<uint_t>{0_u, 0_u}), 42),           //
                   (compact_optional<T>{}, 42),                      //
                   rc::convertible_to<compact_optional<T>>(shift(
-                   t, std::array<int_t, rc::uncvref_t<T>::dimension()>{}))));
+                   t, std::array<int_t, rc::uncvref_t<T>::dimension()>{})),
+                  typename rc::uncvref_t<T>::integer_t{}));
 };
 
 using Location = location;
@@ -52,6 +53,8 @@ using Dimensioned
 
 template <typename T>
 using Location = concepts::rc::models<concepts::Location, ranges::uncvref_t<T>>;
+
+template <typename Loc> using loc_int_t = typename Loc::integer_t;
 
 }  // namespace v1
 }  // namespace ndtree

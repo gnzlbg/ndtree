@@ -3,9 +3,7 @@
 # Distributed under the Boost Software License, Version 1.0.
 # (See accompanying file LICENSE.md or copy at http://boost.org/LICENSE_1_0.txt)
 
-##############################################################################
 # Setup custom functions, master targets and file lists for the unit tests
-##############################################################################
 add_custom_target(test.headers
   COMMENT "Build all the header-inclusion unit tests.")
 
@@ -53,17 +51,13 @@ file(GLOB_RECURSE NDTREE_TEST_SOURCES "${ndtree_SOURCE_DIR}/test/*.cpp")
 # A list of all the public headers
 file(GLOB_RECURSE NDTREE_PUBLIC_HEADERS "${ndtree_SOURCE_DIR}/include/*.hpp")
 
-##############################################################################
 # Generate tests that include each public header
-##############################################################################
 foreach(_header IN LISTS NDTREE_PUBLIC_HEADERS)
   file(RELATIVE_PATH _relative "${ndtree_SOURCE_DIR}/include" "${_header}")
   ndtree_add_header_test("${_relative}")
 endforeach()
 
-##############################################################################
 # Add all the unit tests
-##############################################################################
 foreach(_file IN LISTS NDTREE_TEST_SOURCES)
   file(READ "${_file}" _contents)
   ndtree_target_name_for(_target "${_file}")

@@ -13,7 +13,7 @@ namespace math {
 /// TODO: assert on overflow
 template <class Int, CONCEPT_REQUIRES_(Integral<Int>{})>
 constexpr Int ipow(const Int b, const Int e) {
-  return e == 0l ? 1l : b * ipow(b, e - static_cast<Int>(1));
+  return e == Int{0} ? Int{1} : b * ipow(b, e - static_cast<Int>(1));
 }
 
 /// Constexpr version of cmath floor
@@ -21,7 +21,7 @@ constexpr Int ipow(const Int b, const Int e) {
 /// TODO: there has to be a better way
 template <class Float, CONCEPT_REQUIRES_(std::is_floating_point<Float>{})>
 constexpr Float floor(Float x) {
-  return x >= 0.0 ? int(x) : int(x) - 1;
+  return x >= 0.0 ? int_t(x) : int_t(x) - 1;
 }
 
 /// Computes the factorial of n

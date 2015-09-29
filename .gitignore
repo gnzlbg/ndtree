@@ -27,8 +27,25 @@
 *.out
 *.app
 
+# CMake files
+CMakeCache.txt
+CMakeFiles
+Makefile
+cmake_install.cmake
+install_manifest.txt
+
+# CTest files
+CTestTestfile.cmake
+Testing
+
 # Build directory
 build/
+
+# Site directory
+site/gh-pages/
+
+# Doxygen
+Doxyfile
 
 # emacs
 auto-save-list

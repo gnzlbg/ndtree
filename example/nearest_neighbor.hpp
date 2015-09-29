@@ -13,10 +13,10 @@ namespace nearest_neighbor {
 /// import ndtree namespace
 using namespace ndtree;
 
-template <uint_t nd> using vec = std::array<num_t, nd>;  // num_t == double
+template <std::size_t nd> using vec = std::array<num_t, nd>;  // num_t == double
 
 /// Computes the distance between two points
-template <uint_t nd>  //
+template <std::size_t nd>  //
 num_t distance(vec<nd> a, vec<nd> b) noexcept {
   num_t d = 0;
   RANGES_FOR(auto&& p, ranges::view::zip(a, b)) {

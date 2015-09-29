@@ -4,6 +4,93 @@
 
 using namespace ndtree;
 
+template <
+ typename ValueType, typename OffsetType,
+ CONCEPT_REQUIRES_(UnsignedIntegral<ValueType>{}
+                   and bit::width<ValueType> == bit::width<OffsetType>)>
+void check_overflows_on_add() {
+  ValueType v0 = 0;
+  ValueType v1 = 1;
+  ValueType v2 = 2;
+  ValueType vm = std::numeric_limits<ValueType>::max();
+  OffsetType o0 = 0;
+  OffsetType o1 = 1;
+  OffsetType o2 = 2;
+  OffsetType om = std::numeric_limits<OffsetType>::max();
+
+  // zero offset:
+  CHECK(!bit::overflows_on_add(v0, v0));
+  CHECK(!bit::overflows_on_add(v0, o0));
+  CHECK(!bit::overflows_on_add(v1, v0));
+  CHECK(!bit::overflows_on_add(v1, o0));
+  CHECK(!bit::overflows_on_add(v2, v0));
+  CHECK(!bit::overflows_on_add(v2, o0));
+  CHECK(!bit::overflows_on_add(vm, v0));
+  CHECK(!bit::overflows_on_add(vm, o0));
+
+  // +1 offset:
+  CHECK(!bit::overflows_on_add(v0, v1));
+  CHECK(!bit::overflows_on_add(v0, o1));
+  CHECK(!bit::overflows_on_add(v1, v1));
+  CHECK(!bit::overflows_on_add(v1, o1));
+  CHECK(!bit::overflows_on_add(v2, v1));
+  CHECK(!bit::overflows_on_add(v2, o1));
+  CHECK(bit::overflows_on_add(vm, v1));
+  CHECK(bit::overflows_on_add(vm, o1));
+
+  // +2 offset
+  CHECK(!bit::overflows_on_add(v0, v2));
+  CHECK(!bit::overflows_on_add(v0, o2));
+  CHECK(!bit::overflows_on_add(v1, v2));
+  CHECK(!bit::overflows_on_add(v1, o2));
+  CHECK(!bit::overflows_on_add(v2, v2));
+  CHECK(!bit::overflows_on_add(v2, o2));
+  CHECK(bit::overflows_on_add(vm, v2));
+  CHECK(bit::overflows_on_add(vm, o2));
+
+  // +m offset
+  CHECK(!bit::overflows_on_add(v0, vm));
+  CHECK(!bit::overflows_on_add(v0, om));
+  CHECK(bit::overflows_on_add(v1, vm));
+  CHECK(bit::overflows_on_add(v2, vm));
+  CHECK(bit::overflows_on_add(vm, vm));
+  CHECK(bit::overflows_on_add(vm, om));
+  if (UnsignedIntegral<OffsetType>{}) {
+    CHECK(bit::overflows_on_add(v1, om));
+    CHECK(bit::overflows_on_add(v2, om));
+  } else {
+    CHECK(!bit::overflows_on_add(v1, om));
+    CHECK(!bit::overflows_on_add(v2, om));
+  }
+
+  // Overflow on substract checks
+  if (SignedIntegral<OffsetType>{}) {
+    // zero offset:
+    CHECK(!bit::overflows_on_add(v0, -o0));
+    CHECK(!bit::overflows_on_add(v1, -o0));
+    CHECK(!bit::overflows_on_add(v2, -o0));
+    CHECK(!bit::overflows_on_add(vm, -o0));
+
+    // -1 offset:
+    CHECK(bit::overflows_on_add(v0, -o1));
+    CHECK(!bit::overflows_on_add(v1, -o1));
+    CHECK(!bit::overflows_on_add(v2, -o1));
+    CHECK(!bit::overflows_on_add(vm, -o1));
+
+    // -2 offset
+    CHECK(bit::overflows_on_add(v0, -o2));
+    CHECK(bit::overflows_on_add(v1, -o2));
+    CHECK(!bit::overflows_on_add(v2, -o2));
+    CHECK(!bit::overflows_on_add(vm, -o2));
+
+    // -m offset
+    CHECK(bit::overflows_on_add(v0, -om));
+    CHECK(bit::overflows_on_add(v1, -om));
+    CHECK(bit::overflows_on_add(v2, -om));
+    CHECK(!bit::overflows_on_add(vm, -om));
+  }
+}
+
 int main() {
   uint_t a = 0;
   CHECK(bit::to_int(a) == a);
@@ -59,50 +146,12 @@ int main() {
   }
 
   {  // check overflows_on_add
-    uint_t v0 = 0;
-    uint_t v1 = 1;
-    uint_t v2 = 2;
-    uint_t vm1 = -1;
-    uint_t vm2 = -2;
-
-    CHECK(!bit::overflows_on_add(v0, 0));
-    CHECK(!bit::overflows_on_add(v1, 0));
-    CHECK(!bit::overflows_on_add(v2, 0));
-    CHECK(!bit::overflows_on_add(vm1, 0));
-    CHECK(!bit::overflows_on_add(vm2, 0));
-
-    CHECK(!bit::overflows_on_add(v0, 1));
-    CHECK(!bit::overflows_on_add(v0, 10));
-    CHECK(bit::overflows_on_add(v0, -1));
-    CHECK(bit::overflows_on_add(v1, -2));
-    CHECK(!bit::overflows_on_add(v0, std::numeric_limits<uint_t>::max() - 1_u));
-    CHECK(!bit::overflows_on_add(v0, std::numeric_limits<uint_t>::max()));
-
-    CHECK(!bit::overflows_on_add(v1, 1));
-    CHECK(!bit::overflows_on_add(v1, 10));
-    CHECK(!bit::overflows_on_add(v1, -1));
-    CHECK(bit::overflows_on_add(v1, -2));
-    CHECK(!bit::overflows_on_add(v1, std::numeric_limits<uint_t>::max() - 1_u));
-    CHECK(bit::overflows_on_add(v1, std::numeric_limits<uint_t>::max()));
-
-    CHECK(!bit::overflows_on_add(v2, 1));
-    CHECK(!bit::overflows_on_add(v2, 10));
-    CHECK(!bit::overflows_on_add(v2, -1));
-    CHECK(!bit::overflows_on_add(v2, -2));
-    CHECK(bit::overflows_on_add(v2, -3));
-    CHECK(bit::overflows_on_add(v2, std::numeric_limits<uint_t>::max() - 1_u));
-    CHECK(bit::overflows_on_add(v2, std::numeric_limits<uint_t>::max()));
-
-    CHECK(bit::overflows_on_add(vm1, 1));
-    CHECK(bit::overflows_on_add(vm1, 10));
-    CHECK(bit::overflows_on_add(vm1, std::numeric_limits<uint_t>::max() - 1_u));
-    CHECK(bit::overflows_on_add(vm1, std::numeric_limits<uint_t>::max()));
-
-    CHECK(!bit::overflows_on_add(vm2, 1));
-    CHECK(bit::overflows_on_add(vm2, 10));
-    CHECK(bit::overflows_on_add(vm2, std::numeric_limits<uint_t>::max() - 1_u));
-    CHECK(bit::overflows_on_add(vm2, std::numeric_limits<uint_t>::max()));
+    check_overflows_on_add<uint32_t, uint32_t>();
+    check_overflows_on_add<uint32_t, int32_t>();
+    check_overflows_on_add<uint64_t, uint64_t>();
+    check_overflows_on_add<uint64_t, int64_t>();
+    check_overflows_on_add<unsigned int, unsigned int>();
+    check_overflows_on_add<unsigned int, int>();
   }
-
   return test::result();
 }
